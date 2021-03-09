@@ -1,8 +1,17 @@
 import numpy as np
 import random
+from enum import Enum, IntEnum
 
 
 # sets general layout of grid in hexagonal format
+class Elements(Enum):
+    EXIT_ONE = 0
+    EXIT_TWO = 1
+    EXIT_THREE = 3
+    RIVER = 5
+    BOULDER = 7
+    TREE = 9
+
 
 def boundaries(local_exit, exit_type, grid):
     r = local_exit[0]

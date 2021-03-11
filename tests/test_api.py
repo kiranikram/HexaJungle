@@ -1,7 +1,6 @@
 import math
 import pytest
 
-from jungle import agent
 from jungle.agent import Agent
 from jungle.utils import Definitions, Actions
 
@@ -12,8 +11,8 @@ EmptyJungle = baseline_env.JungleGrid
 
 
 def test_rl_loop():
-    agent_1 = agent.Agent(range=4)
-    agent_2 = agent.Agent(range=6)
+    agent_1 = Agent(range=4)
+    agent_2 = Agent(range=6)
 
     simple_jungle = EmptyJungle(size=11)
     assert simple_jungle.size == 11

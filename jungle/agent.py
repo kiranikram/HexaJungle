@@ -1,4 +1,4 @@
-from utils import Actions, Definitions
+from jungle.utils import Actions, Definitions
 
 
 class Agent:

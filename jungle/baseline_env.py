@@ -1,9 +1,14 @@
 import numpy as np
 import random
 from enum import Enum, IntEnum
-from utils import Definitions
-import agent
 
+# Always ue complete imports
+from jungle.utils import Definitions
+
+# You can do it like this:
+# import jungle.agent as agent
+# or like this:
+from jungle.agent import Agent, Actions
 
 # sets general layout of grid in hexagonal format
 class Elements(Enum):
@@ -77,9 +82,9 @@ def set_exits(grid, exits):
 
     return grid
 
-
-agent_1 = agent.Agent(4,4,2,1)
-agent_2 = agent.Agent(3,2,0,4)
+# why do you define them here?
+agent_1 = Agent(4,4,2,1)
+agent_2 = Agent(3,2,0,4)
 
 
 class JungleGrid:

@@ -1,14 +1,19 @@
 import math
 import pytest
 
-from jungle import Agent, EmptyJungle
+from jungle import agent
+from jungle.agent import Agent
 from jungle.utils import Definitions, Actions
+
+from jungle import baseline_env
+
+EmptyJungle = baseline_env.JungleGrid
+
 
 
 def test_rl_loop():
-
-    agent_1 = Agent(range=4)
-    agent_2 = Agent(range=6)
+    agent_1 = agent.Agent(range=4)
+    agent_2 = agent.Agent(range=6)
 
     simple_jungle = EmptyJungle(size=11)
     assert simple_jungle.size == 11
@@ -35,7 +40,6 @@ def test_rl_loop():
 
 
 def check_corners(envir):
-
     # Verify that all corners have the same shape
     # cells are identified using np coordinates
 
@@ -50,11 +54,10 @@ def check_corners(envir):
     # Top-right corner
     assert envir.cell_type(0, envir.size) == Definitions.OBSTACLE
     ...
-    #TODO: write for each corner
+    # TODO: write for each corner
 
 
 def test_environment_building():
-
     for size_envir in range(1, 20):
 
         # Check that pair size_envir raise error
@@ -72,18 +75,16 @@ def test_environment_building():
 
 
 def test_initialization():
-
     agent_1 = Agent(range=4)
     agent_2 = Agent(range=4)
 
     for size_envir in [11, 13, 15]:
-
         simple_jungle = EmptyJungle(size=size_envir)
         simple_jungle.add_agents(agent_1, agent_2)
 
         # grid_position should be in np coordinates (row, col)
-        assert agent_1.grid_position == ((size_envir-1)/2, (size_envir-1)/2 - 1)
-        assert agent_2.grid_position == ((size_envir-1)/2, (size_envir-1)/2 + 1)
+        assert agent_1.grid_position == ((size_envir - 1) / 2, (size_envir - 1) / 2 - 1)
+        assert agent_2.grid_position == ((size_envir - 1) / 2, (size_envir - 1) / 2 + 1)
 
         # angle is index of trigonometric angle (0, 1, ... to 5)
         assert agent_1.angle == 3
@@ -93,14 +94,13 @@ def test_initialization():
 
         # on middle line, indented so +0.5
         assert agent_1.x == agent_1.grid_position[1] + 0.5
-        assert agent_1.y == (size_envir-1 - agent_1.grid_position[0]) * math.sqrt(3) / 2
+        assert agent_1.y == (size_envir - 1 - agent_1.grid_position[0]) * math.sqrt(3) / 2
 
         assert agent_2.x == agent_2.grid_position[1] + 0.5
-        assert agent_2.y == (size_envir-1 - agent_2.grid_position[0]) * math.sqrt(3) / 2
+        assert agent_2.y == (size_envir - 1 - agent_2.grid_position[0]) * math.sqrt(3) / 2
 
 
 def test_movements():
-
     agent_1 = Agent(range=4)
     agent_2 = Agent(range=6)
 
@@ -131,7 +131,7 @@ def test_movements():
 
     # Check new cartesian coordinates
     assert agent_1.x == agent_1.grid_position[1]
-    assert agent_1.y == ((simple_jungle.size-1) - agent_1.grid_position[0]) * math.sqrt(3) / 2
+    assert agent_1.y == ((simple_jungle.size - 1) - agent_1.grid_position[0]) * math.sqrt(3) / 2
 
     assert agent_2.x == agent_2.grid_position[1]
     assert agent_2.y == ((simple_jungle.size - 1) - agent_2.grid_position[0]) * math.sqrt(3) / 2

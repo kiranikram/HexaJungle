@@ -1,6 +1,8 @@
 import numpy as np
 import random
 from enum import Enum, IntEnum
+from utils import Definitions
+import agent
 
 
 # sets general layout of grid in hexagonal format
@@ -54,6 +56,7 @@ def set_centroids(grid, exits):
             elif c == 0:
                 exits.append([r, c])
 
+
     return exits
 
 
@@ -75,22 +78,57 @@ def set_exits(grid, exits):
     return grid
 
 
+agent_1 = agent.Agent(4,4,2,1)
+agent_2 = agent.Agent(3,2,0,4)
+
+
 class JungleGrid:
 
-    def __init__(self, height, width):
-        self.height = height
-        self.width = width
+    def __init__(self, size):
+        self.size = size
         self.exits = []
-
-        self.env = np.zeros((self.height, self.width), dtype=int)
-
-        self.exits = set_centroids(self.env, self.exits)
-
-        self.env = set_exits(self.env, self.exits)
+        self.grid_env = np.zeros((self.size, self.size), dtype=int)
+        self.exits = set_centroids(self.grid_env, self.exits)
+        self.grid_env = set_exits(self.grid_env, self.exits)
+        self.ip_agent_1_r, self.ip_agent_1_c = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
+        self.ip_agent_2_r, self.ip_agent_2_c = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
+        self.obs = {'agent_1': [0, 0], 'agent_2': [0, 0]}
+        self.rew = {'agent_1': -5, 'agent_2': -5}
 
     def env(self):
-        return self.env
+
+        return self.grid_env
+
+    def add_agents(self, agent_1, agent_2):
+        if random.random() > 0.5:
+            agent_1.color = Definitions.WHITE
+        else:
+            agent_2.color = Definitions.WHITE
+
+            agent_1.grid_position = self.ip_agent_1_r, self.ip_agent_1_c
+            agent_2.grid_position = self.ip_agent_2_r, self.ip_agent_2_c
+
+    def step(self, actions):
+        for agent in actions:
+            agent.apply_actions(actions[agent])
+
+        # get both agent's grid position
+        # one may reach an exit x timesteps before the other.
+        # upon reaching exit agent stops playing and waits for other agent
+
+        done = self.both_exited()
+
+        self.obs = self.generate_agent_obs()
+
+        return self.obs, self.rew, done
+
+    def both_exited(self):
+        if agent_1.grid_position and agent_2.grid_position in self.exits:
+            return True
+
+    def generate_agent_obs(self):
+        return self.obs
 
 
-jungle = JungleGrid(11, 11)
+jungle = JungleGrid(11)
 print(jungle.env)

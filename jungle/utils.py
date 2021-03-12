@@ -15,10 +15,19 @@ class Definitions(Enum):
     WHITE = 1
 
 
-class Actions(IntEnum):
+# ref to test available actions
+class C_Actions(IntEnum):
     KeepOrientation = 0
     RotateLeft = 1
     RotateRight = -1
     MoveForward = 2
     StandStill = 3
     Climb = 4
+
+Forward = [1,0]
+Rotate = [-1,0, 1]
+
+
+
+
+

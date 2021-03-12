@@ -9,10 +9,9 @@ from jungle import baseline_env
 EmptyJungle = baseline_env.JungleGrid
 
 
-
 def test_rl_loop():
-    agent_1 = Agent(range=4)
-    agent_2 = Agent(range=6)
+    agent_1 = Agent(initial_r=None, initial_c=None, angle=None, range=4)
+    agent_2 = Agent(initial_r=None, initial_c=None, angle=None, range=6)
 
     simple_jungle = EmptyJungle(size=11)
     assert simple_jungle.size == 11

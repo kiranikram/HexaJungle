@@ -10,6 +10,7 @@ from jungle.utils import Definitions
 # or like this:
 from jungle.agent import Agent, Actions
 
+
 # sets general layout of grid in hexagonal format
 class Elements(Enum):
     EXIT_ONE = 0
@@ -61,7 +62,6 @@ def set_centroids(grid, exits):
             elif c == 0:
                 exits.append([r, c])
 
-
     return exits
 
 
@@ -82,9 +82,10 @@ def set_exits(grid, exits):
 
     return grid
 
+
 # why do you define them here?
-agent_1 = Agent(4,4,2,1)
-agent_2 = Agent(3,2,0,4)
+agent_1 = Agent(4, 4, 2, 1)
+agent_2 = Agent(3, 2, 0, 4)
 
 
 class JungleGrid:
@@ -97,11 +98,12 @@ class JungleGrid:
         self.grid_env = set_exits(self.grid_env, self.exits)
         self.ip_agent_1_r, self.ip_agent_1_c = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
         self.ip_agent_2_r, self.ip_agent_2_c = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
-        self.obs = {'agent_1': [0, 0], 'agent_2': [0, 0]}
-        self.rew = {'agent_1': -5, 'agent_2': -5}
+        # TODO replace this placeholder with actual
+        self.obs = {agent_1: {'field': 0, 'depth': 0}, agent_2: {'field': 0, 'depth': 0}}
+        # TODO replace this placeholder with actual
+        self.rew = {agent_1: {'field': 0, 'depth': 0}, agent_2: {'field': 0, 'depth': 0}}
 
     def env(self):
-
         return self.grid_env
 
     def add_agents(self, agent_1, agent_2):
@@ -116,6 +118,7 @@ class JungleGrid:
     def step(self, actions):
         for agent in actions:
             agent.apply_actions(actions[agent])
+            print(agent)
 
         # get both agent's grid position
         # one may reach an exit x timesteps before the other.
@@ -135,5 +138,6 @@ class JungleGrid:
         return self.obs
 
 
-jungle = JungleGrid(11)
-print(jungle.env)
+
+
+

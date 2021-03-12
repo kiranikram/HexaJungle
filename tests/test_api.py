@@ -2,7 +2,7 @@ import math
 import pytest
 
 from jungle.agent import Agent
-from jungle.utils import Definitions, Actions
+from jungle.utils import Actions, Definitions, ElementsEnv
 
 from jungle import baseline_env
 
@@ -19,8 +19,8 @@ def test_rl_loop():
     simple_jungle.add_agents(agent_1, agent_2)
 
     # Once added, each agent randomly takes a color for the game
-    assert agent_1.color is Definitions.BLACK or agent_2.color is Definitions.BLACK
-    assert agent_1.color is Definitions.WHITE or agent_2.color is Definitions.WHITE
+    assert (agent_1.color is Definitions.BLACK and agent_2.color is Definitions.WHITE)\
+            or (agent_1.color is Definitions.WHITE and agent_2.color is Definitions.BLACK)
 
     actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1},
                agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0}
@@ -42,16 +42,15 @@ def check_corners(envir):
     # cells are identified using np coordinates
 
     # Top-left corner
-    assert envir.cell_type(0, 0) == Definitions.OBSTACLE
-    assert envir.cell_type(0, 1) == Definitions.OBSTACLE
-    assert envir.cell_type(0, 2) == Definitions.OBSTACLE
-    assert envir.cell_type(1, 0) == Definitions.OBSTACLE
-    assert envir.cell_type(2, 1) == Definitions.OBSTACLE
-    assert envir.cell_type(1, 1) == Definitions.EXIT
+    assert envir.cell_type(0, 0) == ElementsEnv.OBSTACLE
+    assert envir.cell_type(0, 1) == ElementsEnv.OBSTACLE
+    assert envir.cell_type(0, 2) == ElementsEnv.OBSTACLE
+    assert envir.cell_type(1, 0) == ElementsEnv.OBSTACLE
+    assert envir.cell_type(2, 1) == ElementsEnv.OBSTACLE
+    assert envir.cell_type(1, 1) == ElementsEnv.EXIT
 
     # Top-right corner
-    assert envir.cell_type(0, envir.size) == Definitions.OBSTACLE
-    ...
+    assert envir.cell_type(0, envir.size) == ElementsEnv.OBSTACLE
     # TODO: write for each corner
 
 

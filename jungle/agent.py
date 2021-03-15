@@ -4,7 +4,7 @@ from jungle.utils_agent import Actions
 
 class Agent:
 
-    def __init__(self, initial_r, initial_c, angle, range):
+    def __init__(self, range):
         """Agent base class
         default color is black
         """
@@ -22,12 +22,13 @@ class Agent:
         self.grid_position = None
 
         #self.initial_position = None
-        self.angle = angle
+        self.angle = None
         self.range = range
 
     # Not sure that you need a property for grid_position
-    @property
+    #@property
     def grid_position(self):
+        print(self._r, self._c)
         return self._r, self._c
 
     # property for angle can be a good idea, because in the setter you can make sure that
@@ -82,6 +83,4 @@ class Agent:
     def angle(self, value):
         self._angle = value
 
-    @grid_position.setter
-    def grid_position(self, value):
-        self._grid_position = value
+

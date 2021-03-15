@@ -24,6 +24,7 @@ class ElementsEnv(Enum):
 class Definitions(Enum):
     BLACK = 0
     WHITE = 1
+    MIN_SIZE_ENVIR = 5
 
 # Quite sure ou don't need that. see later.
 # ref to test available actions

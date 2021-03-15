@@ -112,10 +112,6 @@ class JungleGrid:
         self.agent_white = None
         self.agent_black = None
 
-    # Why do you need that ?
-    # def env(self):
-    #     return self.grid_env
-
     def place_obstacles(self):
 
         # place outside walls
@@ -128,8 +124,8 @@ class JungleGrid:
         self.grid_env[-1, :] = ElementsEnv.OBSTACLE.value
 
         # add corners
-        self.grid_env[2,1] = ElementsEnv.OBSTACLE.value
-        self.grid_env[self.size-3, self.size-2] = ElementsEnv.OBSTACLE.value
+        self.grid_env[2, 1] = ElementsEnv.OBSTACLE.value
+        self.grid_env[self.size - 3, self.size - 2] = ElementsEnv.OBSTACLE.value
 
         # place exits
         # TODO: set function that randomly determines exits
@@ -154,16 +150,38 @@ class JungleGrid:
         if random.random() > 0.5:
             self.agent_black = agent_1
             self.agent_white = agent_2
+
+            
+
+            # need better way of setting these
+            self.agent_black.angle = 3
+            self.agent_white.angle = 0
+
+            self.agent_black.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
+            self.agent_white.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
+
+
         else:
             self.agent_black = agent_2
             self.agent_white = agent_1
+
+            self.agent_black.angle = 0
+            self.agent_white.angle = 3
+
+            self.agent_black.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
+            self.agent_white.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
+
+
 
         self.agent_black.color = Definitions.BLACK
         self.agent_white.color = Definitions.WHITE
 
         # That's where you initialize the positions
-        self.agent_black.grid_position = self.get_black_starting()
-        self.agent_white.grid_position = self.get_white_starting()
+        #self.agent_black.grid_position =
+
+
+        #self.agent_white.grid_position =
+
 
     def step(self, actions):
 
@@ -213,13 +231,29 @@ class JungleGrid:
     def generate_agent_obs(self):
         return {self.agent_black: None, self.agent_white: None}
 
-    def get_black_starting(self):
-        r, c = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
+    # ignore fgor now
+    def get_black_starting(self,agent):
+        r, c = 0, 0
+        print('agent' , agent)
+            #print('black one')
+            #r, c = (self.size - 1) / 2, (self.size - 1) / 2 - 1
+        #elif 'agent' == 'agent_2':
+            #print('black two ')
+            #r, c = (self.size - 1) / 2, (self.size - 1) / 2 + 1
+
+        #return r, c
+
+    # ignore for now
+    def get_white_starting(self, agent):
+        r, c = 0, 0
+        if 'agent' == 'agent_1':
+            print('white one')
+            r, c = (self.size - 1) / 2, (self.size - 1) / 2 - 1
+        elif 'agent' == 'agent_2':
+            print('white two ')
+            r, c = (self.size - 1) / 2, (self.size - 1) / 2 + 1
+
         return r, c
 
-    def get_white_starting(self):
-        r, c = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
-        return r, c
-
-    def cell_type(self,x,y):
-        return self.grid_env[x,y]
+    def cell_type(self, x, y):
+        return self.grid_env[x, y]

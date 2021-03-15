@@ -121,7 +121,29 @@ class JungleGrid:
         # place outside walls
 
         # That's where these definitions are convenient
+        # place outside walls
         self.grid_env[:, 0] = ElementsEnv.OBSTACLE.value
+        self.grid_env[:, -1] = ElementsEnv.OBSTACLE.value
+        self.grid_env[0, :] = ElementsEnv.OBSTACLE.value
+        self.grid_env[-1, :] = ElementsEnv.OBSTACLE.value
+
+        # add corners
+        self.grid_env[2,1] = ElementsEnv.OBSTACLE.value
+        self.grid_env[self.size-3, self.size-2] = ElementsEnv.OBSTACLE.value
+
+        # place exits
+        # TODO: set function that randomly determines exits
+        self.grid_env[1, 1] = ElementsEnv.FREE_EXIT.value
+        self.grid_env[1, self.size - 2] = ElementsEnv.RIVER_EXIT.value
+        self.grid_env[self.size - 2, 1] = ElementsEnv.BOULDER_EXIT.value
+
+        # place unique obstacles
+        self.grid_env[self.size - 3, 1] = ElementsEnv.BOULDER.value
+        self.grid_env[self.size - 2, 2] = ElementsEnv.BOULDER.value
+
+        self.grid_env[1, self.size - 3] = ElementsEnv.RIVER.value
+        self.grid_env[2, self.size - 2] = ElementsEnv.RIVER.value
+
         # you have to do all the others
 
         # place additional obstacles so that all corners have the same shape.
@@ -185,7 +207,7 @@ class JungleGrid:
         #    return True
 
         # For now, this is sufficient to pass the tests.
-        done = {self.agent_black:False, self.agent_white :False}
+        done = {self.agent_black: False, self.agent_white: False}
         return done
 
     def generate_agent_obs(self):
@@ -196,5 +218,8 @@ class JungleGrid:
         return r, c
 
     def get_white_starting(self):
-        r , c = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
+        r, c = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
         return r, c
+
+    def cell_type(self,x,y):
+        return self.grid_env[x,y]

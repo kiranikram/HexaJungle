@@ -8,9 +8,13 @@ class ElementsEnv(Enum):
 
     # you should give more meaningful names to exits.
     # e.g EXIT_HIGH_REWARD, EXIT_MIDDLE_REWARD, EXIT_LOW_REWARD, EXIT_WHITE, EXIT_BLACK
-    EXIT_ONE = auto()
-    EXIT_TWO = auto()
-    EXIT_THREE = auto()
+
+    # each exit has a specific type of reward property, based on exit type eg rivers requires
+    # cooperation as they both need to have picked up logs
+
+    FREE_EXIT = auto()
+    RIVER_EXIT = auto()
+    BOULDER_EXIT = auto()
     RIVER = auto()
     BOULDER = auto()
     TREE = auto()

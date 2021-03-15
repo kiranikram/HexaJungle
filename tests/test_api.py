@@ -1,5 +1,6 @@
 import math
 import pytest
+import nose
 
 from jungle.agent import Agent
 from jungle.utils import Actions, Definitions, ElementsEnv
@@ -37,21 +38,45 @@ def test_rl_loop():
     assert not done[agent_1] and not done[agent_2]
 
 
-def check_corners(envir):
+def test_check_corners():
     # Verify that all corners have the same shape
-    # cells are identified using np coordinates
+    # cells are identified using np coordinates\
+    simple_jungle = EmptyJungle(size=11)
+    envir = simple_jungle
 
     # Top-left corner
-    assert envir.cell_type(0, 0) == ElementsEnv.OBSTACLE
-    assert envir.cell_type(0, 1) == ElementsEnv.OBSTACLE
-    assert envir.cell_type(0, 2) == ElementsEnv.OBSTACLE
-    assert envir.cell_type(1, 0) == ElementsEnv.OBSTACLE
-    assert envir.cell_type(2, 1) == ElementsEnv.OBSTACLE
-    assert envir.cell_type(1, 1) == ElementsEnv.EXIT
+    assert envir.cell_type(0, 0) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(0, 1) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(0, 2) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(1, 0) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(2, 1) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(1, 1) == ElementsEnv.FREE_EXIT.value
 
     # Top-right corner
-    assert envir.cell_type(0, envir.size) == ElementsEnv.OBSTACLE
-    # TODO: write for each corner
+    assert envir.cell_type(0, envir.size-1) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(0, envir.size-2) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(0, envir.size-3) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(1, envir.size-1) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(1, envir.size-3) == ElementsEnv.RIVER.value
+    assert envir.cell_type(1, envir.size-2) == ElementsEnv.RIVER_EXIT.value
+
+    # Bottom-right corner
+    # no exits
+    assert envir.cell_type(envir.size - 1, envir.size - 1) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 1, envir.size - 2) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 2, envir.size - 1) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 3, envir.size - 2) == ElementsEnv.OBSTACLE.value
+
+    # Bottom-left corner
+
+    assert envir.cell_type(envir.size - 1, 0) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 1, 1) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 2, 0) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 2, 1) == ElementsEnv.BOULDER_EXIT.value
+    assert envir.cell_type(envir.size - 3,1) == ElementsEnv.BOULDER.value
+    assert envir.cell_type(envir.size - 2,2) == ElementsEnv.BOULDER.value
+
+
 
 
 def test_environment_building():

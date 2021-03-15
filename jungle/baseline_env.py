@@ -11,17 +11,6 @@ from jungle.utils import ElementsEnv, Actions, Definitions
 from jungle.agent import Agent
 
 
-# sets general layout of grid in hexagonal format
-# do't need that, it is in the definition
-# class Elements(Enum):
-#     EXIT_ONE = 0
-#     EXIT_TWO = 1
-#     EXIT_THREE = 3
-#     RIVER = 5
-#     BOULDER = 7
-#     TREE = 9
-
-
 # For now, you don't need that:
 # def boundaries(local_exit, exit_type, grid):
 #     r = local_exit[0]
@@ -100,17 +89,17 @@ class JungleGrid:
             raise ValueError('size should be an odd number')
 
         # Don't need that for now
-        #self.exits = []
+        # self.exits = []
 
         self.grid_env = np.zeros((self.size, self.size), dtype=int)
         self.place_obstacles()
 
-        #self.exits = set_centroids(self.grid_env, self.exits)
-        #self.grid_env = set_exits(self.grid_env, self.exits)
+        # self.exits = set_centroids(self.grid_env, self.exits)
+        # self.grid_env = set_exits(self.grid_env, self.exits)
 
         # You don't need this here, you can move that directly to add_agents
-        #self.ip_agent_1_r, self.ip_agent_1_c = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
-        #self.ip_agent_2_r, self.ip_agent_2_c = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
+        # self.ip_agent_1_r, self.ip_agent_1_c = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
+        # self.ip_agent_2_r, self.ip_agent_2_c = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
 
         # You don't need that here, you can create the observations in the step loop.
         # so you don't need attributes
@@ -151,11 +140,10 @@ class JungleGrid:
         self.agent_white.color = Definitions.WHITE
 
         # That's where you initialize the positions
-        self.agent_black.grid_position =  ...
-        self.agent_white.grid_position =  ...
+        self.agent_black.grid_position = self.get_black_starting()
+        self.agent_white.grid_position = self.get_white_starting()
 
     def step(self, actions):
-
 
         # because you pass objects (agents), you can make that much more simple
         # for agent in actions:
@@ -169,7 +157,7 @@ class JungleGrid:
         # For now, we don't need observations and rewards, so we will just return dummies
         # Later, we will replace it by the correct rewards and observations
         # but before that we will write tests about it.
-        rew = {self.agent_black: 0, self.agent_white: 0}
+        rew = {self.agent_black: 0.0, self.agent_white: 0.0}
 
         # From the point of view of the policy that each 'brain' will work,
         # do you need to know when a single agent has terminated?
@@ -193,17 +181,20 @@ class JungleGrid:
         # later, with more tests, you would need to check for obstacles, other agents, etc...
 
     def both_exited(self):
-        #if agent_1.grid_position and agent_2.grid_position in self.exits:
+        # if agent_1.grid_position and agent_2.grid_position in self.exits:
         #    return True
 
         # For now, this is sufficient to pass the tests.
-        return False
+        done = {self.agent_black:False, self.agent_white :False}
+        return done
 
     def generate_agent_obs(self):
         return {self.agent_black: None, self.agent_white: None}
 
+    def get_black_starting(self):
+        r, c = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
+        return r, c
 
-
-
-
-
+    def get_white_starting(self):
+        r , c = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
+        return r, c

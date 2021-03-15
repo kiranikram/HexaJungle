@@ -14,7 +14,7 @@ class Agent:
         # Don't set default color, set it to None.
         # It is assigned when the agent enters an environment.
         # That way you can check that colors have been correctly asigned.
-        # self.color = Definitions.BLACK
+
         self.color = None
 
         # Same for the position

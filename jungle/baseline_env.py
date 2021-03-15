@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import math
 from enum import Enum, IntEnum
 
 # Always ue complete imports
@@ -151,14 +152,18 @@ class JungleGrid:
             self.agent_black = agent_1
             self.agent_white = agent_2
 
-            
-
             # need better way of setting these
             self.agent_black.angle = 3
             self.agent_white.angle = 0
 
             self.agent_black.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
             self.agent_white.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
+
+            self.agent_black.x = self.agent_black.grid_position[1] + 0.5
+            self.agent_black.y = (self.size - 1 - agent_1.grid_position[0]) * math.sqrt(3) / 2
+            self.agent_white.x = self.agent_white.grid_position[1] + 0.5
+            self.agent_white.y = (self.size - 1 - agent_2.grid_position[0]) * math.sqrt(3) / 2
+
 
 
         else:
@@ -171,17 +176,18 @@ class JungleGrid:
             self.agent_black.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
             self.agent_white.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
 
-
+            self.agent_black.x = self.agent_black.grid_position[1] + 0.5
+            self.agent_black.y = (self.size - 1 - agent_2.grid_position[0]) * math.sqrt(3) / 2
+            self.agent_white.x = self.agent_white.grid_position[1] + 0.5
+            self.agent_white.y = (self.size - 1 - agent_1.grid_position[0]) * math.sqrt(3) / 2
 
         self.agent_black.color = Definitions.BLACK
         self.agent_white.color = Definitions.WHITE
 
         # That's where you initialize the positions
-        #self.agent_black.grid_position =
+        # self.agent_black.grid_position =
 
-
-        #self.agent_white.grid_position =
-
+        # self.agent_white.grid_position =
 
     def step(self, actions):
 
@@ -232,16 +238,16 @@ class JungleGrid:
         return {self.agent_black: None, self.agent_white: None}
 
     # ignore fgor now
-    def get_black_starting(self,agent):
+    def get_black_starting(self, agent):
         r, c = 0, 0
-        print('agent' , agent)
-            #print('black one')
-            #r, c = (self.size - 1) / 2, (self.size - 1) / 2 - 1
-        #elif 'agent' == 'agent_2':
-            #print('black two ')
-            #r, c = (self.size - 1) / 2, (self.size - 1) / 2 + 1
+        print('agent', agent)
+        # print('black one')
+        # r, c = (self.size - 1) / 2, (self.size - 1) / 2 - 1
+        # elif 'agent' == 'agent_2':
+        # print('black two ')
+        # r, c = (self.size - 1) / 2, (self.size - 1) / 2 + 1
 
-        #return r, c
+        # return r, c
 
     # ignore for now
     def get_white_starting(self, agent):

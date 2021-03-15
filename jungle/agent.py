@@ -24,18 +24,20 @@ class Agent:
         #self.initial_position = None
         self.angle = None
         self.range = range
+        self.x = None
+        self.y = None
 
     # Not sure that you need a property for grid_position
     #@property
     def grid_position(self):
-        print(self._r, self._c)
+
         return self._r, self._c
 
     # property for angle can be a good idea, because in the setter you can make sure that
     # when you set an angle > 5 it looks back to 0.
-    @property
-    def angle(self):
-        return self.angle
+    #@property
+    #def angle(self):
+        #return self.angle
 
     # All the following things need knowledge about the surrounding, so it is better to define them in the Environment
     # Rather than the agent
@@ -79,8 +81,8 @@ class Agent:
     #
     #         return row_new, col_new
 
-    @angle.setter
-    def angle(self, value):
-        self._angle = value
+    #@angle.setter
+    #def angle(self, value):
+        #self._angle = value
 
 

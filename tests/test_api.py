@@ -116,11 +116,11 @@ def test_initialization():
         # Cartesian coordinates have unit 1.
 
         # on middle line, indented so +0.5
-        #assert agent_1.x == agent_1.grid_position[1] + 0.5
-        #assert agent_1.y == (size_envir - 1 - agent_1.grid_position[0]) * math.sqrt(3) / 2
+        assert agent_1.x == agent_1.grid_position[1] + 0.5
+        assert agent_1.y == (size_envir - 1 - agent_1.grid_position[0]) * math.sqrt(3) / 2
 
-        #assert agent_2.x == agent_2.grid_position[1] + 0.5
-        #assert agent_2.y == (size_envir - 1 - agent_2.grid_position[0]) * math.sqrt(3) / 2
+        assert agent_2.x == agent_2.grid_position[1] + 0.5
+        assert agent_2.y == (size_envir - 1 - agent_2.grid_position[0]) * math.sqrt(3) / 2
 
 
 def test_movements():

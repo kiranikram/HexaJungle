@@ -197,8 +197,10 @@ class JungleGrid:
         #     print(agent)
 
         # Apply physical actions, White starts
+
         self.agent_white.grid_position, self.agent_white.angle = self.apply_action(self.agent_white, actions)
-        self.agent_white.grid_position, self.agent_white.angle = self.apply_action(self.agent_black, actions)
+
+        self.agent_black.grid_position, self.agent_black.angle = self.apply_action(self.agent_black, actions)
 
         # For now, we don't need observations and rewards, so we will just return dummies
         # Later, we will replace it by the correct rewards and observations
@@ -215,21 +217,25 @@ class JungleGrid:
 
         return obs, rew, done
 
-    def apply_action(self, agent, actions ):
-        row , col = agent.grid_position
+    def apply_action(self, agent, actions):
+
+        # assuming moves forward first, then changes angle
+
+        row, col = agent.grid_position
         angle = agent.angle
 
         agent_actions = actions[agent]
 
-        rotation = agent_actions[Actions.ROTATE]
-        agent.angle = angle + rotation
-        #agent.angle = 0
+        # agent.angle = 0
 
         movement_forward = agent_actions[Actions.ROTATE]
         if movement_forward != 0:
-            r , c = self.get_proximal_coordinate(row,col,agent.angle)
+            r, c = self.get_proximal_coordinate(row, col, agent.angle)
 
         agent.grid_position = r, c
+
+        rotation = agent_actions[Actions.ROTATE]
+        agent.angle = (angle + rotation) % 6
 
         # for now, to pass the test, you only need to move forward.
         # later, with more tests, you would need to check for obstacles, other agents, etc...
@@ -241,21 +247,21 @@ class JungleGrid:
         row_new, col_new = row, col
 
         if angle == 0:
-            col_new += 1
+            row_new -= 2
         elif angle == 1:
             row_new -= 1
-            col_new += row % 2
+            col_new += 1
         elif angle == 2:
-            row_new -= 1
-            col_new += row % 2 - 1
+            row_new += 1
+            col_new += 1
         elif angle == 3:
-            col_new -= 1
+            row_new += 2
         elif angle == 4:
             row_new += 1
-            col_new += row % 2 - 1
+            col_new += - 1
         else:
-            row_new += 1
-            col_new += row % 2
+            row_new -= 1
+            col_new -= 1
 
         return row_new, col_new
 

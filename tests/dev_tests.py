@@ -9,6 +9,41 @@ from jungle import baseline_env
 
 EmptyJungle = baseline_env.JungleGrid
 
+def test_movements():
+    agent_1 = Agent(range=4)
+    agent_2 = Agent(range=6)
+
+    simple_jungle = EmptyJungle(size=11)
+
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    # grid_position should be in np coordinates (row, col, angle)
+    assert agent_1.grid_position == (5, 4)
+    assert agent_1.angle == 3
+
+    assert agent_2.grid_position == (5, 6)
+    assert agent_2.angle == 0
+
+    # First rotation, then forward, but the order in the actions dict doesn't matter.
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 1},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: -1}
+               }
+
+    obs, rew, done = simple_jungle.step(actions)
+
+    # Check new positions on grid
+    assert agent_1.grid_position == (7, 4)
+    assert agent_1.angle == 4
+
+    assert agent_2.grid_position == (3, 6)
+    assert agent_2.angle == 5
+
+    # Check new cartesian coordinates
+    #ssert agent_1.x == agent_1.grid_position[1]
+    #assert agent_1.y == ((simple_jungle.size - 1) - agent_1.grid_position[0]) * math.sqrt(3) / 2
+
+    #assert agent_2.x == agent_2.grid_position[1]
+    #assert agent_2.y == ((simple_jungle.size - 1) - agent_2.grid_position[0]) * math.sqrt(3) / 2
 
 def test_move_to_tree():
     agent_1 = Agent(range=4)

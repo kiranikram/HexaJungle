@@ -159,10 +159,7 @@ class JungleGrid:
             self.agent_black.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
             self.agent_white.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
 
-            self.agent_black.x = self.agent_black.grid_position[1] + 0.5
-            self.agent_black.y = (self.size - 1 - agent_1.grid_position[0]) * math.sqrt(3) / 2
-            self.agent_white.x = self.agent_white.grid_position[1] + 0.5
-            self.agent_white.y = (self.size - 1 - agent_2.grid_position[0]) * math.sqrt(3) / 2
+            
 
 
 
@@ -176,13 +173,13 @@ class JungleGrid:
             self.agent_black.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
             self.agent_white.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
 
-            self.agent_black.x = self.agent_black.grid_position[1] + 0.5
-            self.agent_black.y = (self.size - 1 - agent_2.grid_position[0]) * math.sqrt(3) / 2
-            self.agent_white.x = self.agent_white.grid_position[1] + 0.5
-            self.agent_white.y = (self.size - 1 - agent_1.grid_position[0]) * math.sqrt(3) / 2
+
 
         self.agent_black.color = Definitions.BLACK
         self.agent_white.color = Definitions.WHITE
+
+        self.agent_black.x, self.agent_black.y = self.update_cartesian(self.agent_black)
+        self.agent_white.x, self.agent_white.y = self.update_cartesian(self.agent_white)
 
         # That's where you initialize the positions
         # self.agent_black.grid_position =
@@ -215,6 +212,9 @@ class JungleGrid:
         # self.obs = self.generate_agent_obs()
         obs = self.generate_agent_obs()
 
+        self.agent_black.x, self.agent_black.y = self.update_cartesian(self.agent_black)
+        self.agent_white.x, self.agent_white.y = self.update_cartesian(self.agent_white)
+
         return obs, rew, done
 
     def apply_action(self, agent, actions):
@@ -239,6 +239,8 @@ class JungleGrid:
 
         # for now, to pass the test, you only need to move forward.
         # later, with more tests, you would need to check for obstacles, other agents, etc...
+
+
 
         return agent.grid_position, agent.angle
 
@@ -304,4 +306,11 @@ class JungleGrid:
         return self.grid_env[x, y]
 
     def add_obstacles(self):
+
         pass
+
+    def update_cartesian(self, agent):
+        x = agent.grid_position[1] + 0.5
+        y = (self.size - 1 - agent.grid_position[0]) * math.sqrt(3) / 2
+
+        return x, y

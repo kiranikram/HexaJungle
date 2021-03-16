@@ -52,7 +52,7 @@ def test_move_to_tree():
     agent_2 = Agent(range=6)
 
     simple_jungle = EmptyJungle(size=11)
-    simple_jungle.add_obstacles()
+
 
     simple_jungle.add_agents(agent_1, agent_2)
 
@@ -75,3 +75,24 @@ def test_move_to_tree():
     assert agent_2.grid_position == (3, 6)
     assert agent_2.angle == 5
     assert agent_2.log_cache == 1
+
+def test_river():
+    # per size of the env , the agents together should have a certain number of logs
+    # log rate scales logs required to the size of the env
+
+    # test: if agent in river and not enough logs -100 on reward ; can be either agent
+    agent_1 = Agent(range=4)
+    agent_2 = Agent(range=4)
+
+    simple_jungle = EmptyJungle(size=11)
+
+    logs_needed = math.floor(11/Definitions.LOG_RATE.value)
+
+    simple_jungle.add_agents(agent_1, agent_2)
+    if (agent_1.grid_position == ElementsEnv.RIVER.value and 
+
+
+        agent_2.grid_position == ElementsEnv.RIVER.value) and (simple_jungle.logs_collected < logs_needed):
+        a
+
+

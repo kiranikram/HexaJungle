@@ -113,6 +113,8 @@ class JungleGrid:
         self.agent_white = None
         self.agent_black = None
 
+        self.logs_collected = None
+
     def place_obstacles(self):
 
         # place outside walls
@@ -197,9 +199,9 @@ class JungleGrid:
 
         # Apply physical actions, White starts
 
-        self.agent_white.grid_position, self.agent_white.angle = self.apply_action(self.agent_white, actions)
+        self.agent_white.grid_position, self.agent_white.angle , self.agent_white.log_cache = self.apply_action(self.agent_white, actions)
 
-        self.agent_black.grid_position, self.agent_black.angle = self.apply_action(self.agent_black, actions)
+        self.agent_black.grid_position, self.agent_black.angle , self.agent_black.log_cache = self.apply_action(self.agent_black, actions)
 
         # For now, we don't need observations and rewards, so we will just return dummies
         # Later, we will replace it by the correct rewards and observations
@@ -216,6 +218,8 @@ class JungleGrid:
 
         self.agent_black.x, self.agent_black.y = self.update_cartesian(self.agent_black)
         self.agent_white.x, self.agent_white.y = self.update_cartesian(self.agent_white)
+
+        self.logs_collected = self.agent_white.log_cache + self.agent_black.log_cache
 
         return obs, rew, done
 
@@ -246,7 +250,7 @@ class JungleGrid:
         # for now, to pass the test, you only need to move forward.
         # later, with more tests, you would need to check for obstacles, other agents, etc...
 
-        return agent.grid_position, agent.angle
+        return agent.grid_position, agent.angle , agent.log_cache
 
     def get_proximal_coordinate(self, row, col, angle):
 

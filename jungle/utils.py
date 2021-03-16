@@ -25,6 +25,7 @@ class Definitions(Enum):
     BLACK = 0
     WHITE = 1
     MIN_SIZE_ENVIR = 5
+    LOG_RATE = 3
 
 # Quite sure ou don't need that. see later.
 # ref to test available actions

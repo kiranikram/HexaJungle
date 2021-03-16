@@ -158,3 +158,4 @@ def test_movements():
 
     assert agent_2.x == agent_2.grid_position[1]
     assert agent_2.y == ((simple_jungle.size - 1) - agent_2.grid_position[0]) * math.sqrt(3) / 2
+

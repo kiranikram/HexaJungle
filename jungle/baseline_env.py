@@ -296,3 +296,6 @@ class JungleGrid:
 
     def cell_type(self, x, y):
         return self.grid_env[x, y]
+
+    def add_obstacles(self):
+        pass

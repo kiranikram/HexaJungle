@@ -12,6 +12,7 @@ class ElementsEnv(Enum):
     # each exit has a specific type of reward property, based on exit type eg rivers requires
     # cooperation as they both need to have picked up logs
 
+    EMPTY = auto()
     FREE_EXIT = auto()
     RIVER_EXIT = auto()
     BOULDER_EXIT = auto()

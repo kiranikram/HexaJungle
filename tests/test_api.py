@@ -11,6 +11,8 @@ EmptyJungle = baseline_env.JungleGrid
 
 
 def test_rl_loop():
+
+    # Todo: remove initial_r, initial_c, angle. These are defined by the jungle envr, so it is redundant.
     agent_1 = Agent(initial_r=None, initial_c=None, angle=None, range=4)
     agent_2 = Agent(initial_r=None, initial_c=None, angle=None, range=6)
 
@@ -44,37 +46,50 @@ def test_check_corners():
     simple_jungle = EmptyJungle(size=11)
     envir = simple_jungle
 
+    # Todo: you don't have exits in empty jungles/
+    # you will place exits and their surroundings by subclassing Empty Jungle.
+
     # Top-left corner
+    # Should look like that:
+    #   x x x
+    #    x . .
+    #   x x .
+
     assert envir.cell_type(0, 0) == ElementsEnv.OBSTACLE.value
     assert envir.cell_type(0, 1) == ElementsEnv.OBSTACLE.value
     assert envir.cell_type(0, 2) == ElementsEnv.OBSTACLE.value
     assert envir.cell_type(1, 0) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(2, 0) == ElementsEnv.OBSTACLE.value
     assert envir.cell_type(2, 1) == ElementsEnv.OBSTACLE.value
-    assert envir.cell_type(1, 1) == ElementsEnv.FREE_EXIT.value
+    assert envir.cell_type(1, 1) == ElementsEnv.EMPTY.value
+    assert envir.cell_type(1, 2) == ElementsEnv.EMPTY.value
+    assert envir.cell_type(2, 2) == ElementsEnv.EMPTY.value
+
+    # todo: other corners with similar values
 
     # Top-right corner
-    assert envir.cell_type(0, envir.size-1) == ElementsEnv.OBSTACLE.value
-    assert envir.cell_type(0, envir.size-2) == ElementsEnv.OBSTACLE.value
-    assert envir.cell_type(0, envir.size-3) == ElementsEnv.OBSTACLE.value
-    assert envir.cell_type(1, envir.size-1) == ElementsEnv.OBSTACLE.value
-    assert envir.cell_type(1, envir.size-3) == ElementsEnv.RIVER.value
-    assert envir.cell_type(1, envir.size-2) == ElementsEnv.RIVER_EXIT.value
-
-    # Bottom-right corner
-    # no exits
-    assert envir.cell_type(envir.size - 1, envir.size - 1) == ElementsEnv.OBSTACLE.value
-    assert envir.cell_type(envir.size - 1, envir.size - 2) == ElementsEnv.OBSTACLE.value
-    assert envir.cell_type(envir.size - 2, envir.size - 1) == ElementsEnv.OBSTACLE.value
-    assert envir.cell_type(envir.size - 3, envir.size - 2) == ElementsEnv.OBSTACLE.value
-
-    # Bottom-left corner
-
-    assert envir.cell_type(envir.size - 1, 0) == ElementsEnv.OBSTACLE.value
-    assert envir.cell_type(envir.size - 1, 1) == ElementsEnv.OBSTACLE.value
-    assert envir.cell_type(envir.size - 2, 0) == ElementsEnv.OBSTACLE.value
-    assert envir.cell_type(envir.size - 2, 1) == ElementsEnv.BOULDER_EXIT.value
-    assert envir.cell_type(envir.size - 3,1) == ElementsEnv.BOULDER.value
-    assert envir.cell_type(envir.size - 2,2) == ElementsEnv.BOULDER.value
+    # assert envir.cell_type(0, envir.size-1) == ElementsEnv.OBSTACLE.value
+    # assert envir.cell_type(0, envir.size-2) == ElementsEnv.OBSTACLE.value
+    # assert envir.cell_type(0, envir.size-3) == ElementsEnv.OBSTACLE.value
+    # assert envir.cell_type(1, envir.size-1) == ElementsEnv.OBSTACLE.value
+    # assert envir.cell_type(1, envir.size-3) == ElementsEnv.RIVER.value
+    # assert envir.cell_type(1, envir.size-2) == ElementsEnv.RIVER_EXIT.value
+    #
+    # # Bottom-right corner
+    # # no exits
+    # assert envir.cell_type(envir.size - 1, envir.size - 1) == ElementsEnv.OBSTACLE.value
+    # assert envir.cell_type(envir.size - 1, envir.size - 2) == ElementsEnv.OBSTACLE.value
+    # assert envir.cell_type(envir.size - 2, envir.size - 1) == ElementsEnv.OBSTACLE.value
+    # assert envir.cell_type(envir.size - 3, envir.size - 2) == ElementsEnv.OBSTACLE.value
+    #
+    # # Bottom-left corner
+    #
+    # assert envir.cell_type(envir.size - 1, 0) == ElementsEnv.OBSTACLE.value
+    # assert envir.cell_type(envir.size - 1, 1) == ElementsEnv.OBSTACLE.value
+    # assert envir.cell_type(envir.size - 2, 0) == ElementsEnv.OBSTACLE.value
+    # assert envir.cell_type(envir.size - 2, 1) == ElementsEnv.BOULDER_EXIT.value
+    # assert envir.cell_type(envir.size - 3,1) == ElementsEnv.BOULDER.value
+    # assert envir.cell_type(envir.size - 2,2) == ElementsEnv.BOULDER.value
 
 
 
@@ -85,7 +100,8 @@ def test_environment_building():
         # Check that pair size_envir raise error
         # or that too small environment raise error
 
-        if size_envir % 2 == 0 or size_envir < Definitions.MIN_SIZE_ENVIR.value:
+        # TODO: here check if you should use Definitions.MIN_SIZE_ENVIR.value
+        if size_envir % 2 == 0 or size_envir < Definitions.MIN_SIZE_ENVIR:
 
             with pytest.raises(Exception):
                 simple_jungle = EmptyJungle(size=size_envir)
@@ -93,6 +109,8 @@ def test_environment_building():
         else:
 
             simple_jungle = EmptyJungle(size=size_envir)
+
+            # TODO: here, you should rename test_check_corners to check_corners so that you cn test every envir.
             test_check_corners(simple_jungle)
 
 
@@ -109,7 +127,6 @@ def test_initialization():
         assert agent_2.grid_position == ((size_envir - 1) / 2, (size_envir - 1) / 2 + 1)
 
         # angle is index of trigonometric angle (0, 1, ... to 5)
-        # should a different test be that the angle falls into the 0 to 5 range?
         assert agent_1.angle == 3
         assert agent_2.angle == 0
 
@@ -159,3 +176,23 @@ def test_movements():
     assert agent_2.x == agent_2.grid_position[1]
     assert agent_2.y == ((simple_jungle.size - 1) - agent_2.grid_position[0]) * math.sqrt(3) / 2
 
+
+def test_collisions():
+
+    agent_1 = Agent(range=4)
+    agent_2 = Agent(range=6)
+
+    simple_jungle = EmptyJungle(size=11)
+
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    simple_jungle.add_object(ElementsEnv.OBSTACLE, (5, 3))
+
+    # First rotation, then forward, but the order in the actions dict doesn't matter.
+    actions = {agent_1: {Actions.FORWARD: 1}}
+    obs, rew, done = simple_jungle.step(actions)
+
+    assert agent_1.grid_position == (5, 4)
+    assert agent_1.angle == 3
+
+    assert rew[agent_1] == Definitions.REWARD_BUMP.value

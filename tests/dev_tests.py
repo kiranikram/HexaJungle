@@ -53,7 +53,6 @@ def test_move_to_tree():
 
     simple_jungle = EmptyJungle(size=11)
 
-
     simple_jungle.add_agents(agent_1, agent_2)
 
     # if agent passes tree, logs added to log_cache
@@ -76,7 +75,9 @@ def test_move_to_tree():
     assert agent_2.angle == 5
     assert agent_2.log_cache == 1
 
-def test_river():
+
+# not a good test
+def test_move_to_river():
     # per size of the env , the agents together should have a certain number of logs
     # log rate scales logs required to the size of the env
 
@@ -86,13 +87,28 @@ def test_river():
 
     simple_jungle = EmptyJungle(size=11)
 
-    logs_needed = math.floor(11/Definitions.LOG_RATE.value)
+    logs_needed = math.floor(11 / Definitions.LOG_RATE.value)
 
     simple_jungle.add_agents(agent_1, agent_2)
-    if (agent_1.grid_position == ElementsEnv.RIVER.value and 
+
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0}
+               }
+
+    obs, rew, done = simple_jungle.step(actions)
+    if (agent_1.grid_position == ElementsEnv.RIVER.value) and (simple_jungle.logs_collected < logs_needed):
+        assert rew[agent_1] == -100
+
+    if (agent_2.grid_position == ElementsEnv.RIVER.value) and (simple_jungle.logs_collected < logs_needed):
+        assert rew[agent_2] == -100
+
+def test_move_to_boulder():
+    agent_1 = Agent(range=4)
+    agent_2 = Agent(range=4)
+
+    simple_jungle = EmptyJungle(size=11)
+    # this checks - if agent in front of boulder, observability gets cut off 
 
 
-        agent_2.grid_position == ElementsEnv.RIVER.value) and (simple_jungle.logs_collected < logs_needed):
-        a
 
 

@@ -9,6 +9,7 @@ from jungle import baseline_env
 
 EmptyJungle = baseline_env.JungleGrid
 
+
 def test_movements():
     agent_1 = Agent(range=4)
     agent_2 = Agent(range=6)
@@ -45,6 +46,7 @@ def test_movements():
     assert agent_2.x == agent_2.grid_position[1] + 0.5
     assert agent_2.y == ((simple_jungle.size - 1) - agent_2.grid_position[0]) * math.sqrt(3) / 2
 
+
 def test_move_to_tree():
     agent_1 = Agent(range=4)
     agent_2 = Agent(range=6)
@@ -59,13 +61,6 @@ def test_move_to_tree():
     # agent location @ t-1, and agent actions
 
     # assume agents start at center
-    assert agent_1.grid_position == (5, 4)
-    assert agent_1.angle == 3
-    assert agent_1.log_cache == 0
-
-    assert agent_2.grid_position == (5, 6)
-    assert agent_2.angle == 0
-    assert agent_2.log_cache == 1
 
     actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 1},
                agent_2: {Actions.FORWARD: 1, Actions.ROTATE: -1}
@@ -73,16 +68,10 @@ def test_move_to_tree():
 
     obs, rew, done = simple_jungle.step(actions)
 
-    assert agent_1.grid_position == (6, 4)
+    assert agent_1.grid_position == (7, 4)
     assert agent_1.angle == 4
     assert agent_1.log_cache == 0
 
-    assert agent_2.grid_position == (4, 7)
+    assert agent_2.grid_position == (3, 6)
     assert agent_2.angle == 5
-    assert agent_2.log_cache == 2
-
-
-
-
-
-
+    assert agent_2.log_cache == 1

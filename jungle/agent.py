@@ -26,6 +26,7 @@ class Agent:
         self.range = range
         self.x = None
         self.y = None
+        self.log_cache = 0
 
     # Not sure that you need a property for grid_position
     #@property

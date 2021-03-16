@@ -141,6 +141,10 @@ class JungleGrid:
         self.grid_env[1, self.size - 3] = ElementsEnv.RIVER.value
         self.grid_env[2, self.size - 2] = ElementsEnv.RIVER.value
 
+        # add trees
+        # TODO: function that randomly sets trees in the forest env
+        self.grid_env[3, 6] = ElementsEnv.TREE.value
+
         # you have to do all the others
 
         # place additional obstacles so that all corners have the same shape.
@@ -159,7 +163,7 @@ class JungleGrid:
             self.agent_black.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
             self.agent_white.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
 
-            
+
 
 
 
@@ -172,8 +176,6 @@ class JungleGrid:
 
             self.agent_black.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
             self.agent_white.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
-
-
 
         self.agent_black.color = Definitions.BLACK
         self.agent_white.color = Definitions.WHITE
@@ -230,23 +232,25 @@ class JungleGrid:
 
         movement_forward = agent_actions[Actions.ROTATE]
         if movement_forward != 0:
-            r, c = self.get_proximal_coordinate(row, col, agent.angle)
+            r, c, next_cell = self.get_proximal_coordinate(row, col, agent.angle)
 
         agent.grid_position = r, c
 
         rotation = agent_actions[Actions.ROTATE]
         agent.angle = (angle + rotation) % 6
+        print('inside', r, c)
+
+        if next_cell == ElementsEnv.TREE.value:
+            agent.log_cache += 1
 
         # for now, to pass the test, you only need to move forward.
         # later, with more tests, you would need to check for obstacles, other agents, etc...
-
-
 
         return agent.grid_position, agent.angle
 
     def get_proximal_coordinate(self, row, col, angle):
 
-        row_new, col_new = row, col
+        row_new, col_new = int(row), int(col)
 
         if angle == 0:
             row_new -= 2
@@ -264,8 +268,11 @@ class JungleGrid:
         else:
             row_new -= 1
             col_new -= 1
+        print('inside proximal', row_new, col_new)
 
-        return row_new, col_new
+        next_cell = self.grid_env[row_new, col_new]
+
+        return row_new, col_new, next_cell
 
     def both_exited(self):
         # if agent_1.grid_position and agent_2.grid_position in self.exits:

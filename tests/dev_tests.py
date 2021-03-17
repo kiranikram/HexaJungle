@@ -5,9 +5,9 @@ import nose
 from jungle.agent import Agent
 from jungle.utils import Actions, Definitions, ElementsEnv
 
-from jungle import baseline_env
+from jungle import jungle
 
-EmptyJungle = baseline_env.JungleGrid
+EmptyJungle = jungle.EmptyJungle
 
 
 def test_movements():

@@ -5,9 +5,10 @@ import nose
 from jungle.agent import Agent
 from jungle.utils import Actions, Definitions, ElementsEnv
 
-from jungle import baseline_env
+from jungle.jungle import EmptyJungle
 
-EmptyJungle = baseline_env.JungleGrid
+# @KI import directly EmptyJungle
+# EmptyJungle = jungle.EmptyJungle
 
 
 def test_rl_loop():
@@ -39,11 +40,13 @@ def test_rl_loop():
     assert not done[agent_1] and not done[agent_2]
 
 
-def check_corners():
+def check_corners(envir):
     # Verify that all corners have the same shape
     # cells are identified using np coordinates\
-    simple_jungle = EmptyJungle(size=11)
-    envir = simple_jungle
+
+    # @KI here envir is a parameter, so that we can check that it works for several envir size.
+    # simple_jungle = EmptyJungle(size=11)
+    # envir = simple_jungle
 
     # Todo: you don't have exits in empty jungles/
     # you will place exits and their surroundings by subclassing Empty Jungle.
@@ -118,7 +121,7 @@ def test_environment_building():
         if size_envir % 2 == 0 or size_envir < Definitions.MIN_SIZE_ENVIR.value:
 
             with pytest.raises(Exception):
-                simple_jungle = EmptyJungle(size=size_envir)
+                EmptyJungle(size=size_envir)
 
         else:
 

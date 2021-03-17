@@ -127,11 +127,25 @@ def test_collisions():
                }
     obs, rew, done = simple_jungle.step(actions)
 
-
-
-    #TODO speak to Micahel about angles and coordinates
+    # TODO speak to Micahel about angles and coordinates
 
     assert agent_1.grid_position == (7, 4)
     assert agent_1.angle == 2
 
     assert rew[agent_1] == Definitions.REWARD_BUMP.value
+
+
+def test_exit_types():
+    agent_1 = Agent(range=4)
+    agent_2 = Agent(range=6)
+
+    simple_jungle = EmptyJungle(size=11)
+
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    assert simple_jungle.cell_type(1, simple_jungle.size - 2) == ElementsEnv.EMPTY.value
+    simple_jungle.add_object(ElementsEnv.RIVER_EXIT, (1, simple_jungle.size - 2))
+
+    # check that surrounding empty cells are river
+    assert simple_jungle.cell_type(2, simple_jungle.size - 3) == ElementsEnv.RIVER.value
+    assert simple_jungle.cell_type(1, simple_jungle.size - 3) == ElementsEnv.RIVER.value

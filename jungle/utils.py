@@ -36,6 +36,4 @@ class Actions(IntEnum):
     ROTATE = auto()
     FORWARD = auto()
 
-# we don't need that:
-# Forward = [1,0]
-# Rotate = [-1,0, 1]
+

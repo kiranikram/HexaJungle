@@ -160,9 +160,8 @@ class JungleGrid:
         # TODO: function that randomly sets trees in the forest env
         # self.grid_env[3, 6] = ElementsEnv.TREE.value
 
-        # you have to do all the others
-
         # place additional obstacles so that all corners have the same shape.
+        # ^done
 
     def add_agents(self, agent_1, agent_2):
 
@@ -177,10 +176,6 @@ class JungleGrid:
 
             self.agent_black.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
             self.agent_white.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
-
-
-
-
 
         else:
             self.agent_black = agent_2
@@ -257,8 +252,8 @@ class JungleGrid:
             r, c, next_cell = self.get_proximal_coordinate(row, col, agent.angle)
 
         else:
-            r , c = row , col
-            next_cell = self.grid_env[int(row),int(col)]
+            r, c = row, col
+            next_cell = self.grid_env[int(row), int(col)]
 
         agent.grid_position = r, c
 
@@ -270,8 +265,6 @@ class JungleGrid:
 
         # for now, to pass the test, you only need to move forward.
         # later, with more tests, you would need to check for obstacles, other agents, etc...
-
-
 
         return agent.grid_position, agent.angle, agent.log_cache
 
@@ -295,7 +288,6 @@ class JungleGrid:
         else:
             row_new -= 1
             col_new -= 1
-
 
         next_cell = self.grid_env[row_new, col_new]
 

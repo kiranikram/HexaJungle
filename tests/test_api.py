@@ -13,8 +13,8 @@ from jungle.jungle import EmptyJungle
 
 def test_rl_loop():
     # Todo: remove initial_r, initial_c, angle. These are defined by the jungle envr, so it is redundant.
-    agent_1 = Agent(range=4)
-    agent_2 = Agent(range=6)
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=6)
 
     simple_jungle = EmptyJungle(size=11)
     assert simple_jungle.size == 11
@@ -132,8 +132,8 @@ def test_environment_building():
 
 
 def test_initialization():
-    agent_1 = Agent(range=4)
-    agent_2 = Agent(range=4)
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=4)
 
     for size_envir in [11, 13, 15]:
         simple_jungle = EmptyJungle(size=size_envir)
@@ -158,8 +158,8 @@ def test_initialization():
 
 
 def test_movements():
-    agent_1 = Agent(range=4)
-    agent_2 = Agent(range=6)
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=6)
 
     simple_jungle = EmptyJungle(size=11)
 
@@ -169,7 +169,7 @@ def test_movements():
     assert agent_1.grid_position == (5, 4)
     assert agent_1.angle == 3
 
-    assert agent_2.grid_position == (5, 6)
+    assert agent_2.grid_position == (6, 7)
     assert agent_2.angle == 0
 
     # First rotation, then forward, but the order in the actions dict doesn't matter.
@@ -187,24 +187,32 @@ def test_movements():
     assert agent_2.angle == 5
 
     # Check new cartesian coordinates
-    assert agent_1.x == agent_1.grid_position[1]
-    assert agent_1.y == ((simple_jungle.size - 1) - agent_1.grid_position[0]) * math.sqrt(3) / 2
+    # assert agent_1.x == agent_1.grid_position[1]
+    # assert agent_1.y == ((simple_jungle.size - 1) - agent_1.grid_position[0]) * math.sqrt(3) / 2
+    #
+    # assert agent_2.x == agent_2.grid_position[1]
+    # assert agent_2.y == ((simple_jungle.size - 1) - agent_2.grid_position[0]) * math.sqrt(3) / 2
 
-    assert agent_2.x == agent_2.grid_position[1]
-    assert agent_2.y == ((simple_jungle.size - 1) - agent_2.grid_position[0]) * math.sqrt(3) / 2
 
+def test_collisions_with_obstacles():
 
-def test_collisions():
-    agent_1 = Agent(range=4)
-    agent_2 = Agent(range=6)
+    # Agent 1 moves and collides with obstacles.
+    # Looks something like:
+    #  . X .
+    #   . . .
+    #  . X A .
+
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=6)
 
     simple_jungle = EmptyJungle(size=11)
 
     simple_jungle.add_agents(agent_1, agent_2)
 
     simple_jungle.add_object(ElementsEnv.OBSTACLE, (5, 3))
+    simple_jungle.add_object(ElementsEnv.OBSTACLE, (3, 3))
 
-    # First rotation, then forward, but the order in the actions dict doesn't matter.
+    # just forward, towards the object.
     actions = {agent_1: {Actions.FORWARD: 1}}
     obs, rew, done = simple_jungle.step(actions)
 
@@ -212,3 +220,191 @@ def test_collisions():
     assert agent_1.angle == 3
 
     assert rew[agent_1] == Definitions.REWARD_BUMP.value
+
+    # now rotate, then forward towards another object.
+    actions = {agent_1: {Actions.ROTATE: -1}}
+    obs, rew, done = simple_jungle.step(actions)
+    assert agent_1.angle == 2
+
+    actions = {agent_1: {Actions.FORWARD: 1}}
+    obs, rew, done = simple_jungle.step(actions)
+    assert agent_1.grid_position == (4, 4)
+    assert rew[agent_1] == 0
+
+    # now should bump
+    obs, rew, done = simple_jungle.step(actions)
+    assert agent_1.grid_position == (4, 4)
+    assert rew[agent_1] == Definitions.REWARD_BUMP.value
+
+    assert agent_1.angle == 3
+
+    assert rew[agent_1] == Definitions.REWARD_BUMP.value
+
+    # Todo: add similar tests for agent 2!
+
+
+def test_collision_with_tree():
+    # Agent 1 moves and collides with obstacles.
+    # Looks something like:
+    #  . . . . . .
+    #   . T T T . .
+    #  . . . . A .
+
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=6)
+
+    simple_jungle = EmptyJungle(size=11)
+
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    simple_jungle.add_object(ElementsEnv.TREE, (4, 4))
+    simple_jungle.add_object(ElementsEnv.TREE, (4, 3))
+    simple_jungle.add_object(ElementsEnv.TREE, (4, 2))
+
+    # move to first tree
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1}}
+    obs, rew, done = simple_jungle.step(actions)
+
+    assert agent_1.grid_position == (4, 4)
+    assert agent_1.angle == 2
+    assert rew[agent_1] == Definitions.REWARD_CUT_TREE.value
+    assert agent_1.wood_logs == 1
+
+    # move to second tree
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 1}}
+    obs, rew, done = simple_jungle.step(actions)
+
+    assert agent_1.grid_position == (4, 3)
+    assert agent_1.angle == 3
+    assert rew[agent_1] == Definitions.REWARD_CUT_TREE.value
+    assert agent_1.wood_logs == 2
+
+    # move to third tree
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0}}
+    obs, rew, done = simple_jungle.step(actions)
+
+    assert agent_1.grid_position == (4, 2)
+    assert agent_1.angle == 3
+    assert rew[agent_1] == Definitions.REWARD_CUT_TREE.value
+    assert agent_1.wood_logs == 2
+
+    # we are limiting the number of tree logs to 2.
+    # then, later, agents would need 4 logs total to replace water by empty (building a bridge)
+
+def test_exits():
+
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=6)
+
+    assert agent_1.done is False
+    assert agent_2.done is False
+
+    # we put exit towards an agent and move through it
+    actions = {agent_1: {Actions.FORWARD: 1}}
+
+    # exits provide 4 different rewards: LOW, AVERAGE, HIGH, VERY_HIGH
+    # There are 4 different kinds of exits:
+    # - EXIT_EASY: provide average reward
+    # - EXIT_DIFFICULT: provide high reward
+    # - EXIT_WHITE: provide very high reward to white, low reward to black
+    # - EXIT_BLACK: provide very high reward to black, low reward to white
+
+    # agent 1 takes easy exit.
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+    simple_jungle.add_object(ElementsEnv.EXIT_EASY, (5, 3))
+
+    _, rew, done = simple_jungle.step(actions)
+    assert rew[agent_1] == Definitions.REWARD_EXIT_AVERAGE.value
+
+    # agent 1 takes hard exit.
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+    simple_jungle.add_object(ElementsEnv.EXIT_DIFFICULT, (5, 3))
+
+    # when entering a new environment, agents done is reset.
+    assert agent_1.done is False
+    assert agent_2.done is False
+
+    _, rew, done = simple_jungle.step(actions)
+    assert rew[agent_1] == Definitions.REWARD_EXIT_HIGH.value
+
+    # If an agent takes the exit of its color, it receives a very high reward
+    actions = {agent_1: {Actions.FORWARD: 1}, agent_2: {Actions.FORWARD: 1}}
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    if agent_1.color is Definitions.WHITE:
+        simple_jungle.add_object(ElementsEnv.EXIT_WHITE, (5, 3))
+        simple_jungle.add_object(ElementsEnv.EXIT_BLACK, (5, 7))
+    else:
+        simple_jungle.add_object(ElementsEnv.EXIT_BLACK, (5, 3))
+        simple_jungle.add_object(ElementsEnv.EXIT_WHITE, (5, 7))
+
+    _, rew, done = simple_jungle.step(actions)
+    assert rew[agent_1] == Definitions.REWARD_EXIT_VERY_HIGH.value
+    assert rew[agent_1] == Definitions.REWARD_EXIT_VERY_HIGH.value
+
+    assert agent_1.done is True
+    assert agent_2.done is True
+
+    # If an agent takes the exit of the opposite color, it receives a low reward
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    if agent_1.color is Definitions.BLACK:
+        simple_jungle.add_object(ElementsEnv.EXIT_WHITE, (5, 3))
+        simple_jungle.add_object(ElementsEnv.EXIT_BLACK, (5, 7))
+    else:
+        simple_jungle.add_object(ElementsEnv.EXIT_BLACK, (5, 3))
+        simple_jungle.add_object(ElementsEnv.EXIT_WHITE, (5, 7))
+
+    _, rew, done = simple_jungle.step(actions)
+    assert rew[agent_1] == Definitions.REWARD_EXIT_LOW.value
+    assert rew[agent_1] == Definitions.REWARD_EXIT_LOW.value
+
+
+def test_gameplay_exit():
+
+    # Game continues when one agent exits.
+    # Game terinates when both agents exit.
+
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=6)
+
+    # agent 1 takes easy exit.
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+    simple_jungle.add_object(ElementsEnv.EXIT_EASY, (5, 3))
+
+    actions = {agent_1: {Actions.FORWARD: 1}}
+
+    _, rew, done = simple_jungle.step(actions)
+
+    assert done is False
+    assert agent_1.done
+    assert not agent_2.done
+
+    # agent 2 rotates then goes towards exit.
+    actions = {agent_2: {Actions.ROTATE: 1}}
+
+    simple_jungle.step(actions)
+    simple_jungle.step(actions)
+    simple_jungle.step(actions)
+
+    assert agent_1.done
+    assert not agent_2.done
+
+    actions = {agent_2: {Actions.FORWARD: 1}}
+
+    simple_jungle.step(actions)
+    _, rew, done = simple_jungle.step(actions)
+
+    assert agent_1.done
+    assert agent_2.done
+    assert done

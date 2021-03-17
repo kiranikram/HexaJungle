@@ -11,8 +11,8 @@ EmptyJungle = jungle.EmptyJungle
 
 
 def test_movements():
-    agent_1 = Agent(range=4)
-    agent_2 = Agent(range=6)
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=6)
 
     simple_jungle = EmptyJungle(size=11)
 
@@ -48,8 +48,8 @@ def test_movements():
 
 
 def test_move_to_tree():
-    agent_1 = Agent(range=4)
-    agent_2 = Agent(range=6)
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=6)
 
     simple_jungle = EmptyJungle(size=11)
 
@@ -82,8 +82,8 @@ def test_move_to_river():
     # log rate scales logs required to the size of the env
 
     # test: if agent in river and not enough logs -100 on reward ; can be either agent
-    agent_1 = Agent(range=4)
-    agent_2 = Agent(range=4)
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=4)
 
     simple_jungle = EmptyJungle(size=11)
 
@@ -104,16 +104,16 @@ def test_move_to_river():
 
 
 def test_move_to_boulder():
-    agent_1 = Agent(range=4)
-    agent_2 = Agent(range=4)
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=4)
 
     simple_jungle = EmptyJungle(size=11)
     # this checks - if agent in front of boulder, observability gets cut off
 
 
 def test_collisions():
-    agent_1 = Agent(range=4)
-    agent_2 = Agent(range=6)
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=6)
 
     simple_jungle = EmptyJungle(size=11)
 
@@ -136,8 +136,8 @@ def test_collisions():
 
 
 def test_exit_types():
-    agent_1 = Agent(range=4)
-    agent_2 = Agent(range=6)
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=6)
 
     simple_jungle = EmptyJungle(size=11)
 

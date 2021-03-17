@@ -102,6 +102,7 @@ def test_move_to_river():
     if (agent_2.grid_position == ElementsEnv.RIVER.value) and (simple_jungle.logs_collected < logs_needed):
         assert rew[agent_2] == -100
 
+
 def test_move_to_boulder():
     agent_1 = Agent(range=4)
     agent_2 = Agent(range=4)
@@ -110,5 +111,27 @@ def test_move_to_boulder():
     # this checks - if agent in front of boulder, observability gets cut off
 
 
+def test_collisions():
+    agent_1 = Agent(range=4)
+    agent_2 = Agent(range=6)
+
+    simple_jungle = EmptyJungle(size=11)
+
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    simple_jungle.add_object(ElementsEnv.OBSTACLE, (5, 3))
+
+    # First rotation, then forward, but the order in the actions dict doesn't matter.
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0}
+               }
+    obs, rew, done = simple_jungle.step(actions)
 
 
+
+    #TODO speak to Micahel about angles and coordinates
+
+    assert agent_1.grid_position == (7, 4)
+    assert agent_1.angle == 2
+
+    assert rew[agent_1] == Definitions.REWARD_BUMP.value

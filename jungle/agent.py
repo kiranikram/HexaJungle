@@ -21,7 +21,7 @@ class Agent:
         # self.grid_position = initial_r, initial_c
         self.grid_position = None
 
-        #self.initial_position = None
+        self.reward = 0
         self.angle = None
         self.range = range
         self.x = None

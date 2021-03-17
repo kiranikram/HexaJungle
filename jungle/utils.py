@@ -2,7 +2,6 @@ from enum import IntEnum, Enum, auto
 
 
 class ElementsEnv(Enum):
-
     # by using auto you are not assigning any pr-determined value for these.
     # this becomes more flexible as you can just add any and not worry if the number is already taken.
 
@@ -27,16 +26,7 @@ class Definitions(Enum):
     WHITE = 1
     MIN_SIZE_ENVIR = 5
     LOG_RATE = 3
-
-# Quite sure ou don't need that. see later.
-# ref to test available actions
-# class C_Actions(IntEnum):
-#     KeepOrientation = 0
-#     RotateLeft = 1
-#     RotateRight = -1
-#     MoveForward = 2
-#     StandStill = 3
-#     Climb = 4
+    REWARD_BUMP = 20
 
 
 # Just an Actions definition with enum is sufficient.
@@ -47,10 +37,5 @@ class Actions(IntEnum):
     FORWARD = auto()
 
 # we don't need that:
-#Forward = [1,0]
-#Rotate = [-1,0, 1]
-
-
-
-
-
+# Forward = [1,0]
+# Rotate = [-1,0, 1]

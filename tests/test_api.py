@@ -39,7 +39,7 @@ def test_rl_loop():
     assert not done[agent_1] and not done[agent_2]
 
 
-def test_check_corners():
+def check_corners():
     # Verify that all corners have the same shape
     # cells are identified using np coordinates\
     simple_jungle = EmptyJungle(size=11)
@@ -115,7 +115,7 @@ def test_environment_building():
         # or that too small environment raise error
 
         # TODO: here check if you should use Definitions.MIN_SIZE_ENVIR.value
-        if size_envir % 2 == 0 or size_envir < Definitions.MIN_SIZE_ENVIR:
+        if size_envir % 2 == 0 or size_envir < Definitions.MIN_SIZE_ENVIR.value:
 
             with pytest.raises(Exception):
                 simple_jungle = EmptyJungle(size=size_envir)
@@ -125,7 +125,7 @@ def test_environment_building():
             simple_jungle = EmptyJungle(size=size_envir)
 
             # TODO: here, you should rename test_check_corners to check_corners so that you cn test every envir.
-            test_check_corners(simple_jungle)
+            check_corners(simple_jungle)
 
 
 def test_initialization():

@@ -114,6 +114,7 @@ class JungleGrid:
         self.agent_black = None
 
         self.logs_collected = None
+        self.rew = {self.agent_black: 0.0, self.agent_white: 0.0}
 
     def place_obstacles(self):
 
@@ -150,8 +151,6 @@ class JungleGrid:
         self.grid_env[self.size - 2, 2] = ElementsEnv.EMPTY.value
         self.grid_env[self.size - 3, 2] = ElementsEnv.EMPTY.value
 
-
-
         # place exits
         # TODO: set function that randomly determines exits
 
@@ -159,7 +158,7 @@ class JungleGrid:
 
         # add trees
         # TODO: function that randomly sets trees in the forest env
-        self.grid_env[3, 6] = ElementsEnv.TREE.value
+        # self.grid_env[3, 6] = ElementsEnv.TREE.value
 
         # you have to do all the others
 
@@ -222,7 +221,10 @@ class JungleGrid:
         # For now, we don't need observations and rewards, so we will just return dummies
         # Later, we will replace it by the correct rewards and observations
         # but before that we will write tests about it.
+
         rew = {self.agent_black: 0.0, self.agent_white: 0.0}
+        rew[self.agent_white] = float(Definitions.REWARD_BUMP.value)
+        rew[self.agent_black] = float(Definitions.REWARD_BUMP.value)
 
         # From the point of view of the policy that each 'brain' will work,
         # do you need to know when a single agent has terminated?
@@ -254,17 +256,22 @@ class JungleGrid:
         if movement_forward != 0:
             r, c, next_cell = self.get_proximal_coordinate(row, col, agent.angle)
 
+        else:
+            r , c = row , col
+            next_cell = self.grid_env[int(row),int(col)]
+
         agent.grid_position = r, c
 
         rotation = agent_actions[Actions.ROTATE]
         agent.angle = (angle + rotation) % 6
-        print('inside', r, c)
 
         if next_cell == ElementsEnv.TREE.value:
             agent.log_cache += 1
 
         # for now, to pass the test, you only need to move forward.
         # later, with more tests, you would need to check for obstacles, other agents, etc...
+
+
 
         return agent.grid_position, agent.angle, agent.log_cache
 
@@ -288,7 +295,7 @@ class JungleGrid:
         else:
             row_new -= 1
             col_new -= 1
-        print('inside proximal', row_new, col_new)
+
 
         next_cell = self.grid_env[row_new, col_new]
 
@@ -332,9 +339,10 @@ class JungleGrid:
     def cell_type(self, x, y):
         return self.grid_env[x, y]
 
-    def add_obstacles(self):
-
-        pass
+    def add_object(self, item, coords):
+        r = coords[0]
+        c = coords[1]
+        self.grid_env[r, c] = item.value
 
     def update_cartesian(self, agent):
         x = agent.grid_position[1] + 0.5

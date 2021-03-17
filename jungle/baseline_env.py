@@ -127,21 +127,35 @@ class JungleGrid:
         self.grid_env[-1, :] = ElementsEnv.OBSTACLE.value
 
         # add corners
-        self.grid_env[2, 1] = ElementsEnv.OBSTACLE.value
-        self.grid_env[self.size - 3, self.size - 2] = ElementsEnv.OBSTACLE.value
+        for row in range(2, self.size - 2, 2):
+            self.grid_env[row, 1] = ElementsEnv.OBSTACLE.value
+
+        for row in range(2, self.size - 2, 2):
+            self.grid_env[row, self.size - 2] = ElementsEnv.OBSTACLE.value
+
+        # add empty
+        self.grid_env[1, 1] = ElementsEnv.EMPTY.value
+        self.grid_env[1, 2] = ElementsEnv.EMPTY.value
+        self.grid_env[2, 2] = ElementsEnv.EMPTY.value
+
+        self.grid_env[2, self.size - 3] = ElementsEnv.EMPTY.value
+        self.grid_env[1, self.size - 3] = ElementsEnv.EMPTY.value
+        self.grid_env[1, self.size - 2] = ElementsEnv.EMPTY.value
+
+        self.grid_env[self.size - 3, self.size - 3] = ElementsEnv.EMPTY.value
+        self.grid_env[self.size - 2, self.size - 3] = ElementsEnv.EMPTY.value
+        self.grid_env[self.size - 2, self.size - 2] = ElementsEnv.EMPTY.value
+
+        self.grid_env[self.size - 2, 1] = ElementsEnv.EMPTY.value
+        self.grid_env[self.size - 2, 2] = ElementsEnv.EMPTY.value
+        self.grid_env[self.size - 3, 2] = ElementsEnv.EMPTY.value
+
+
 
         # place exits
         # TODO: set function that randomly determines exits
-        self.grid_env[1, 1] = ElementsEnv.FREE_EXIT.value
-        self.grid_env[1, self.size - 2] = ElementsEnv.RIVER_EXIT.value
-        self.grid_env[self.size - 2, 1] = ElementsEnv.BOULDER_EXIT.value
 
         # place unique obstacles
-        self.grid_env[self.size - 3, 1] = ElementsEnv.BOULDER.value
-        self.grid_env[self.size - 2, 2] = ElementsEnv.BOULDER.value
-
-        self.grid_env[1, self.size - 3] = ElementsEnv.RIVER.value
-        self.grid_env[2, self.size - 2] = ElementsEnv.RIVER.value
 
         # add trees
         # TODO: function that randomly sets trees in the forest env
@@ -199,9 +213,11 @@ class JungleGrid:
 
         # Apply physical actions, White starts
 
-        self.agent_white.grid_position, self.agent_white.angle , self.agent_white.log_cache = self.apply_action(self.agent_white, actions)
+        self.agent_white.grid_position, self.agent_white.angle, self.agent_white.log_cache = self.apply_action(
+            self.agent_white, actions)
 
-        self.agent_black.grid_position, self.agent_black.angle , self.agent_black.log_cache = self.apply_action(self.agent_black, actions)
+        self.agent_black.grid_position, self.agent_black.angle, self.agent_black.log_cache = self.apply_action(
+            self.agent_black, actions)
 
         # For now, we don't need observations and rewards, so we will just return dummies
         # Later, we will replace it by the correct rewards and observations
@@ -250,7 +266,7 @@ class JungleGrid:
         # for now, to pass the test, you only need to move forward.
         # later, with more tests, you would need to check for obstacles, other agents, etc...
 
-        return agent.grid_position, agent.angle , agent.log_cache
+        return agent.grid_position, agent.angle, agent.log_cache
 
     def get_proximal_coordinate(self, row, col, angle):
 

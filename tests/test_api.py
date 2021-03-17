@@ -11,10 +11,9 @@ EmptyJungle = baseline_env.JungleGrid
 
 
 def test_rl_loop():
-
     # Todo: remove initial_r, initial_c, angle. These are defined by the jungle envr, so it is redundant.
-    agent_1 = Agent(initial_r=None, initial_c=None, angle=None, range=4)
-    agent_2 = Agent(initial_r=None, initial_c=None, angle=None, range=6)
+    agent_1 = Agent(range=4)
+    agent_2 = Agent(range=6)
 
     simple_jungle = EmptyJungle(size=11)
     assert simple_jungle.size == 11
@@ -22,8 +21,8 @@ def test_rl_loop():
     simple_jungle.add_agents(agent_1, agent_2)
 
     # Once added, each agent randomly takes a color for the game
-    assert (agent_1.color is Definitions.BLACK and agent_2.color is Definitions.WHITE)\
-            or (agent_1.color is Definitions.WHITE and agent_2.color is Definitions.BLACK)
+    assert (agent_1.color is Definitions.BLACK and agent_2.color is Definitions.WHITE) \
+           or (agent_1.color is Definitions.WHITE and agent_2.color is Definitions.BLACK)
 
     actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1},
                agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0}
@@ -61,37 +60,52 @@ def test_check_corners():
     assert envir.cell_type(1, 0) == ElementsEnv.OBSTACLE.value
     assert envir.cell_type(2, 0) == ElementsEnv.OBSTACLE.value
     assert envir.cell_type(2, 1) == ElementsEnv.OBSTACLE.value
+
     assert envir.cell_type(1, 1) == ElementsEnv.EMPTY.value
     assert envir.cell_type(1, 2) == ElementsEnv.EMPTY.value
     assert envir.cell_type(2, 2) == ElementsEnv.EMPTY.value
 
     # todo: other corners with similar values
 
+    # @MG I've kept these in the same shape as above
+
     # Top-right corner
-    # assert envir.cell_type(0, envir.size-1) == ElementsEnv.OBSTACLE.value
-    # assert envir.cell_type(0, envir.size-2) == ElementsEnv.OBSTACLE.value
-    # assert envir.cell_type(0, envir.size-3) == ElementsEnv.OBSTACLE.value
-    # assert envir.cell_type(1, envir.size-1) == ElementsEnv.OBSTACLE.value
-    # assert envir.cell_type(1, envir.size-3) == ElementsEnv.RIVER.value
-    # assert envir.cell_type(1, envir.size-2) == ElementsEnv.RIVER_EXIT.value
-    #
+    assert envir.cell_type(0, envir.size - 1) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(0, envir.size - 2) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(0, envir.size - 3) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(1, envir.size - 1) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(2, envir.size - 1) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(2, envir.size - 2) == ElementsEnv.OBSTACLE.value
+
+    assert envir.cell_type(2, envir.size - 3) == ElementsEnv.EMPTY.value
+    assert envir.cell_type(1, envir.size - 3) == ElementsEnv.EMPTY.value
+    assert envir.cell_type(1, envir.size - 2) == ElementsEnv.EMPTY.value
+
     # # Bottom-right corner
     # # no exits
-    # assert envir.cell_type(envir.size - 1, envir.size - 1) == ElementsEnv.OBSTACLE.value
-    # assert envir.cell_type(envir.size - 1, envir.size - 2) == ElementsEnv.OBSTACLE.value
-    # assert envir.cell_type(envir.size - 2, envir.size - 1) == ElementsEnv.OBSTACLE.value
-    # assert envir.cell_type(envir.size - 3, envir.size - 2) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 1, envir.size - 1) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 1, envir.size - 2) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 2, envir.size - 1) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 3, envir.size - 1) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 1, envir.size - 3) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 3, envir.size - 2) == ElementsEnv.OBSTACLE.value
+
+    assert envir.cell_type(envir.size - 3, envir.size - 3) == ElementsEnv.EMPTY.value
+    assert envir.cell_type(envir.size - 2, envir.size - 3) == ElementsEnv.EMPTY.value
+    assert envir.cell_type(envir.size - 2, envir.size - 2) == ElementsEnv.EMPTY.value
     #
     # # Bottom-left corner
     #
-    # assert envir.cell_type(envir.size - 1, 0) == ElementsEnv.OBSTACLE.value
-    # assert envir.cell_type(envir.size - 1, 1) == ElementsEnv.OBSTACLE.value
-    # assert envir.cell_type(envir.size - 2, 0) == ElementsEnv.OBSTACLE.value
-    # assert envir.cell_type(envir.size - 2, 1) == ElementsEnv.BOULDER_EXIT.value
-    # assert envir.cell_type(envir.size - 3,1) == ElementsEnv.BOULDER.value
-    # assert envir.cell_type(envir.size - 2,2) == ElementsEnv.BOULDER.value
+    assert envir.cell_type(envir.size - 3, 0) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 2, 0) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 1, 0) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 1, 1) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 1, 2) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 3, 1) == ElementsEnv.OBSTACLE.value
 
-
+    assert envir.cell_type(envir.size - 2, 1) == ElementsEnv.EMPTY.value
+    assert envir.cell_type(envir.size - 2, 2) == ElementsEnv.EMPTY.value
+    assert envir.cell_type(envir.size - 3, 2) == ElementsEnv.EMPTY.value
 
 
 def test_environment_building():
@@ -178,7 +192,6 @@ def test_movements():
 
 
 def test_collisions():
-
     agent_1 = Agent(range=4)
     agent_2 = Agent(range=6)
 

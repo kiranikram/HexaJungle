@@ -107,7 +107,7 @@ def test_move_to_boulder():
     agent_2 = Agent(range=4)
 
     simple_jungle = EmptyJungle(size=11)
-    # this checks - if agent in front of boulder, observability gets cut off 
+    # this checks - if agent in front of boulder, observability gets cut off
 
 
 

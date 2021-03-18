@@ -26,7 +26,8 @@ class Definitions(Enum):
     WHITE = 1
     MIN_SIZE_ENVIR = 5
     LOG_RATE = 3
-    REWARD_BUMP = 20
+    REWARD_BUMP = -5
+
 
 
 # Just an Actions definition with enum is sufficient.

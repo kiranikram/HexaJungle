@@ -13,6 +13,7 @@ class EmptyJungle:
         if self.size % 2 == 0 or size < Definitions.MIN_SIZE_ENVIR.value:
             raise ValueError('size should be an odd number')
 
+        # check with ones mulitpy by definition s
         self.grid_env = np.zeros((self.size, self.size), dtype=int)
         self.place_obstacles()
 
@@ -103,6 +104,7 @@ class EmptyJungle:
         self.agent_white.color = Definitions.WHITE
 
         # @ kiran: instead, use properties
+        # can change in agent
         self.agent_black.x, self.agent_black.y = self.update_cartesian(self.agent_black)
         self.agent_white.x, self.agent_white.y = self.update_cartesian(self.agent_white)
 
@@ -119,10 +121,12 @@ class EmptyJungle:
         # @ kiran: we should also know if agent climbs on boulder / shoulders of other agent (elevated)
         # and positions and angle will be changed in self.apply_actions.
         # so maybe, instead:  elevated, cut_tree = self.apply_action( agent, actions) ?
-        self.agent_white.grid_position, self.agent_white.angle, self.agent_white.log_cache = self.apply_action(
+
+        # dont need to return position etccc changed in apply action automatically
+        self.agent_white.grid_position, self.agent_white.angle, self.agent_white.wood_logs = self.apply_action(
             self.agent_white, actions)
 
-        self.agent_black.grid_position, self.agent_black.angle, self.agent_black.log_cache = self.apply_action(
+        self.agent_black.grid_position, self.agent_black.angle, self.agent_black.wood_logs = self.apply_action(
             self.agent_black, actions)
 
         # For now, we don't need observations and rewards, so we will just return dummies
@@ -130,6 +134,8 @@ class EmptyJungle:
         # but before that we will write tests about it.
 
         rew = {self.agent_black: 0.0, self.agent_white: 0.0}
+
+        # make function to test for what kind of reward
         rew[self.agent_white] = float(Definitions.REWARD_BUMP.value)
         rew[self.agent_black] = float(Definitions.REWARD_BUMP.value)
 
@@ -144,11 +150,14 @@ class EmptyJungle:
         self.agent_black.x, self.agent_black.y = self.update_cartesian(self.agent_black)
         self.agent_white.x, self.agent_white.y = self.update_cartesian(self.agent_white)
 
-        self.logs_collected = self.agent_white.log_cache + self.agent_black.log_cache
+        #self.logs_collected = self.agent_white.log_cache + self.agent_black.log_cache
 
         return obs, rew, done
 
     def apply_action(self, agent, actions):
+
+
+        ## here we test if ,moves to
 
         # assuming moves forward first, then changes angle
 
@@ -159,7 +168,10 @@ class EmptyJungle:
 
         # agent.angle = 0
 
-        movement_forward = agent_actions[Actions.ROTATE]
+        rotation = agent_actions[Actions.ROTATE]
+        agent.angle = (angle + rotation) % 6
+
+        movement_forward = agent_actions[Actions.FORWARD]
         if movement_forward != 0:
             r, c, next_cell = self.get_proximal_coordinate(row, col, agent.angle)
 
@@ -169,41 +181,69 @@ class EmptyJungle:
 
         agent.grid_position = r, c
 
-        rotation = agent_actions[Actions.ROTATE]
-        agent.angle = (angle + rotation) % 6
 
         if next_cell == ElementsEnv.TREE.value:
-            agent.log_cache += 1
+            agent.wood_logs += 1
 
         # for now, to pass the test, you only need to move forward.
         # later, with more tests, you would need to check for obstacles, other agents, etc...
 
-        return agent.grid_position, agent.angle, agent.log_cache
+        return agent.grid_position, agent.angle, agent.wood_logs
 
     def get_proximal_coordinate(self, row, col, angle):
 
-        row_new, col_new = int(row), int(col)
+
+        row_new, col_new = row, col
+
+        print('initial', row_new, col_new, angle)
 
         if angle == 0:
-            row_new -= 2
+            col_new += 1
         elif angle == 1:
             row_new -= 1
-            col_new += 1
+            col_new += row % 2
         elif angle == 2:
-            row_new += 1
-            col_new += 1
+            row_new -= 1
+            col_new += row % 2 - 1
         elif angle == 3:
-            row_new += 2
+            col_new -= 1
         elif angle == 4:
             row_new += 1
-            col_new += - 1
+            col_new += row % 2 - 1
         else:
-            row_new -= 1
-            col_new -= 1
+            row_new += 1
+            col_new += row % 2
 
-        next_cell = self.grid_env[row_new, col_new]
+        next_cell = self.grid_env[int(row_new), int(col_new)]
+
+        print('POST', row_new, col_new)
 
         return row_new, col_new, next_cell
+
+    #def get_proximal_coordinate(self, row, col, angle):
+
+        #row_new, col_new = int(row), int(col)
+
+        #if angle == 0:
+            #row_new -= 2
+        #elif angle == 1:
+            #row_new -= 1
+            #col_new += 1
+        #elif angle == 2:
+            #row_new += 1
+            #col_new += 1
+        #elif angle == 3:
+            #row_new += 2
+        #elif angle == 4:
+            #row_new += 1
+            #col_new += - 1
+        #else:
+            #row_new -= 1
+            #col_new -= 1
+
+        #next_cell = self.grid_env[row_new, col_new]
+
+        #return row_new, col_new, next_cell
 
     def both_exited(self):
         # if agent_1.grid_position and agent_2.grid_position in self.exits:

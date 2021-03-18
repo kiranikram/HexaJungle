@@ -1,13 +1,17 @@
 from jungle.utils import Definitions
 from jungle.utils_agent import Actions
 
+"""For Rotation angles reference:
+ . . . . . .  . .
+. . . . 2 1 . . .
+ . . 3 . A . 0 . .
+. . . . 4 5 . . .
+ . . . . . . . . """
 
 class Agent:
 
     def __init__(self, range_observation):
-        """Agent base class
-        default color is black
-        """
+
         self.color = None
         self.range_observation = range_observation
         self.grid_position = None
@@ -47,3 +51,7 @@ class Agent:
     #     # TODO: convert grid_position to cartesian position
     #     x = ...
     #     y = /
+
+
+
+

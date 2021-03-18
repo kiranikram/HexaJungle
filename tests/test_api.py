@@ -169,7 +169,7 @@ def test_movements():
     assert agent_1.grid_position == (5, 4)
     assert agent_1.angle == 3
 
-    assert agent_2.grid_position == (6, 7)
+    assert agent_2.grid_position == (5, 6)
     assert agent_2.angle == 0
 
     # First rotation, then forward, but the order in the actions dict doesn't matter.
@@ -183,7 +183,7 @@ def test_movements():
     assert agent_1.grid_position == (6, 4)
     assert agent_1.angle == 4
 
-    assert agent_2.grid_position == (4, 7)
+    assert agent_2.grid_position == (6, 7)
     assert agent_2.angle == 5
 
     # Check new cartesian coordinates
@@ -213,7 +213,7 @@ def test_collisions_with_obstacles():
     simple_jungle.add_object(ElementsEnv.OBSTACLE, (3, 3))
 
     # just forward, towards the object.
-    actions = {agent_1: {Actions.FORWARD: 1}}
+    actions = {agent_1: {Actions.FORWARD: 1,Actions.ROTATE: 0}}
     obs, rew, done = simple_jungle.step(actions)
 
     assert agent_1.grid_position == (5, 4)
@@ -222,11 +222,11 @@ def test_collisions_with_obstacles():
     assert rew[agent_1] == Definitions.REWARD_BUMP.value
 
     # now rotate, then forward towards another object.
-    actions = {agent_1: {Actions.ROTATE: -1}}
+    actions = {agent_1: {Actions.FORWARD: 1,Actions.ROTATE: -1}}
     obs, rew, done = simple_jungle.step(actions)
     assert agent_1.angle == 2
 
-    actions = {agent_1: {Actions.FORWARD: 1}}
+    actions = {agent_1: {Actions.FORWARD: 1,Actions.ROTATE: 0}}
     obs, rew, done = simple_jungle.step(actions)
     assert agent_1.grid_position == (4, 4)
     assert rew[agent_1] == 0

@@ -342,8 +342,6 @@ def test_exits():
 
     assert rew[agent_1] == Definitions.REWARD_EXIT_AVERAGE.value
 
-    print('easy exit value', ElementsEnv.EXIT_EASY.value)
-
     # agent 1 takes hard exit.
 
     simple_jungle = EmptyJungle(size=11)
@@ -351,6 +349,8 @@ def test_exits():
     simple_jungle.add_object(ElementsEnv.EXIT_DIFFICULT, (5, 3))
 
     # when entering a new environment, agents done is reset.
+    # TODO : take done out of agent and instantiate in jungle
+
     assert agent_1.done is False
     assert agent_2.done is False
 
@@ -375,9 +375,8 @@ def test_exits():
     assert rew[agent_1] == Definitions.REWARD_EXIT_VERY_HIGH.value
     assert rew[agent_1] == Definitions.REWARD_EXIT_VERY_HIGH.value
 
-    print('is done?', agent_1.done)
-    assert agent_1.done is True
-    assert agent_2.done is True
+    assert done[agent_1] is True
+    assert done[agent_2] is True
 
     # If an agent takes the exit of the opposite color, it receives a low reward
 

@@ -25,7 +25,7 @@ class EmptyJungle:
         # self.logs_collected = None
 
         # @KI: don't need that, this is calculated by the step function
-        self.rew = {self.agent_black: 0.0, self.agent_white: 0.0}
+
 
     def place_obstacles(self):
 
@@ -118,7 +118,7 @@ class EmptyJungle:
         ag_black_rew, black_done = self.apply_action(self.agent_black, actions, rew[self.agent_black],
                                                      done[self.agent_black])
 
-        print('white done', white_done , 'black done', black_done)
+
         done[self.agent_white] = white_done
         done[self.agent_black] = black_done
 
@@ -178,6 +178,8 @@ class EmptyJungle:
             else:
 
                 agent_rew = self.get_reward(next_cell, agent_rew, agent)
+
+
                 agent_done = self.agent_exited(next_cell)
 
             agent.grid_position = row_new, col_new
@@ -221,15 +223,14 @@ class EmptyJungle:
 
     def agent_exited(self, next_cell):
         
+
         exits = [ElementsEnv.EXIT_EASY.value, ElementsEnv.EXIT_DIFFICULT.value, ElementsEnv.EXIT_WHITE.value,
                  ElementsEnv.EXIT_BLACK.value]
 
-        for e in exits:
-            if next_cell == e:
-                print('exit',e)
-                return True
-            else:
-                return False
+        if next_cell in exits:
+            return True
+        else:
+            return False
 
     def generate_agent_obs(self):
         return {self.agent_black: None, self.agent_white: None}

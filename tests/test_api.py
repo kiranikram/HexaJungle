@@ -279,7 +279,8 @@ def test_collision_with_tree():
     simple_jungle.add_object(ElementsEnv.TREE, (4, 2))
 
     # move to first tree
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1}}
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0}}
     obs, rew, done = simple_jungle.step(actions)
 
     assert agent_1.grid_position == (4, 4)
@@ -288,7 +289,8 @@ def test_collision_with_tree():
     assert agent_1.wood_logs == 1
 
     # move to second tree
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 1}}
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 1},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0}}
     obs, rew, done = simple_jungle.step(actions)
 
     assert agent_1.grid_position == (4, 3)
@@ -297,12 +299,14 @@ def test_collision_with_tree():
     assert agent_1.wood_logs == 2
 
     # move to third tree
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0}}
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0}}
     obs, rew, done = simple_jungle.step(actions)
 
     assert agent_1.grid_position == (4, 2)
     assert agent_1.angle == 3
     assert rew[agent_1] == Definitions.REWARD_CUT_TREE.value
+
     assert agent_1.wood_logs == 2
 
     # we are limiting the number of tree logs to 2.

@@ -27,6 +27,7 @@ class Definitions(Enum):
     MIN_SIZE_ENVIR = 5
     LOG_RATE = 3
     REWARD_BUMP = -5
+    REWARD_CUT_TREE = -2
 
 
 

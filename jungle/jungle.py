@@ -172,7 +172,11 @@ class EmptyJungle:
             agent.grid_position = row_new, col_new
 
         if next_cell == ElementsEnv.TREE.value:
-            agent.wood_logs += 1
+            agent_rew = float(Definitions.REWARD_CUT_TREE.value)
+            # There is a cap on the number of logs an agent can collect
+            # This should be a parameter of the jungle subclass
+            if agent.wood_logs < 2:
+                agent.wood_logs += 1
 
         return agent_rew
 
@@ -204,7 +208,7 @@ class EmptyJungle:
 
         return row_new, col_new, next_cell
 
-  
+
 
     def both_exited(self):
         # if agent_1.grid_position and agent_2.grid_position in self.exits:

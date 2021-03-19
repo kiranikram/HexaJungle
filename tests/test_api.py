@@ -279,6 +279,7 @@ def test_collision_with_tree():
     simple_jungle.add_object(ElementsEnv.TREE, (4, 2))
 
     # move to first tree
+    # TODO: put in agent 2 actions for these tests; currently they are at zero
     actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1},
                agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0}}
     obs, rew, done = simple_jungle.step(actions)
@@ -321,7 +322,8 @@ def test_exits():
     assert agent_2.done is False
 
     # we put exit towards an agent and move through it
-    actions = {agent_1: {Actions.FORWARD: 1}}
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0}}
 
     # exits provide 4 different rewards: LOW, AVERAGE, HIGH, VERY_HIGH
     # There are 4 different kinds of exits:
@@ -337,7 +339,10 @@ def test_exits():
     simple_jungle.add_object(ElementsEnv.EXIT_EASY, (5, 3))
 
     _, rew, done = simple_jungle.step(actions)
+
     assert rew[agent_1] == Definitions.REWARD_EXIT_AVERAGE.value
+
+    print('easy exit value', ElementsEnv.EXIT_EASY.value)
 
     # agent 1 takes hard exit.
 
@@ -353,7 +358,8 @@ def test_exits():
     assert rew[agent_1] == Definitions.REWARD_EXIT_HIGH.value
 
     # If an agent takes the exit of its color, it receives a very high reward
-    actions = {agent_1: {Actions.FORWARD: 1}, agent_2: {Actions.FORWARD: 1}}
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0}}
 
     simple_jungle = EmptyJungle(size=11)
     simple_jungle.add_agents(agent_1, agent_2)
@@ -369,6 +375,7 @@ def test_exits():
     assert rew[agent_1] == Definitions.REWARD_EXIT_VERY_HIGH.value
     assert rew[agent_1] == Definitions.REWARD_EXIT_VERY_HIGH.value
 
+    print('is done?', agent_1.done)
     assert agent_1.done is True
     assert agent_2.done is True
 

@@ -12,9 +12,10 @@ class ElementsEnv(Enum):
     # cooperation as they both need to have picked up logs
 
     EMPTY = auto()
-    FREE_EXIT = auto()
-    RIVER_EXIT = auto()
-    BOULDER_EXIT = auto()
+    EXIT_EASY = auto()
+    EXIT_DIFFICULT = auto()
+    EXIT_WHITE = auto()
+    EXIT_BLACK = auto()
     RIVER = auto()
     BOULDER = auto()
     TREE = auto()
@@ -28,6 +29,11 @@ class Definitions(Enum):
     LOG_RATE = 3
     REWARD_BUMP = -5
     REWARD_CUT_TREE = -2
+    REWARD_EXIT_AVERAGE = 15
+    REWARD_EXIT_HIGH = 50
+    REWARD_EXIT_VERY_HIGH = 100
+    REWARD_EXIT_LOW = 5
+
 
 
 

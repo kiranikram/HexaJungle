@@ -111,8 +111,16 @@ class EmptyJungle:
         # self.agent_black, actions)
 
         rew = {self.agent_black: 0.0, self.agent_white: 0.0}
-        ag_white_rew = self.apply_action(self.agent_white, actions, rew[self.agent_white])
-        ag_black_rew = self.apply_action(self.agent_black, actions, rew[self.agent_black])
+        done = {self.agent_black: False, self.agent_white: False}
+
+        ag_white_rew, white_done = self.apply_action(self.agent_white, actions, rew[self.agent_white],
+                                                     done[self.agent_white])
+        ag_black_rew, black_done = self.apply_action(self.agent_black, actions, rew[self.agent_black],
+                                                     done[self.agent_black])
+
+        print('white done', white_done , 'black done', black_done)
+        done[self.agent_white] = white_done
+        done[self.agent_black] = black_done
 
         rew[self.agent_white] = ag_white_rew
         rew[self.agent_black] = ag_black_rew
@@ -130,7 +138,6 @@ class EmptyJungle:
 
         # From the point of view of the policy that each 'brain' will work,
         # do you need to know when a single agent has terminated?
-        done = self.both_exited()
 
         # don't need to be an attribute:
         # self.obs = self.generate_agent_obs()
@@ -146,7 +153,7 @@ class EmptyJungle:
     # TODO: list of rules that need to be reflected
     # 1. if agent bumps into obstacle, does not move from original position
     # 2. if next cell is river, and does not have enough logs, drowns
-    def apply_action(self, agent, actions, agent_rew):
+    def apply_action(self, agent, actions, agent_rew, agent_done):
 
         # assuming moves forward first, then changes angle
 
@@ -168,6 +175,10 @@ class EmptyJungle:
             if next_cell == ElementsEnv.OBSTACLE.value:
                 agent_rew = float(Definitions.REWARD_BUMP.value)
                 row_new, col_new = row, col
+            else:
+
+                agent_rew = self.get_reward(next_cell, agent_rew, agent)
+                agent_done = self.agent_exited(next_cell)
 
             agent.grid_position = row_new, col_new
 
@@ -178,7 +189,7 @@ class EmptyJungle:
             if agent.wood_logs < 2:
                 agent.wood_logs += 1
 
-        return agent_rew
+        return agent_rew, agent_done
 
         # for now, to pass the test, you only need to move forward.
         # later, with more tests, you would need to check for obstacles, other agents, etc...
@@ -208,20 +219,20 @@ class EmptyJungle:
 
         return row_new, col_new, next_cell
 
+    def agent_exited(self, next_cell):
+        
+        exits = [ElementsEnv.EXIT_EASY.value, ElementsEnv.EXIT_DIFFICULT.value, ElementsEnv.EXIT_WHITE.value,
+                 ElementsEnv.EXIT_BLACK.value]
 
-
-    def both_exited(self):
-        # if agent_1.grid_position and agent_2.grid_position in self.exits:
-        #    return True
-
-        # For now, this is sufficient to pass the tests.
-        done = {self.agent_black: False, self.agent_white: False}
-        return done
+        for e in exits:
+            if next_cell == e:
+                print('exit',e)
+                return True
+            else:
+                return False
 
     def generate_agent_obs(self):
         return {self.agent_black: None, self.agent_white: None}
-
-
 
     def cell_type(self, x, y):
         return self.grid_env[x, y]
@@ -238,9 +249,23 @@ class EmptyJungle:
 
         return x, y
 
-    def get_reward(self, rew, actions):
+    def get_reward(self, next_cell, agent_rew, agent):
 
-        rew[self.agent_white] = float(Definitions.REWARD_BUMP.value)
-        rew[self.agent_white] = float(Definitions.REWARD_BUMP.value)
+        if next_cell == ElementsEnv.EXIT_EASY.value:
+            agent_rew = float(Definitions.REWARD_EXIT_AVERAGE.value)
+        elif next_cell == ElementsEnv.EXIT_DIFFICULT.value:
+            agent_rew = float(Definitions.REWARD_EXIT_HIGH.value)
 
-        return rew
+        if agent == self.agent_white:
+            if next_cell == ElementsEnv.EXIT_WHITE.value:
+                agent_rew = float(Definitions.REWARD_EXIT_VERY_HIGH.value)
+            elif next_cell == ElementsEnv.EXIT_BLACK.value:
+                agent_rew = float(Definitions.REWARD_EXIT_LOW.value)
+
+        if agent == self.agent_black:
+            if next_cell == ElementsEnv.EXIT_BLACK.value:
+                agent_rew = float(Definitions.REWARD_EXIT_VERY_HIGH.value)
+            elif next_cell == ElementsEnv.EXIT_WHITE.value:
+                agent_rew = float(Definitions.REWARD_EXIT_LOW.value)
+
+        return agent_rew

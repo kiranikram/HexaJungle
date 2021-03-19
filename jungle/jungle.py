@@ -204,30 +204,7 @@ class EmptyJungle:
 
         return row_new, col_new, next_cell
 
-    # def get_proximal_coordinate(self, row, col, angle):
-
-    # row_new, col_new = int(row), int(col)
-
-    # if angle == 0:
-    # row_new -= 2
-    # elif angle == 1:
-    # row_new -= 1
-    # col_new += 1
-    # elif angle == 2:
-    # row_new += 1
-    # col_new += 1
-    # elif angle == 3:
-    # row_new += 2
-    # elif angle == 4:
-    # row_new += 1
-    # col_new += - 1
-    # else:
-    # row_new -= 1
-    # col_new -= 1
-
-    # next_cell = self.grid_env[row_new, col_new]
-
-    # return row_new, col_new, next_cell
+  
 
     def both_exited(self):
         # if agent_1.grid_position and agent_2.grid_position in self.exits:
@@ -240,29 +217,7 @@ class EmptyJungle:
     def generate_agent_obs(self):
         return {self.agent_black: None, self.agent_white: None}
 
-    # ignore for now
-    def get_black_starting(self, agent):
-        r, c = 0, 0
-        print('agent', agent)
-        # print('black one')
-        # r, c = (self.size - 1) / 2, (self.size - 1) / 2 - 1
-        # elif 'agent' == 'agent_2':
-        # print('black two ')
-        # r, c = (self.size - 1) / 2, (self.size - 1) / 2 + 1
 
-        # return r, c
-
-    # ignore for now
-    def get_white_starting(self, agent):
-        r, c = 0, 0
-        if 'agent' == 'agent_1':
-            print('white one')
-            r, c = (self.size - 1) / 2, (self.size - 1) / 2 - 1
-        elif 'agent' == 'agent_2':
-            print('white two ')
-            r, c = (self.size - 1) / 2, (self.size - 1) / 2 + 1
-
-        return r, c
 
     def cell_type(self, x, y):
         return self.grid_env[x, y]

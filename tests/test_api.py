@@ -249,7 +249,7 @@ def test_collisions_with_obstacles():
 
     # now should bump
     obs, rew, done = simple_jungle.step(actions)
-    
+
     assert agent_1.grid_position == (4, 4)
     assert rew[agent_1] == Definitions.REWARD_BUMP.value
 

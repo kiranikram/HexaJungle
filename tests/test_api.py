@@ -397,7 +397,7 @@ def test_exits():
 
 def test_gameplay_exit():
     # Game continues when one agent exits.
-    # Game terinates when both agents exit.
+    # Game terminates when both agents exit.
 
     agent_1 = Agent(range_observation=4)
     agent_2 = Agent(range_observation=6)
@@ -408,16 +408,18 @@ def test_gameplay_exit():
     simple_jungle.add_agents(agent_1, agent_2)
     simple_jungle.add_object(ElementsEnv.EXIT_EASY, (5, 3))
 
-    actions = {agent_1: {Actions.FORWARD: 1}}
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0}}
 
     _, rew, done = simple_jungle.step(actions)
 
     assert done is False
-    assert agent_1.done
+    assert agent_1.done is True
     assert not agent_2.done
 
     # agent 2 rotates then goes towards exit.
-    actions = {agent_2: {Actions.ROTATE: 1}}
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 1}}
 
     simple_jungle.step(actions)
     simple_jungle.step(actions)
@@ -426,7 +428,11 @@ def test_gameplay_exit():
     assert agent_1.done
     assert not agent_2.done
 
-    actions = {agent_2: {Actions.FORWARD: 1}}
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0}}
+
+    # @MG needed to add exit as per agent2's starting position and your suggested^ actions
+    simple_jungle.add_object(ElementsEnv.EXIT_EASY, (5, 4))
 
     simple_jungle.step(actions)
     _, rew, done = simple_jungle.step(actions)

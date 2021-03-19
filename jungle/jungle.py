@@ -21,11 +21,13 @@ class EmptyJungle:
         self.agent_white = None
         self.agent_black = None
 
+        self.agents = []
+        self.done = False
+
         # @KI: this would be specific for each agent
         # self.logs_collected = None
 
         # @KI: don't need that, this is calculated by the step function
-
 
     def place_obstacles(self):
 
@@ -118,9 +120,18 @@ class EmptyJungle:
         ag_black_rew, black_done = self.apply_action(self.agent_black, actions, rew[self.agent_black],
                                                      done[self.agent_black])
 
-
         done[self.agent_white] = white_done
         done[self.agent_black] = black_done
+
+        if white_done is True and black_done is True:
+            done = True
+        else:
+            done = False
+
+        self.agent_white.done = white_done
+
+        self.agent_black.done = black_done
+
 
         rew[self.agent_white] = ag_white_rew
         rew[self.agent_black] = ag_black_rew
@@ -172,17 +183,16 @@ class EmptyJungle:
 
         if movement_forward != 0:
             row_new, col_new, next_cell = self.get_proximal_coordinate(row, col, agent.angle)
-            if next_cell == ElementsEnv.OBSTACLE.value:
-                agent_rew = float(Definitions.REWARD_BUMP.value)
-                row_new, col_new = row, col
-            else:
+        else:
+            row_new, col_new = row, col
+        if next_cell == ElementsEnv.OBSTACLE.value:
+            agent_rew = float(Definitions.REWARD_BUMP.value)
+            row_new, col_new = row, col
+        else:
+            agent_rew = self.get_reward(next_cell, agent_rew, agent)
+            agent_done = self.agent_exited(next_cell)
 
-                agent_rew = self.get_reward(next_cell, agent_rew, agent)
-
-
-                agent_done = self.agent_exited(next_cell)
-
-            agent.grid_position = row_new, col_new
+        agent.grid_position = row_new, col_new
 
         if next_cell == ElementsEnv.TREE.value:
             agent_rew = float(Definitions.REWARD_CUT_TREE.value)
@@ -222,7 +232,6 @@ class EmptyJungle:
         return row_new, col_new, next_cell
 
     def agent_exited(self, next_cell):
-        
 
         exits = [ElementsEnv.EXIT_EASY.value, ElementsEnv.EXIT_DIFFICULT.value, ElementsEnv.EXIT_WHITE.value,
                  ElementsEnv.EXIT_BLACK.value]

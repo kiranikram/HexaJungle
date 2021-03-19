@@ -4,6 +4,7 @@ import math
 
 from jungle.utils import ElementsEnv, Actions, Definitions
 
+
 class EmptyJungle:
 
     def __init__(self, size):
@@ -21,10 +22,10 @@ class EmptyJungle:
         self.agent_black = None
 
         # @KI: this would be specific for each agent
-        #self.logs_collected = None
+        # self.logs_collected = None
 
         # @KI: don't need that, this is calculated by the step function
-        # self.rew = {self.agent_black: 0.0, self.agent_white: 0.0}
+        self.rew = {self.agent_black: 0.0, self.agent_white: 0.0}
 
     def place_obstacles(self):
 
@@ -41,25 +42,6 @@ class EmptyJungle:
         # @  kiran: because of symmetry, not sure you need this one.
         # for row in range(2, self.size - 2, 2):
         #     self.grid_env[row, self.size - 2] = ElementsEnv.OBSTACLE.value
-
-        # add empty
-        # @ Kiran: here, the value of the grid is by default 0.
-
-        # self.grid_env[1, 1] = ElementsEnv.EMPTY.value
-        # self.grid_env[1, 2] = ElementsEnv.EMPTY.value
-        # self.grid_env[2, 2] = ElementsEnv.EMPTY.value
-        #
-        # self.grid_env[2, self.size - 3] = ElementsEnv.EMPTY.value
-        # self.grid_env[1, self.size - 3] = ElementsEnv.EMPTY.value
-        # self.grid_env[1, self.size - 2] = ElementsEnv.EMPTY.value
-        #
-        # self.grid_env[self.size - 3, self.size - 3] = ElementsEnv.EMPTY.value
-        # self.grid_env[self.size - 2, self.size - 3] = ElementsEnv.EMPTY.value
-        # self.grid_env[self.size - 2, self.size - 2] = ElementsEnv.EMPTY.value
-        #
-        # self.grid_env[self.size - 2, 1] = ElementsEnv.EMPTY.value
-        # self.grid_env[self.size - 2, 2] = ElementsEnv.EMPTY.value
-        # self.grid_env[self.size - 3, 2] = ElementsEnv.EMPTY.value
 
         # place exits
         #
@@ -108,7 +90,6 @@ class EmptyJungle:
         self.agent_black.x, self.agent_black.y = self.update_cartesian(self.agent_black)
         self.agent_white.x, self.agent_white.y = self.update_cartesian(self.agent_white)
 
-
     def step(self, actions):
 
         # because you pass objects (agents), you can make that much more simple
@@ -123,21 +104,29 @@ class EmptyJungle:
         # so maybe, instead:  elevated, cut_tree = self.apply_action( agent, actions) ?
 
         # dont need to return position etccc changed in apply action automatically
-        self.agent_white.grid_position, self.agent_white.angle, self.agent_white.wood_logs = self.apply_action(
-            self.agent_white, actions)
+        # self.agent_white.grid_position, self.agent_white.angle, self.agent_white.wood_logs = self.apply_action(
+        # self.agent_white, actions)
 
-        self.agent_black.grid_position, self.agent_black.angle, self.agent_black.wood_logs = self.apply_action(
-            self.agent_black, actions)
+        # self.agent_black.grid_position, self.agent_black.angle, self.agent_black.wood_logs = self.apply_action(
+        # self.agent_black, actions)
+
+        rew = {self.agent_black: 0.0, self.agent_white: 0.0}
+        ag_white_rew = self.apply_action(self.agent_white, actions, rew[self.agent_white])
+        ag_black_rew = self.apply_action(self.agent_black, actions, rew[self.agent_black])
+
+        rew[self.agent_white] = ag_white_rew
+        rew[self.agent_black] = ag_black_rew
 
         # For now, we don't need observations and rewards, so we will just return dummies
         # Later, we will replace it by the correct rewards and observations
         # but before that we will write tests about it.
 
-        rew = {self.agent_black: 0.0, self.agent_white: 0.0}
+        # @MG I feel that this reward dict needs to be outside of step, as each call to step will
+        # update a running total for each of the agents
 
         # make function to test for what kind of reward
-        rew[self.agent_white] = float(Definitions.REWARD_BUMP.value)
-        rew[self.agent_black] = float(Definitions.REWARD_BUMP.value)
+
+        # rew = self.get_reward(rew,actions)
 
         # From the point of view of the policy that each 'brain' will work,
         # do you need to know when a single agent has terminated?
@@ -150,19 +139,20 @@ class EmptyJungle:
         self.agent_black.x, self.agent_black.y = self.update_cartesian(self.agent_black)
         self.agent_white.x, self.agent_white.y = self.update_cartesian(self.agent_white)
 
-        #self.logs_collected = self.agent_white.log_cache + self.agent_black.log_cache
+        # self.logs_collected = self.agent_white.log_cache + self.agent_black.log_cache
 
         return obs, rew, done
 
-    def apply_action(self, agent, actions):
-
-
-        ## here we test if ,moves to
+    # TODO: list of rules that need to be reflected
+    # 1. if agent bumps into obstacle, does not move from original position
+    # 2. if next cell is river, and does not have enough logs, drowns
+    def apply_action(self, agent, actions, agent_rew):
 
         # assuming moves forward first, then changes angle
 
         row, col = agent.grid_position
         angle = agent.angle
+        next_cell = self.grid_env[int(row), int(col)]
 
         agent_actions = actions[agent]
 
@@ -172,30 +162,26 @@ class EmptyJungle:
         agent.angle = (angle + rotation) % 6
 
         movement_forward = agent_actions[Actions.FORWARD]
+
         if movement_forward != 0:
-            r, c, next_cell = self.get_proximal_coordinate(row, col, agent.angle)
+            row_new, col_new, next_cell = self.get_proximal_coordinate(row, col, agent.angle)
+            if next_cell == ElementsEnv.OBSTACLE.value:
+                agent_rew = float(Definitions.REWARD_BUMP.value)
+                row_new, col_new = row, col
 
-        else:
-            r, c = row, col
-            next_cell = self.grid_env[int(row), int(col)]
-
-        agent.grid_position = r, c
-
+            agent.grid_position = row_new, col_new
 
         if next_cell == ElementsEnv.TREE.value:
             agent.wood_logs += 1
 
+        return agent_rew
+
         # for now, to pass the test, you only need to move forward.
         # later, with more tests, you would need to check for obstacles, other agents, etc...
 
-        return agent.grid_position, agent.angle, agent.wood_logs
-
     def get_proximal_coordinate(self, row, col, angle):
 
-
         row_new, col_new = row, col
-
-        print('initial', row_new, col_new, angle)
 
         if angle == 0:
             col_new += 1
@@ -216,34 +202,32 @@ class EmptyJungle:
 
         next_cell = self.grid_env[int(row_new), int(col_new)]
 
-        print('POST', row_new, col_new)
-
         return row_new, col_new, next_cell
 
-    #def get_proximal_coordinate(self, row, col, angle):
+    # def get_proximal_coordinate(self, row, col, angle):
 
-        #row_new, col_new = int(row), int(col)
+    # row_new, col_new = int(row), int(col)
 
-        #if angle == 0:
-            #row_new -= 2
-        #elif angle == 1:
-            #row_new -= 1
-            #col_new += 1
-        #elif angle == 2:
-            #row_new += 1
-            #col_new += 1
-        #elif angle == 3:
-            #row_new += 2
-        #elif angle == 4:
-            #row_new += 1
-            #col_new += - 1
-        #else:
-            #row_new -= 1
-            #col_new -= 1
+    # if angle == 0:
+    # row_new -= 2
+    # elif angle == 1:
+    # row_new -= 1
+    # col_new += 1
+    # elif angle == 2:
+    # row_new += 1
+    # col_new += 1
+    # elif angle == 3:
+    # row_new += 2
+    # elif angle == 4:
+    # row_new += 1
+    # col_new += - 1
+    # else:
+    # row_new -= 1
+    # col_new -= 1
 
-        #next_cell = self.grid_env[row_new, col_new]
+    # next_cell = self.grid_env[row_new, col_new]
 
-        #return row_new, col_new, next_cell
+    # return row_new, col_new, next_cell
 
     def both_exited(self):
         # if agent_1.grid_position and agent_2.grid_position in self.exits:
@@ -256,7 +240,7 @@ class EmptyJungle:
     def generate_agent_obs(self):
         return {self.agent_black: None, self.agent_white: None}
 
-    # ignore fgor now
+    # ignore for now
     def get_black_starting(self, agent):
         r, c = 0, 0
         print('agent', agent)
@@ -288,8 +272,16 @@ class EmptyJungle:
         c = coords[1]
         self.grid_env[r, c] = item.value
 
+    # TODO: change this to property in agent class
     def update_cartesian(self, agent):
         x = agent.grid_position[1] + 0.5
         y = (self.size - 1 - agent.grid_position[0]) * math.sqrt(3) / 2
 
         return x, y
+
+    def get_reward(self, rew, actions):
+
+        rew[self.agent_white] = float(Definitions.REWARD_BUMP.value)
+        rew[self.agent_white] = float(Definitions.REWARD_BUMP.value)
+
+        return rew

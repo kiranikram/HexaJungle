@@ -7,6 +7,7 @@ from jungle.utils import Actions, Definitions, ElementsEnv
 
 from jungle.jungle import EmptyJungle
 
+
 # @KI import directly EmptyJungle
 # EmptyJungle = jungle.EmptyJungle
 
@@ -195,7 +196,6 @@ def test_movements():
 
 
 def test_collisions_with_obstacles():
-
     # Agent 1 moves and collides with obstacles.
     # Looks something like:
     #  . X .
@@ -213,7 +213,11 @@ def test_collisions_with_obstacles():
     simple_jungle.add_object(ElementsEnv.OBSTACLE, (3, 3))
 
     # just forward, towards the object.
-    actions = {agent_1: {Actions.FORWARD: 1,Actions.ROTATE: 0}}
+    # TODO: put in agent 2 actions for these tests; currently they are at zero
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0}
+               }
+
     obs, rew, done = simple_jungle.step(actions)
 
     assert agent_1.grid_position == (5, 4)
@@ -222,21 +226,34 @@ def test_collisions_with_obstacles():
     assert rew[agent_1] == Definitions.REWARD_BUMP.value
 
     # now rotate, then forward towards another object.
-    actions = {agent_1: {Actions.FORWARD: 1,Actions.ROTATE: -1}}
+
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0}
+               }
+
     obs, rew, done = simple_jungle.step(actions)
+
+    assert rew[agent_1] == 0.0
     assert agent_1.angle == 2
 
-    actions = {agent_1: {Actions.FORWARD: 1,Actions.ROTATE: 0}}
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0}
+               }
+
     obs, rew, done = simple_jungle.step(actions)
+
     assert agent_1.grid_position == (4, 4)
-    assert rew[agent_1] == 0
+
+    # @MG according to the order of events this was in the wrong place so Imoved it up
+    # assert rew[agent_1] == 0.0
 
     # now should bump
     obs, rew, done = simple_jungle.step(actions)
+    
     assert agent_1.grid_position == (4, 4)
     assert rew[agent_1] == Definitions.REWARD_BUMP.value
 
-    assert agent_1.angle == 3
+    assert agent_1.angle == 2
 
     assert rew[agent_1] == Definitions.REWARD_BUMP.value
 
@@ -291,8 +308,8 @@ def test_collision_with_tree():
     # we are limiting the number of tree logs to 2.
     # then, later, agents would need 4 logs total to replace water by empty (building a bridge)
 
-def test_exits():
 
+def test_exits():
     agent_1 = Agent(range_observation=4)
     agent_2 = Agent(range_observation=6)
 
@@ -369,7 +386,6 @@ def test_exits():
 
 
 def test_gameplay_exit():
-
     # Game continues when one agent exits.
     # Game terinates when both agents exit.
 

@@ -132,7 +132,6 @@ class EmptyJungle:
 
         self.agent_black.done = black_done
 
-
         rew[self.agent_white] = ag_white_rew
         rew[self.agent_black] = ag_black_rew
 
@@ -195,7 +194,7 @@ class EmptyJungle:
         agent.grid_position = row_new, col_new
 
         if next_cell == ElementsEnv.TREE.value:
-            self.grid_env[int(row_new),int(col_new)] = ElementsEnv.EMPTY.value
+            self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
             agent_rew = float(Definitions.REWARD_CUT_TREE.value)
             # There is a cap on the number of logs an agent can collect
             # This should be a parameter of the jungle subclass
@@ -272,12 +271,17 @@ class EmptyJungle:
                 agent_rew = float(Definitions.REWARD_EXIT_VERY_HIGH.value)
             elif next_cell == ElementsEnv.EXIT_BLACK.value:
                 agent_rew = float(Definitions.REWARD_EXIT_LOW.value)
-            
+            elif next_cell == ElementsEnv.RIVER.value:
+                if self.agent_black.grid_position != self.agent_white.grid_position:
+                    agent_rew = float(Definitions.REWARD_DROWN.value)
 
         if agent == self.agent_black:
             if next_cell == ElementsEnv.EXIT_BLACK.value:
                 agent_rew = float(Definitions.REWARD_EXIT_VERY_HIGH.value)
             elif next_cell == ElementsEnv.EXIT_WHITE.value:
                 agent_rew = float(Definitions.REWARD_EXIT_LOW.value)
+            elif next_cell == ElementsEnv.RIVER.value:
+                if self.agent_black.grid_position != self.agent_white.grid_position:
+                    agent_rew = float(Definitions.REWARD_DROWN.value)
 
         return agent_rew

@@ -563,7 +563,7 @@ def test_build_bridge():
     assert rew[agent_2] == Definitions.REWARD_BUILT_BRIDGE.value
 
     # assert river cell becomes bridge cell
-    #assert simple_jungle.cell_type(4, 4) == ElementsEnv.BRIDGE.value
+    assert simple_jungle.cell_type(4, 4) == ElementsEnv.BRIDGE.value
 
     # assert they stay at original position
     #assert agent_1.grid_position == (5, 4)

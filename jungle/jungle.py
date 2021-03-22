@@ -190,10 +190,12 @@ class EmptyJungle:
             agent_rew = float(Definitions.REWARD_BUMP.value)
             row_new, col_new = row, col
 
-
         elif next_cell == ElementsEnv.RIVER.value:
             print('we here')
-            agent_rew = self.check_agents_at_river(agent, next_cell, actions, agent_rew)
+            agent_rew = self.check_agents_at_river(agent, next_cell, actions, agent_rew,row_new,col_new)
+            #if self.both_at_river:
+                #self.grid_env[int(row_new), int(col_new)] = ElementsEnv.BRIDGE.value
+
 
         # TODO over here check if next cell is river for both of them ; if so can go on to check for logs and build
         #  bridge
@@ -308,10 +310,11 @@ class EmptyJungle:
 
         return agent_rew
 
-    def check_agents_at_river(self, agent, next_cell, actions, agent_rew):
+    def check_agents_at_river(self, agent, next_cell, actions, agent_rew,row_new,col_new):
 
         if self.both_at_river:
             agent_rew = float(Definitions.REWARD_BUILT_BRIDGE.value)
+            self.grid_env[int(row_new), int(col_new)] = ElementsEnv.BRIDGE.value
         else:
             if agent.color == Definitions.BLACK:
 

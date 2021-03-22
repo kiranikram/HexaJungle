@@ -458,8 +458,8 @@ def test_cut_tree():
 
     _, rew, done = simple_jungle.step(actions)
 
-    assert agent_1.wood_logs == 1
-    assert simple_jungle.cell_type(5,7) == ElementsEnv.EMPTY.value
+    assert agent_2.wood_logs == 1
+    assert simple_jungle.cell_type(5, 7) == ElementsEnv.EMPTY.value
 
     # assert increase in logs for agent 2 and tree converts to empty + agent has logs
 

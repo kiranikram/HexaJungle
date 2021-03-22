@@ -493,3 +493,65 @@ def test_approach_river_together():
 
     # both agents need to be at River, otherwise lone agent at river dies
     assert rew[agent_2] == Definitions.REWARD_DROWN.value
+
+
+def test_build_bridge():
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=6)
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    simple_jungle.add_object(ElementsEnv.RIVER, (4, 4))
+    simple_jungle.add_object(ElementsEnv.TREE, (4, 6))
+    simple_jungle.add_object(ElementsEnv.TREE, (4, 5))
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: -1},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 1}}
+
+    _, rew, done = simple_jungle.step(actions)
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 1}}
+
+    _, rew, done = simple_jungle.step(actions)
+    
+
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0}}
+
+    _, rew, done = simple_jungle.step(actions)
+    print(agent_1.grid_position, agent_1.angle)
+    print(agent_2.grid_position, agent_2.angle)
+    print(" ")
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 1}}
+
+    _, rew, done = simple_jungle.step(actions)
+    print(agent_1.grid_position, agent_1.angle)
+    print(agent_2.grid_position, agent_2.angle)
+    print(" ")
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0}}
+
+    _, rew, done = simple_jungle.step(actions)
+
+    print(agent_1.grid_position, agent_1.angle)
+    print(agent_2.grid_position, agent_2.angle)
+
+    # assert there are enough logs
+    assert (agent_1.wood_logs + agent_2.wood_logs) >= 2
+
+    # assert they both get reward for building bridge (both need to be at river)
+    assert rew[agent_1] == Definitions.REWARD_BUILT_BRIDGE.value
+    assert rew[agent_2] == Definitions.REWARD_BUILT_BRIDGE.value
+
+    # assert river cell becomes bridge cell
+    assert simple_jungle.cell_type(4, 4) == ElementsEnv.BRIDGE.value
+
+    # assert they stay at original position
+    assert agent_1.grid_position == (5, 4)
+    assert agent_1.grid_position == (4, 5)
+

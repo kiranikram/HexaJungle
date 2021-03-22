@@ -20,6 +20,7 @@ class ElementsEnv(Enum):
     BOULDER = auto()
     TREE = auto()
     OBSTACLE = auto()  # non traversable, can't climb it
+    BRIDGE = auto()
 
 
 class Definitions(Enum):
@@ -34,6 +35,7 @@ class Definitions(Enum):
     REWARD_EXIT_VERY_HIGH = 100
     REWARD_EXIT_LOW = 5
     REWARD_DROWN = -50
+    REWARD_BUILT_BRIDGE = 35
 
 
 

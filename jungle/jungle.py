@@ -272,6 +272,7 @@ class EmptyJungle:
                 agent_rew = float(Definitions.REWARD_EXIT_VERY_HIGH.value)
             elif next_cell == ElementsEnv.EXIT_BLACK.value:
                 agent_rew = float(Definitions.REWARD_EXIT_LOW.value)
+            
 
         if agent == self.agent_black:
             if next_cell == ElementsEnv.EXIT_BLACK.value:

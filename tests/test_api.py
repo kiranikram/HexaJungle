@@ -472,3 +472,24 @@ def test_cut_tree():
 
     assert agent_1.wood_logs == 1
     assert simple_jungle.cell_type(3, 5) == ElementsEnv.EMPTY.value
+
+
+def test_approach_river_together():
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=6)
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    simple_jungle.add_object(ElementsEnv.RIVER, (4, 5))
+
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 1}}
+
+    _, rew, done = simple_jungle.step(actions)
+    _, rew, done = simple_jungle.step(actions)
+    _, rew, done = simple_jungle.step(actions)
+    _, rew, done = simple_jungle.step(actions)
+
+    # both agents need to be at River, otherwise lone agent at river dies
+    assert rew[agent_2] == Definitions.REWARD_DROWN.value

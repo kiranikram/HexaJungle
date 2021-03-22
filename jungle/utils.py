@@ -33,6 +33,7 @@ class Definitions(Enum):
     REWARD_EXIT_HIGH = 50
     REWARD_EXIT_VERY_HIGH = 100
     REWARD_EXIT_LOW = 5
+    REWARD_DROWN = -50
 
 
 

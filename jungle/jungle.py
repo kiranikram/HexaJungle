@@ -187,6 +187,8 @@ class EmptyJungle:
         if next_cell == ElementsEnv.OBSTACLE.value:
             agent_rew = float(Definitions.REWARD_BUMP.value)
             row_new, col_new = row, col
+
+        # TODO overhere check if next cell is river for both of them ; if so can go on to check for logs and build bridge 
         else:
             agent_rew = self.get_reward(next_cell, agent_rew, agent)
             agent_done = self.agent_exited(next_cell)
@@ -260,28 +262,43 @@ class EmptyJungle:
         return x, y
 
     def get_reward(self, next_cell, agent_rew, agent):
-
         if next_cell == ElementsEnv.EXIT_EASY.value:
             agent_rew = float(Definitions.REWARD_EXIT_AVERAGE.value)
         elif next_cell == ElementsEnv.EXIT_DIFFICULT.value:
             agent_rew = float(Definitions.REWARD_EXIT_HIGH.value)
+
+        elif next_cell == ElementsEnv.RIVER.value:
+            print(agent.color, ' at river here ')
+            print(self.agent_black.grid_position,self.agent_white.grid_position)
+            if self.agent_black.grid_position == self.agent_white.grid_position:
+                print('both at river')
+                if (self.agent_black.wood_logs + self.agent_white.wood_logs) >= 2:
+                    agent_rew = float(Definitions.REWARD_BUILT_BRIDGE.value)
+                else:
+                    agent_rew = float(Definitions.REWARD_DROWN.value)
+            else:
+                agent_rew = float(Definitions.REWARD_DROWN.value)
 
         if agent == self.agent_white:
             if next_cell == ElementsEnv.EXIT_WHITE.value:
                 agent_rew = float(Definitions.REWARD_EXIT_VERY_HIGH.value)
             elif next_cell == ElementsEnv.EXIT_BLACK.value:
                 agent_rew = float(Definitions.REWARD_EXIT_LOW.value)
-            elif next_cell == ElementsEnv.RIVER.value:
-                if self.agent_black.grid_position != self.agent_white.grid_position:
-                    agent_rew = float(Definitions.REWARD_DROWN.value)
+            #elif next_cell == ElementsEnv.RIVER.value:
+                #if self.agent_black.grid_position != self.agent_white.grid_position:
+                    #agent_rew = float(Definitions.REWARD_DROWN.value)
 
         if agent == self.agent_black:
             if next_cell == ElementsEnv.EXIT_BLACK.value:
                 agent_rew = float(Definitions.REWARD_EXIT_VERY_HIGH.value)
             elif next_cell == ElementsEnv.EXIT_WHITE.value:
                 agent_rew = float(Definitions.REWARD_EXIT_LOW.value)
-            elif next_cell == ElementsEnv.RIVER.value:
-                if self.agent_black.grid_position != self.agent_white.grid_position:
-                    agent_rew = float(Definitions.REWARD_DROWN.value)
+            #elif next_cell == ElementsEnv.RIVER.value:
+
+                #if self.agent_black.grid_position != self.agent_white.grid_position:
+                    #print('agent drowns')
+                    #agent_rew = float(Definitions.REWARD_DROWN.value)
+
+
 
         return agent_rew

@@ -491,12 +491,15 @@ def test_approach_river_together():
     _, rew, done = simple_jungle.step(actions)
     _, rew, done = simple_jungle.step(actions)
 
+    print(agent_2.color)
+    print(agent_2.grid_position)
+
     # both agents need to be at River, otherwise lone agent at river dies
     assert rew[agent_2] == Definitions.REWARD_DROWN.value
 
 
 def test_build_bridge():
-    #TODO PROBLEM calcs are based on next cell computation; however next cell is river comes at diff atages for each agent
+
     agent_1 = Agent(range_observation=4)
     agent_2 = Agent(range_observation=6)
 

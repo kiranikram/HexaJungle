@@ -190,53 +190,13 @@ class EmptyJungle:
             agent_rew = float(Definitions.REWARD_BUMP.value)
             row_new, col_new = row, col
 
-        # TODO send this whole lotta code elsewhere
+
         elif next_cell == ElementsEnv.RIVER.value:
-            if self.both_at_river:
-                agent_rew = float(Definitions.REWARD_BUILT_BRIDGE.value)
-            else:
-                if agent.color == Definitions.BLACK:
-                    print('agent', agent.grid_position, 'buddy', self.agent_white.grid_position)
-                    print('checks for black')
-                    partner_row, partner_col = self.agent_white.grid_position
-                    partner_angle = self.agent_white.angle
-                    partner_actions = actions[self.agent_white]
-                    partner_rotation = partner_actions[Actions.ROTATE]
-                    partner_angle = (partner_angle + partner_rotation)
-                # need to also assume that other agent will move fwd
-                    print('row col in black',partner_row , partner_col)
-                    _, _, partner_next_cell = self.get_proximal_coordinate(partner_row,partner_col,partner_angle)
-                    print('cells black', partner_next_cell, next_cell)
-                    if partner_next_cell == next_cell:
-                        print ('cells black', partner_next_cell, next_cell)
-                        if self.agent_white.wood_logs + self.agent_black.wood_logs >= 2:
-                            agent_rew = float(Definitions.REWARD_BUILT_BRIDGE.value)
-                            self.both_at_river = True
-                        else:
-                            agent_rew = float(Definitions.REWARD_BUILT_BRIDGE.value)
-                elif agent.color == Definitions.WHITE:
-                    print('agent', agent.grid_position, 'buddy', self.agent_black.grid_position)
-                    print('checks for white')
-                    partner_row, partner_col = self.agent_black.grid_position
-                    partner_angle = self.agent_black.angle
-                    partner_actions = actions[self.agent_black]
-                    partner_rotation = partner_actions[Actions.ROTATE]
-                    partner_angle = (partner_angle + partner_rotation)
-                # need to also assume that other agent will move fwd
-                    print('row col in white', partner_row, partner_col)
-                    _, _, partner_next_cell = self.get_proximal_coordinate(partner_row,partner_col,partner_angle)
-                    print('cells white', partner_next_cell, next_cell)
-                    if partner_next_cell == next_cell:
-                        print('cells white', partner_next_cell, next_cell)
-                        if self.agent_white.wood_logs + self.agent_black.wood_logs >= 2:
-                            agent_rew = float(Definitions.REWARD_BUILT_BRIDGE.value)
-                            self.both_at_river = True
-                        else:
-                            agent_rew = float(Definitions.REWARD_BUILT_BRIDGE.value)
+            print('we here')
+            agent_rew = self.check_agents_at_river(agent, next_cell, actions, agent_rew)
 
-
-
-        # TODO overhere check if next cell is river for both of them ; if so can go on to check for logs and build bridge
+        # TODO over here check if next cell is river for both of them ; if so can go on to check for logs and build
+        #  bridge
         else:
             agent_rew = self.get_reward(next_cell, agent_rew, agent)
             agent_done = self.agent_exited(next_cell)
@@ -315,38 +275,85 @@ class EmptyJungle:
         elif next_cell == ElementsEnv.EXIT_DIFFICULT.value:
             agent_rew = float(Definitions.REWARD_EXIT_HIGH.value)
 
-        #elif next_cell == ElementsEnv.RIVER.value:
+        # elif next_cell == ElementsEnv.RIVER.value:
 
+        # if self.agent_black.grid_position == self.agent_white.grid_position:
 
-            #if self.agent_black.grid_position == self.agent_white.grid_position:
-
-                #if (self.agent_black.wood_logs + self.agent_white.wood_logs) >= 2:
-                    #agent_rew = float(Definitions.REWARD_BUILT_BRIDGE.value)
-                #else:
-                    #agent_rew = float(Definitions.REWARD_DROWN.value)
-            #else:
-                #agent_rew = float(Definitions.REWARD_DROWN.value)
+        # if (self.agent_black.wood_logs + self.agent_white.wood_logs) >= 2:
+        # agent_rew = float(Definitions.REWARD_BUILT_BRIDGE.value)
+        # else:
+        # agent_rew = float(Definitions.REWARD_DROWN.value)
+        # else:
+        # agent_rew = float(Definitions.REWARD_DROWN.value)
 
         if agent == self.agent_white:
             if next_cell == ElementsEnv.EXIT_WHITE.value:
                 agent_rew = float(Definitions.REWARD_EXIT_VERY_HIGH.value)
             elif next_cell == ElementsEnv.EXIT_BLACK.value:
                 agent_rew = float(Definitions.REWARD_EXIT_LOW.value)
-            #elif next_cell == ElementsEnv.RIVER.value:
-                #if self.agent_black.grid_position != self.agent_white.grid_position:
-                    #agent_rew = float(Definitions.REWARD_DROWN.value)
+            # elif next_cell == ElementsEnv.RIVER.value:
+            # if self.agent_black.grid_position != self.agent_white.grid_position:
+            # agent_rew = float(Definitions.REWARD_DROWN.value)
 
         if agent == self.agent_black:
             if next_cell == ElementsEnv.EXIT_BLACK.value:
                 agent_rew = float(Definitions.REWARD_EXIT_VERY_HIGH.value)
             elif next_cell == ElementsEnv.EXIT_WHITE.value:
                 agent_rew = float(Definitions.REWARD_EXIT_LOW.value)
-            #elif next_cell == ElementsEnv.RIVER.value:
+            # elif next_cell == ElementsEnv.RIVER.value:
 
-                #if self.agent_black.grid_position != self.agent_white.grid_position:
-                    #print('agent drowns')
-                    #agent_rew = float(Definitions.REWARD_DROWN.value)
+            # if self.agent_black.grid_position != self.agent_white.grid_position:
+            # print('agent drowns')
+            # agent_rew = float(Definitions.REWARD_DROWN.value)
 
+        return agent_rew
 
+    def check_agents_at_river(self, agent, next_cell, actions, agent_rew):
+
+        if self.both_at_river:
+            agent_rew = float(Definitions.REWARD_BUILT_BRIDGE.value)
+        else:
+            if agent.color == Definitions.BLACK:
+
+                partner_row, partner_col = self.agent_white.grid_position
+                partner_angle = self.agent_white.angle
+                partner_actions = actions[self.agent_white]
+                partner_rotation = partner_actions[Actions.ROTATE]
+                partner_angle = (partner_angle + partner_rotation)
+                partner_forward = partner_actions[Actions.FORWARD]
+                if partner_forward != 0:
+                    _, _, partner_next_cell = self.get_proximal_coordinate(partner_row, partner_col, partner_angle)
+
+                    if partner_next_cell == next_cell:
+
+                        if self.agent_white.wood_logs + self.agent_black.wood_logs >= 2:
+                            agent_rew = float(Definitions.REWARD_BUILT_BRIDGE.value)
+                            self.both_at_river = True
+                        else:
+                            agent_rew = float(Definitions.REWARD_DROWN.value)
+                    else:
+                        agent_rew = float(Definitions.REWARD_DROWN.value)
+                else:
+                    agent_rew = float(Definitions.REWARD_DROWN.value)
+            elif agent.color == Definitions.WHITE:
+
+                partner_row, partner_col = self.agent_black.grid_position
+                partner_angle = self.agent_black.angle
+                partner_actions = actions[self.agent_black]
+                partner_rotation = partner_actions[Actions.ROTATE]
+                partner_angle = (partner_angle + partner_rotation)
+                partner_forward = partner_actions[Actions.FORWARD]
+                if partner_forward != 0:
+                    _, _, partner_next_cell = self.get_proximal_coordinate(partner_row, partner_col, partner_angle)
+                    if partner_next_cell == next_cell:
+                        if self.agent_white.wood_logs + self.agent_black.wood_logs >= 2:
+                            agent_rew = float(Definitions.REWARD_BUILT_BRIDGE.value)
+                            self.both_at_river = True
+                        else:
+                            agent_rew = float(Definitions.REWARD_DROWN.value)
+                    else:
+                        agent_rew = float(Definitions.REWARD_DROWN.value)
+                else:
+                    agent_rew = float(Definitions.REWARD_DROWN.value)
 
         return agent_rew

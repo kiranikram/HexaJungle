@@ -440,3 +440,35 @@ def test_gameplay_exit():
     assert agent_1.done
     assert agent_2.done
     assert done
+
+
+def test_cut_tree():
+    # agent takes 3 actions and comes to a tree. once cut , the cell becomes empty
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=6)
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    simple_jungle.add_object(ElementsEnv.TREE, (5, 7))
+    simple_jungle.add_object(ElementsEnv.TREE, (3, 5))
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0}}
+
+    _, rew, done = simple_jungle.step(actions)
+
+    assert agent_1.wood_logs == 1
+    assert simple_jungle.cell_type(5,7) == ElementsEnv.EMPTY.value
+
+    # assert increase in logs for agent 2 and tree converts to empty + agent has logs
+
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0}}
+
+    _, rew, done = simple_jungle.step(actions)
+    _, rew, done = simple_jungle.step(actions)
+    _, rew, done = simple_jungle.step(actions)
+
+    assert agent_1.wood_logs == 1
+    assert simple_jungle.cell_type(3, 5) == ElementsEnv.EMPTY.value

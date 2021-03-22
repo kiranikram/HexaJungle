@@ -190,11 +190,12 @@ class EmptyJungle:
             agent_rew = float(Definitions.REWARD_BUMP.value)
             row_new, col_new = row, col
 
+
+
         elif next_cell == ElementsEnv.RIVER.value:
             print('we here')
-            agent_rew = self.check_agents_at_river(agent, next_cell, actions, agent_rew,row_new,col_new)
-            #if self.both_at_river:
-                #self.grid_env[int(row_new), int(col_new)] = ElementsEnv.BRIDGE.value
+            row_new, col_new, agent_rew = self.check_agents_at_river(agent, next_cell, actions, agent_rew,row_new,col_new,row,col)
+
 
 
         # TODO over here check if next cell is river for both of them ; if so can go on to check for logs and build
@@ -310,11 +311,12 @@ class EmptyJungle:
 
         return agent_rew
 
-    def check_agents_at_river(self, agent, next_cell, actions, agent_rew,row_new,col_new):
+    def check_agents_at_river(self, agent, next_cell, actions, agent_rew,row_new,col_new,row,col):
 
         if self.both_at_river:
             agent_rew = float(Definitions.REWARD_BUILT_BRIDGE.value)
             self.grid_env[int(row_new), int(col_new)] = ElementsEnv.BRIDGE.value
+            row_new , col_new = row , col
         else:
             if agent.color == Definitions.BLACK:
 
@@ -332,6 +334,7 @@ class EmptyJungle:
                         if self.agent_white.wood_logs + self.agent_black.wood_logs >= 2:
                             agent_rew = float(Definitions.REWARD_BUILT_BRIDGE.value)
                             self.both_at_river = True
+                            row_new, col_new = row, col
                         else:
                             agent_rew = float(Definitions.REWARD_DROWN.value)
                     else:
@@ -352,6 +355,7 @@ class EmptyJungle:
                         if self.agent_white.wood_logs + self.agent_black.wood_logs >= 2:
                             agent_rew = float(Definitions.REWARD_BUILT_BRIDGE.value)
                             self.both_at_river = True
+                            row_new, col_new = row, col
                         else:
                             agent_rew = float(Definitions.REWARD_DROWN.value)
                     else:
@@ -359,4 +363,4 @@ class EmptyJungle:
                 else:
                     agent_rew = float(Definitions.REWARD_DROWN.value)
 
-        return agent_rew
+        return row_new , col_new , agent_rew

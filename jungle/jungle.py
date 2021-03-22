@@ -26,8 +26,6 @@ class EmptyJungle:
 
         self.both_at_river = False
 
-        # @KI: this would be specific for each agent
-        # self.logs_collected = None
 
         # @KI: don't need that, this is calculated by the step function
 

@@ -547,3 +547,72 @@ def test_build_bridge():
     # assert they stay at original position
     assert agent_1.grid_position == (5, 4)
     assert agent_2.grid_position == (4, 5)
+
+
+def test_climb_action():
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=4)
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    # agents should do something and land on the same cell
+    # then they can climb
+
+    # TODO talk to MG about what if they both decide to climb
+    # TODO talk to MG about climb down action, moving around on shoulders of other agent
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 1, Actions.CLIMB: 0}}
+
+    _, rew, done = simple_jungle.step(actions)
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 1, Actions.CLIMB: 0}}
+
+    _, rew, done = simple_jungle.step(actions)
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+
+    _, rew, done = simple_jungle.step(actions)
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 1, Actions.CLIMB: 0}}
+
+    _, rew, done = simple_jungle.step(actions)
+
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+
+    _, rew, done = simple_jungle.step(actions)
+
+    # they need to be on the same cell
+    assert agent_1.grid_position == (4, 4)
+    assert agent_2.grid_position == (4, 4)
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 1},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+
+    _, rew, done = simple_jungle.step(actions)
+
+    # black climbs, white does not move , observability increases, small neg reward for white as black is chubby. For
+    # now, lets say orientation is the direction white is facing ; so black, in climbing, changes its orientation to
+    # that of white
+
+    # assert agent_1.range_observation == 6
+    assert rew[agent_2] == Definitions.REWARD_CARRYING.value
+    assert agent_1.angle == 3
+
+    # TODO include test for accumulating reward over actions. eg if both move fwd still on shoulders,
+    #  white accumulates carrying negative reward
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+
+    _, rew, done = simple_jungle.step(actions)
+
+    # White moves, black falls, neg reward for black, range goes back to that set at initialization 
+    assert agent_2.grid_position == (4, 3)
+    assert rew[agent_1] == Definitions.REWARD_FELL.value
+    assert agent_1.range_observation == 4

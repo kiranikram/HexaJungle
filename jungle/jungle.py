@@ -27,7 +27,6 @@ class EmptyJungle:
         self.both_at_river = False
 
 
-        # @KI: don't need that, this is calculated by the step function
 
     def place_obstacles(self):
 

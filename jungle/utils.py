@@ -28,6 +28,7 @@ class Definitions(Enum):
     WHITE = 1
     MIN_SIZE_ENVIR = 5
     LOG_RATE = 3
+    RANGE_INCREASE = 2
     REWARD_BUMP = -5
     REWARD_CUT_TREE = -2
     REWARD_EXIT_AVERAGE = 15
@@ -36,8 +37,8 @@ class Definitions(Enum):
     REWARD_EXIT_LOW = 5
     REWARD_DROWN = -50
     REWARD_BUILT_BRIDGE = 35
-
-
+    REWARD_FELL = -10
+    REWARD_CARRYING = -5
 
 
 # Just an Actions definition with enum is sufficient.
@@ -46,5 +47,4 @@ class Definitions(Enum):
 class Actions(IntEnum):
     ROTATE = auto()
     FORWARD = auto()
-
-
+    CLIMB = auto()

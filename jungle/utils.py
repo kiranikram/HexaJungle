@@ -42,6 +42,7 @@ class Definitions(Enum):
     REWARD_BOTH_CLIMBED = -20
 
 
+
 # Just an Actions definition with enum is sufficient.
 # Their effect will be decided in the code
 # this is just to name things to make them more readable.

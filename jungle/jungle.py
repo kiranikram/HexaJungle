@@ -159,6 +159,7 @@ class EmptyJungle:
 
     # TODO: write function that determines if in fact agent can climb on other agent; for this they have to be on the
     #  same cell ; this will tie into action selection {legal actions}
+    # same cell check will have similar issues to reward same cell (the lag)
     def apply_action(self, agent, actions, agent_rew, agent_done):
 
         # assuming moves forward first, then changes angle
@@ -176,11 +177,11 @@ class EmptyJungle:
 
         # TODO agent rew can consist of multiple items : eg neg rew for carrying but also neg reward for bumping
         if agent_climbs != 0:
-            print(agent.color , 'climbs')
+            print(agent.color, 'climbs')
             agent_rew = self.climb_dynamics(agent, actions, agent_rew)
 
         elif agent_climbs == 0:
-            agent_rew = self.check_partner_reactions(agent,actions,agent_rew)
+            agent_rew = self.check_partner_reactions(agent, actions, agent_rew)
 
         if movement_forward != 0:
             row_new, col_new, next_cell = self.get_proximal_coordinate(row, col, agent.angle)
@@ -269,20 +270,17 @@ class EmptyJungle:
         elif next_cell == ElementsEnv.EXIT_DIFFICULT.value:
             agent_rew = float(Definitions.REWARD_EXIT_HIGH.value)
 
-
         if agent == self.agent_white:
             if next_cell == ElementsEnv.EXIT_WHITE.value:
                 agent_rew = float(Definitions.REWARD_EXIT_VERY_HIGH.value)
             elif next_cell == ElementsEnv.EXIT_BLACK.value:
                 agent_rew = float(Definitions.REWARD_EXIT_LOW.value)
 
-
         if agent == self.agent_black:
             if next_cell == ElementsEnv.EXIT_BLACK.value:
                 agent_rew = float(Definitions.REWARD_EXIT_VERY_HIGH.value)
             elif next_cell == ElementsEnv.EXIT_WHITE.value:
                 agent_rew = float(Definitions.REWARD_EXIT_LOW.value)
-
 
         return agent_rew
 
@@ -341,7 +339,7 @@ class EmptyJungle:
         return row_new, col_new, agent_rew
 
     # from the perspective of the agent that climbs - also need to account for the agent bearing the burden
-    def climb_dynamics(self,agent,actions,agent_rew):
+    def climb_dynamics(self, agent, actions, agent_rew):
 
         if agent.color == Definitions.BLACK:
             partner_actions = actions[self.agent_white]
@@ -365,7 +363,7 @@ class EmptyJungle:
 
         return agent_rew
 
-    def check_partner_reactions(self,agent,actions,agent_rew):
+    def check_partner_reactions(self, agent, actions, agent_rew):
         if agent.color == Definitions.BLACK:
             partner_actions = actions[self.agent_white]
             partner_climbed = partner_actions[Actions.CLIMB]
@@ -390,9 +388,3 @@ class EmptyJungle:
                 agent.range_observation = agent.range_observation - Definitions.RANGE_INCREASE.value
 
         return agent_rew
-
-
-
-
-
-

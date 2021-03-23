@@ -617,3 +617,65 @@ def test_climb_action():
     assert agent_2.grid_position == (4, 3)
     assert rew[agent_1] == Definitions.REWARD_FELL.value
     assert agent_1.range_observation == 4
+
+
+def test_approach_boulders():
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=4)
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    simple_jungle.add_object(ElementsEnv.BOULDER, (4, 6))
+    simple_jungle.add_object(ElementsEnv.BOULDER, (4, 3))
+
+    # if alone at boulder (a) cannot cross it (b) range is reduced
+    # if on shoulders can (a) get range back (b) cross it
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 1, Actions.CLIMB: 0}}
+
+    _, rew, done = simple_jungle.step(actions)
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 1, Actions.CLIMB: 0}}
+
+    _, rew, done = simple_jungle.step(actions)
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+
+    _, rew, done = simple_jungle.step(actions)
+
+    assert rew[agent_2] == Definitions.REWARD_BUMP.value
+    assert agent_2.range_observation == 2
+
+    # TODO ^ make sure this is on the basis of next cell calculation - if agent backs away from boulder obs range
+    #  needs to be restored
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 1, Actions.CLIMB: 0}}
+
+    _, rew, done = simple_jungle.step(actions)
+
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+
+    _, rew, done = simple_jungle.step(actions)
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 1, Actions.CLIMB: 1},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+
+    _, rew, done = simple_jungle.step(actions)
+
+    assert agent_1.on_shoulders
+    assert agent_1.range_observation == 6
+
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+
+    _, rew, done = simple_jungle.step(actions)
+
+    assert agent_1.grid_position == (4, 3)
+    assert rew[agent_2] == Definitions.REWARD_BUMP.value
+    assert agent_2.grid_position == (4, 4)

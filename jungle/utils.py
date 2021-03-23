@@ -39,6 +39,7 @@ class Definitions(Enum):
     REWARD_BUILT_BRIDGE = 35
     REWARD_FELL = -10
     REWARD_CARRYING = -5
+    REWARD_BOTH_CLIMBED = -20
 
 
 # Just an Actions definition with enum is sufficient.

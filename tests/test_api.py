@@ -549,6 +549,7 @@ def test_build_bridge():
     assert agent_2.grid_position == (4, 5)
 
 
+# TODO include + account for if bottom agent rotates , so does top agent or vice versa ?
 def test_climb_action():
     agent_1 = Agent(range_observation=4)
     agent_2 = Agent(range_observation=4)
@@ -591,7 +592,7 @@ def test_climb_action():
     assert agent_1.grid_position == (4, 4)
     assert agent_2.grid_position == (4, 4)
 
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 1},
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 1, Actions.CLIMB: 1},
                agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
 
     _, rew, done = simple_jungle.step(actions)
@@ -612,7 +613,7 @@ def test_climb_action():
 
     _, rew, done = simple_jungle.step(actions)
 
-    # White moves, black falls, neg reward for black, range goes back to that set at initialization 
+    # White moves, black falls, neg reward for black, range goes back to that set at initialization
     assert agent_2.grid_position == (4, 3)
     assert rew[agent_1] == Definitions.REWARD_FELL.value
     assert agent_1.range_observation == 4

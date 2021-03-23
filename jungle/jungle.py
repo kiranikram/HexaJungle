@@ -26,8 +26,6 @@ class EmptyJungle:
 
         self.both_at_river = False
 
-
-
     def place_obstacles(self):
 
         # place outside walls
@@ -159,9 +157,8 @@ class EmptyJungle:
 
         return obs, rew, done
 
-    # TODO: list of rules that need to be reflected
-    # 1. if agent bumps into obstacle, does not move from original position
-    # 2. if next cell is river, and does not have enough logs, drowns
+    # TODO: write function that determines if in fact agent can climb on other agent; for this they have to be on the
+    #  same cell ; this will tie into action selection {legal actions}
     def apply_action(self, agent, actions, agent_rew, agent_done):
 
         # assuming moves forward first, then changes angle
@@ -172,12 +169,17 @@ class EmptyJungle:
 
         agent_actions = actions[agent]
 
-        # agent.angle = 0
-
         rotation = agent_actions[Actions.ROTATE]
+        movement_forward = agent_actions[Actions.FORWARD]
+        agent_climbs = agent_actions[Actions.CLIMB]
         agent.angle = (angle + rotation) % 6
 
-        movement_forward = agent_actions[Actions.FORWARD]
+        # TODO agent rew can consist of multiple items : eg neg rew for carrying but also neg reward for bumping
+        if agent_climbs != 0:
+            agent_rew = self.climb_dynamics(agent, actions, agent_rew)
+
+        elif agent_climbs == 0:
+            agent_rew = self.check_if_partner_climbed(agent,actions,agent_rew)
 
         if movement_forward != 0:
             row_new, col_new, next_cell = self.get_proximal_coordinate(row, col, agent.angle)
@@ -187,16 +189,10 @@ class EmptyJungle:
             agent_rew = float(Definitions.REWARD_BUMP.value)
             row_new, col_new = row, col
 
-
-
         elif next_cell == ElementsEnv.RIVER.value:
-            print('we here')
-            row_new, col_new, agent_rew = self.check_agents_at_river(agent, next_cell, actions, agent_rew,row_new,col_new,row,col)
 
-
-
-        # TODO over here check if next cell is river for both of them ; if so can go on to check for logs and build
-        #  bridge
+            row_new, col_new, agent_rew = self.check_agents_at_river(agent, next_cell, actions, agent_rew, row_new,
+                                                                     col_new, row, col)
         else:
             agent_rew = self.get_reward(next_cell, agent_rew, agent)
             agent_done = self.agent_exited(next_cell)
@@ -212,9 +208,6 @@ class EmptyJungle:
                 agent.wood_logs += 1
 
         return agent_rew, agent_done
-
-        # for now, to pass the test, you only need to move forward.
-        # later, with more tests, you would need to check for obstacles, other agents, etc...
 
     def get_proximal_coordinate(self, row, col, angle):
 
@@ -275,45 +268,29 @@ class EmptyJungle:
         elif next_cell == ElementsEnv.EXIT_DIFFICULT.value:
             agent_rew = float(Definitions.REWARD_EXIT_HIGH.value)
 
-        # elif next_cell == ElementsEnv.RIVER.value:
-
-        # if self.agent_black.grid_position == self.agent_white.grid_position:
-
-        # if (self.agent_black.wood_logs + self.agent_white.wood_logs) >= 2:
-        # agent_rew = float(Definitions.REWARD_BUILT_BRIDGE.value)
-        # else:
-        # agent_rew = float(Definitions.REWARD_DROWN.value)
-        # else:
-        # agent_rew = float(Definitions.REWARD_DROWN.value)
 
         if agent == self.agent_white:
             if next_cell == ElementsEnv.EXIT_WHITE.value:
                 agent_rew = float(Definitions.REWARD_EXIT_VERY_HIGH.value)
             elif next_cell == ElementsEnv.EXIT_BLACK.value:
                 agent_rew = float(Definitions.REWARD_EXIT_LOW.value)
-            # elif next_cell == ElementsEnv.RIVER.value:
-            # if self.agent_black.grid_position != self.agent_white.grid_position:
-            # agent_rew = float(Definitions.REWARD_DROWN.value)
+
 
         if agent == self.agent_black:
             if next_cell == ElementsEnv.EXIT_BLACK.value:
                 agent_rew = float(Definitions.REWARD_EXIT_VERY_HIGH.value)
             elif next_cell == ElementsEnv.EXIT_WHITE.value:
                 agent_rew = float(Definitions.REWARD_EXIT_LOW.value)
-            # elif next_cell == ElementsEnv.RIVER.value:
 
-            # if self.agent_black.grid_position != self.agent_white.grid_position:
-            # print('agent drowns')
-            # agent_rew = float(Definitions.REWARD_DROWN.value)
 
         return agent_rew
 
-    def check_agents_at_river(self, agent, next_cell, actions, agent_rew,row_new,col_new,row,col):
+    def check_agents_at_river(self, agent, next_cell, actions, agent_rew, row_new, col_new, row, col):
 
         if self.both_at_river:
             agent_rew = float(Definitions.REWARD_BUILT_BRIDGE.value)
             self.grid_env[int(row_new), int(col_new)] = ElementsEnv.BRIDGE.value
-            row_new , col_new = row , col
+            row_new, col_new = row, col
         else:
             if agent.color == Definitions.BLACK:
 
@@ -360,4 +337,54 @@ class EmptyJungle:
                 else:
                     agent_rew = float(Definitions.REWARD_DROWN.value)
 
-        return row_new , col_new , agent_rew
+        return row_new, col_new, agent_rew
+
+    # from the perspective of the agent that climbs - also need to account for the agent bearing the burden
+    def climb_dynamics(self,agent,actions,agent_rew):
+
+        if agent.color == Definitions.BLACK:
+            partner_actions = actions[self.agent_white]
+            partner_forward = partner_actions[Actions.FORWARD]
+            partner_climbed = partner_actions[Actions.CLIMB]
+            if partner_climbed == 1:
+                agent_rew = float(Definitions.REWARD_BOTH_CLIMBED.value)
+            if partner_forward == 0:
+                agent.range_observation = agent.range_observation + Definitions.RANGE_INCREASE.value
+                agent.on_shoulders = True
+            elif agent.on_shoulders and partner_forward == 1:
+                print('should be here ')
+                agent_rew = float(Definitions.REWARD_FELL.value)
+                agent.on_shoulders = False
+        elif agent.color == Definitions.WHITE:
+            partner_actions = actions[self.agent_black]
+            partner_forward = partner_actions[Actions.FORWARD]
+            partner_climbed = partner_actions[Actions.CLIMB]
+            if partner_climbed == 1:
+                agent_rew = float(Definitions.REWARD_BOTH_CLIMBED.value)
+            if partner_forward == 0:
+                agent.range_observation = agent.range_observation + Definitions.RANGE_INCREASE.value
+            elif agent.on_shoulders and partner_forward == 1:
+                print('should be here ')
+                agent_rew = float(Definitions.REWARD_FELL.value)
+                agent.on_shoulders = False
+        return agent_rew
+
+    def check_if_partner_climbed(self,agent,actions,agent_rew):
+        if agent.color == Definitions.BLACK:
+            partner_actions = actions[self.agent_white]
+            partner_climbed = partner_actions[Actions.CLIMB]
+            if partner_climbed == 1:
+                agent_rew = float(Definitions.REWARD_CARRYING.value)
+        elif agent.color == Definitions.WHITE:
+            partner_actions = actions[self.agent_black]
+            partner_climbed = partner_actions[Actions.CLIMB]
+            if partner_climbed == 1:
+                agent_rew = float(Definitions.REWARD_CARRYING.value)
+
+        return agent_rew
+
+
+
+
+
+

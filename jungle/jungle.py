@@ -176,10 +176,11 @@ class EmptyJungle:
 
         # TODO agent rew can consist of multiple items : eg neg rew for carrying but also neg reward for bumping
         if agent_climbs != 0:
+            print(agent.color , 'climbs')
             agent_rew = self.climb_dynamics(agent, actions, agent_rew)
 
         elif agent_climbs == 0:
-            agent_rew = self.check_if_partner_climbed(agent,actions,agent_rew)
+            agent_rew = self.check_partner_reactions(agent,actions,agent_rew)
 
         if movement_forward != 0:
             row_new, col_new, next_cell = self.get_proximal_coordinate(row, col, agent.angle)
@@ -348,38 +349,45 @@ class EmptyJungle:
             partner_climbed = partner_actions[Actions.CLIMB]
             if partner_climbed == 1:
                 agent_rew = float(Definitions.REWARD_BOTH_CLIMBED.value)
-            if partner_forward == 0:
+            elif partner_forward == 0:
                 agent.range_observation = agent.range_observation + Definitions.RANGE_INCREASE.value
                 agent.on_shoulders = True
-            elif agent.on_shoulders and partner_forward == 1:
-                print('should be here ')
-                agent_rew = float(Definitions.REWARD_FELL.value)
-                agent.on_shoulders = False
+
         elif agent.color == Definitions.WHITE:
             partner_actions = actions[self.agent_black]
             partner_forward = partner_actions[Actions.FORWARD]
             partner_climbed = partner_actions[Actions.CLIMB]
             if partner_climbed == 1:
                 agent_rew = float(Definitions.REWARD_BOTH_CLIMBED.value)
-            if partner_forward == 0:
+            elif partner_forward == 0:
                 agent.range_observation = agent.range_observation + Definitions.RANGE_INCREASE.value
-            elif agent.on_shoulders and partner_forward == 1:
-                print('should be here ')
-                agent_rew = float(Definitions.REWARD_FELL.value)
-                agent.on_shoulders = False
+                agent.on_shoulders = True
+
         return agent_rew
 
-    def check_if_partner_climbed(self,agent,actions,agent_rew):
+    def check_partner_reactions(self,agent,actions,agent_rew):
         if agent.color == Definitions.BLACK:
             partner_actions = actions[self.agent_white]
             partner_climbed = partner_actions[Actions.CLIMB]
+            partner_forward = partner_actions[Actions.FORWARD]
             if partner_climbed == 1:
                 agent_rew = float(Definitions.REWARD_CARRYING.value)
+            elif agent.on_shoulders and partner_forward == 1:
+
+                agent_rew = float(Definitions.REWARD_FELL.value)
+                agent.on_shoulders = False
+                agent.range_observation = agent.range_observation - Definitions.RANGE_INCREASE.value
         elif agent.color == Definitions.WHITE:
             partner_actions = actions[self.agent_black]
             partner_climbed = partner_actions[Actions.CLIMB]
+            partner_forward = partner_actions[Actions.FORWARD]
             if partner_climbed == 1:
                 agent_rew = float(Definitions.REWARD_CARRYING.value)
+            elif agent.on_shoulders and partner_forward == 1:
+
+                agent_rew = float(Definitions.REWARD_FELL.value)
+                agent.on_shoulders = False
+                agent.range_observation = agent.range_observation - Definitions.RANGE_INCREASE.value
 
         return agent_rew
 

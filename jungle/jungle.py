@@ -162,7 +162,6 @@ class EmptyJungle:
 
         # TODO agent rew can consist of multiple items : eg neg rew for carrying but also neg reward for bumping
 
-
         if movement_forward != 0:
             row_new, col_new, next_cell = self.get_proximal_coordinate(row, col, agent.angle)
         else:
@@ -170,8 +169,7 @@ class EmptyJungle:
 
         if agent_climbs != 0:
 
-
-            agent_rew = self.climb_dynamics(agent, actions, agent_rew,next_cell)
+            agent_rew = self.climb_dynamics(agent, actions, agent_rew, next_cell)
 
         elif agent_climbs == 0:
             agent_rew = self.check_partner_reactions(agent, actions, agent_rew, movement_forward)
@@ -336,11 +334,11 @@ class EmptyJungle:
         return row_new, col_new, agent_rew
 
     # from the perspective of the agent that climbs - also need to account for the agent bearing the burden
-    def climb_dynamics(self, agent, actions, agent_rew,next_cell):
+    def climb_dynamics(self, agent, actions, agent_rew, next_cell):
         print('we are climbing')
 
         if agent.color == Definitions.BLACK:
-            partner_on_cell = self.check_cell_occupancy(agent,actions,next_cell)
+            partner_on_cell = self.check_cell_occupancy(agent, actions, next_cell)
             if not partner_on_cell:
                 agent_rew = float(Definitions.REWARD_INVIABLE_CLIMB.value)
             partner_actions = actions[self.agent_white]
@@ -353,7 +351,7 @@ class EmptyJungle:
                 agent.on_shoulders = True
 
         elif agent.color == Definitions.WHITE:
-            partner_on_cell = self.check_cell_occupancy(agent,actions,next_cell)
+            partner_on_cell = self.check_cell_occupancy(agent, actions, next_cell)
             if not partner_on_cell:
                 agent_rew = float(Definitions.REWARD_INVIABLE_CLIMB.value)
             partner_actions = actions[self.agent_black]
@@ -375,7 +373,6 @@ class EmptyJungle:
             if partner_climbed == 1:
                 agent_rew = float(Definitions.REWARD_CARRYING.value)
             elif agent.on_shoulders and partner_forward == 1 and forward == 0:
-                print('comes here')
 
                 agent_rew = float(Definitions.REWARD_FELL.value)
                 agent.on_shoulders = False
@@ -390,7 +387,6 @@ class EmptyJungle:
             if partner_climbed == 1:
                 agent_rew = float(Definitions.REWARD_CARRYING.value)
             elif agent.on_shoulders and partner_forward == 1 and forward == 0:
-                print('comes here')
 
                 agent_rew = float(Definitions.REWARD_FELL.value)
                 agent.on_shoulders = False
@@ -400,8 +396,8 @@ class EmptyJungle:
 
         return agent_rew
 
-    def check_cell_occupancy(self,agent,actions,next_cell):
-        print('checking occupancy')
+    def check_cell_occupancy(self, agent, actions, next_cell):
+
         if agent.color == Definitions.BLACK:
 
             partner_row, partner_col = self.agent_white.grid_position
@@ -417,7 +413,7 @@ class EmptyJungle:
                 self.on_same_cell = True
                 return True
             else:
-                return  False
+                return False
 
         if agent.color == Definitions.WHITE:
 
@@ -434,7 +430,4 @@ class EmptyJungle:
                 self.on_same_cell = True
                 return True
             else:
-                return  False
-
-
-
+                return False

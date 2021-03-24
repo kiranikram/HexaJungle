@@ -441,6 +441,7 @@ def test_gameplay_exit():
     assert agent_2.done
     assert done
 
+#TODO if both approach same tree randomly assigned
 
 def test_cut_tree():
     # agent takes 3 actions and comes to a tree. once cut , the cell becomes empty
@@ -491,14 +492,16 @@ def test_approach_river_together():
     _, rew, done = simple_jungle.step(actions)
     _, rew, done = simple_jungle.step(actions)
 
-    print(agent_2.color)
-    print(agent_2.grid_position)
-
     # both agents need to be at River, otherwise lone agent at river dies
     assert rew[agent_2] == Definitions.REWARD_DROWN.value
 
+    # From MG test that agent 2 is dead -- eg maybe no value for agent 2 on grid
+
 
 def test_build_bridge():
+    # From MG change from they are on the same cell to adjacent cells as the precondition to building a bridge
+    # and obv they need to be near river
+
     agent_1 = Agent(range_observation=4)
     agent_2 = Agent(range_observation=6)
 
@@ -550,6 +553,8 @@ def test_build_bridge():
 
 
 # TODO include + account for if bottom agent rotates , so does top agent or vice versa ?
+
+# from MG they don't need the same orientation
 def test_climb_action():
     agent_1 = Agent(range_observation=4)
     agent_2 = Agent(range_observation=4)
@@ -663,6 +668,10 @@ def test_approach_boulders():
 
     _, rew, done = simple_jungle.step(actions)
 
+    print ('before climb')
+    print('ag1 pos', agent_1.grid_position)
+    print('ag2 pos', agent_2.grid_position)
+
     actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 1, Actions.CLIMB: 1},
                agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
 
@@ -671,10 +680,18 @@ def test_approach_boulders():
     assert agent_1.on_shoulders
     assert agent_1.range_observation == 6
 
+    print(agent_1.on_shoulders)
+    print('ag1 pos', agent_1.grid_position)
+    print('ag2 pos', agent_2.grid_position)
+
     actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0},
                agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0}}
 
     _, rew, done = simple_jungle.step(actions)
+
+    print(agent_1.on_shoulders)
+    print('ag1 pos', agent_1.grid_position)
+    print('ag2 pos', agent_2.grid_position)
 
     assert agent_1.grid_position == (4, 3)
     assert rew[agent_2] == Definitions.REWARD_BUMP.value

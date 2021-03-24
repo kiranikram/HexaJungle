@@ -4,6 +4,7 @@ import math
 
 from jungle.utils import ElementsEnv, Actions, Definitions
 
+# DO MENTION AGENTs CAN BE ON SAME CELL
 
 class EmptyJungle:
 
@@ -177,11 +178,11 @@ class EmptyJungle:
 
         # TODO agent rew can consist of multiple items : eg neg rew for carrying but also neg reward for bumping
         if agent_climbs != 0:
-            print(agent.color, 'climbs')
+
             agent_rew = self.climb_dynamics(agent, actions, agent_rew)
 
         elif agent_climbs == 0:
-            agent_rew = self.check_partner_reactions(agent, actions, agent_rew)
+            agent_rew = self.check_partner_reactions(agent, actions, agent_rew, movement_forward)
 
         if movement_forward != 0:
             row_new, col_new, next_cell = self.get_proximal_coordinate(row, col, agent.angle)
@@ -190,6 +191,15 @@ class EmptyJungle:
         if next_cell == ElementsEnv.OBSTACLE.value:
             agent_rew = float(Definitions.REWARD_BUMP.value)
             row_new, col_new = row, col
+
+        elif next_cell == ElementsEnv.BOULDER.value:
+            print('we here ')
+            agent_rew = float(Definitions.REWARD_BUMP.value)
+            if not agent.on_shoulders:
+                row_new, col_new = row, col
+            agent.range_observation = agent.range_observation - Definitions.RANGE_INCREASE.value
+            # TODO come back to this as need a way
+
 
         elif next_cell == ElementsEnv.RIVER.value:
 
@@ -363,28 +373,35 @@ class EmptyJungle:
 
         return agent_rew
 
-    def check_partner_reactions(self, agent, actions, agent_rew):
+    def check_partner_reactions(self, agent, actions, agent_rew,forward):
         if agent.color == Definitions.BLACK:
             partner_actions = actions[self.agent_white]
             partner_climbed = partner_actions[Actions.CLIMB]
             partner_forward = partner_actions[Actions.FORWARD]
             if partner_climbed == 1:
                 agent_rew = float(Definitions.REWARD_CARRYING.value)
-            elif agent.on_shoulders and partner_forward == 1:
+            elif agent.on_shoulders and partner_forward == 1 and forward ==0:
+                print('comes here')
 
                 agent_rew = float(Definitions.REWARD_FELL.value)
                 agent.on_shoulders = False
                 agent.range_observation = agent.range_observation - Definitions.RANGE_INCREASE.value
+            elif agent.on_shoulders and partner_forward == 1 and forward == 1:
+                agent.on_shoulders = True
+
         elif agent.color == Definitions.WHITE:
             partner_actions = actions[self.agent_black]
             partner_climbed = partner_actions[Actions.CLIMB]
             partner_forward = partner_actions[Actions.FORWARD]
             if partner_climbed == 1:
                 agent_rew = float(Definitions.REWARD_CARRYING.value)
-            elif agent.on_shoulders and partner_forward == 1:
+            elif agent.on_shoulders and partner_forward == 1 and forward == 0:
+                print('comes here')
 
                 agent_rew = float(Definitions.REWARD_FELL.value)
                 agent.on_shoulders = False
                 agent.range_observation = agent.range_observation - Definitions.RANGE_INCREASE.value
+            elif agent.on_shoulders and partner_forward == 1 and forward == 1:
+                agent.on_shoulders = True
 
         return agent_rew

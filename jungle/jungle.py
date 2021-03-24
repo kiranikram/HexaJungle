@@ -111,6 +111,7 @@ class EmptyJungle:
 
         rew = {self.agent_black: 0.0, self.agent_white: 0.0}
         done = {self.agent_black: False, self.agent_white: False}
+        obs = {self.agent_black: [], self.agent_white: []}
 
         ag_white_rew, white_done = self.apply_action(self.agent_white, actions, rew[self.agent_white],
                                                      done[self.agent_white])
@@ -135,7 +136,8 @@ class EmptyJungle:
         # @MG I feel that this reward dict needs to be outside of step, as each call to step will
         # update a running total for each of the agents
 
-        obs = self.generate_agent_obs()
+        obs[self.agent_white] = self.generate_agent_obs(self.agent_white)
+        obs[self.agent_black] = self.generate_agent_obs(self.agent_black)
 
         self.agent_black.x, self.agent_black.y = self.update_cartesian(self.agent_black)
         self.agent_white.x, self.agent_white.y = self.update_cartesian(self.agent_white)
@@ -241,8 +243,44 @@ class EmptyJungle:
         else:
             return False
 
-    def generate_agent_obs(self):
-        return {self.agent_black: None, self.agent_white: None}
+    def generate_agent_obs(self, agent):
+
+        obs = []
+
+        # iterate over range
+        for obs_range in range(1, agent.range_observation + 1):
+
+            row, col = agent.grid_position
+            angle = agent.angle
+
+            # go to start
+            for i in range(obs_range):
+                row, col, _ = self.get_next_cell(row, col, (angle - 1) % 6)
+
+            if 0 <= row < self.size and 0 <= col < self.size:
+                obs.append(self.grid_env[int(row), int(col)])
+            else:
+                obs.append(0)
+
+            # move first segment
+            for i in range(obs_range):
+                row, col, _ = self.get_next_cell(row, col, (angle + 1) % 6)
+
+                if 0 <= row < self.size and 0 <= col < self.size:
+                    obs.append(self.grid_env[int(row), int(col)])
+                else:
+                    obs.append(0)
+
+            # move second segment
+            for i in range(obs_range):
+                row, col, _ = self.get_next_cell(row, col, (angle + 2) % 6)
+
+                if 0 <= row < self.size and 0 <= col < self.size:
+                    obs.append(self.grid_env[int(row), int(col)])
+                else:
+                    obs.append(0)
+
+        return np.asarray(obs)
 
     def cell_type(self, x, y):
         return self.grid_env[x, y]
@@ -431,3 +469,31 @@ class EmptyJungle:
                 return True
             else:
                 return False
+
+    def get_next_cell(self, row, col, angle):
+
+        row_new, col_new = row, col
+
+        if angle == 0:
+            col_new += 1
+        elif angle == 1:
+            row_new -= 1
+            col_new += row % 2
+        elif angle == 2:
+            row_new -= 1
+            col_new += row % 2 - 1
+        elif angle == 3:
+            col_new -= 1
+        elif angle == 4:
+            row_new += 1
+            col_new += row % 2 - 1
+        else:
+            row_new += 1
+            col_new += row % 2
+
+        if 0 <= row_new < self.size and 0 <= col_new < self.size:
+            next_cell = self.grid_env[int(row_new), int(col_new)]
+        else:
+            next_cell = 0
+
+        return row_new, col_new, next_cell

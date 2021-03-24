@@ -4,6 +4,7 @@ import math
 
 from jungle.utils import ElementsEnv, Actions, Definitions
 
+
 # DO MENTION AGENTs CAN BE ON SAME CELL
 
 class EmptyJungle:
@@ -18,14 +19,12 @@ class EmptyJungle:
         # check with ones mulitpy by definition s
         self.grid_env = np.zeros((self.size, self.size), dtype=int)
         self.place_obstacles()
-
         self.agent_white = None
         self.agent_black = None
-
         self.agents = []
         self.done = False
-
         self.both_at_river = False
+        self.on_same_cell = False
 
     def place_obstacles(self):
 
@@ -133,28 +132,13 @@ class EmptyJungle:
         rew[self.agent_white] = ag_white_rew
         rew[self.agent_black] = ag_black_rew
 
-        # For now, we don't need observations and rewards, so we will just return dummies
-        # Later, we will replace it by the correct rewards and observations
-        # but before that we will write tests about it.
-
         # @MG I feel that this reward dict needs to be outside of step, as each call to step will
         # update a running total for each of the agents
 
-        # make function to test for what kind of reward
-
-        # rew = self.get_reward(rew,actions)
-
-        # From the point of view of the policy that each 'brain' will work,
-        # do you need to know when a single agent has terminated?
-
-        # don't need to be an attribute:
-        # self.obs = self.generate_agent_obs()
         obs = self.generate_agent_obs()
 
         self.agent_black.x, self.agent_black.y = self.update_cartesian(self.agent_black)
         self.agent_white.x, self.agent_white.y = self.update_cartesian(self.agent_white)
-
-        # self.logs_collected = self.agent_white.log_cache + self.agent_black.log_cache
 
         return obs, rew, done
 
@@ -177,17 +161,20 @@ class EmptyJungle:
         agent.angle = (angle + rotation) % 6
 
         # TODO agent rew can consist of multiple items : eg neg rew for carrying but also neg reward for bumping
-        if agent_climbs != 0:
 
-            agent_rew = self.climb_dynamics(agent, actions, agent_rew)
-
-        elif agent_climbs == 0:
-            agent_rew = self.check_partner_reactions(agent, actions, agent_rew, movement_forward)
 
         if movement_forward != 0:
             row_new, col_new, next_cell = self.get_proximal_coordinate(row, col, agent.angle)
         else:
             row_new, col_new = row, col
+
+        if agent_climbs != 0:
+
+
+            agent_rew = self.climb_dynamics(agent, actions, agent_rew,next_cell)
+
+        elif agent_climbs == 0:
+            agent_rew = self.check_partner_reactions(agent, actions, agent_rew, movement_forward)
         if next_cell == ElementsEnv.OBSTACLE.value:
             agent_rew = float(Definitions.REWARD_BUMP.value)
             row_new, col_new = row, col
@@ -349,9 +336,13 @@ class EmptyJungle:
         return row_new, col_new, agent_rew
 
     # from the perspective of the agent that climbs - also need to account for the agent bearing the burden
-    def climb_dynamics(self, agent, actions, agent_rew):
+    def climb_dynamics(self, agent, actions, agent_rew,next_cell):
+        print('we are climbing')
 
         if agent.color == Definitions.BLACK:
+            partner_on_cell = self.check_cell_occupancy(agent,actions,next_cell)
+            if not partner_on_cell:
+                agent_rew = float(Definitions.REWARD_INVIABLE_CLIMB.value)
             partner_actions = actions[self.agent_white]
             partner_forward = partner_actions[Actions.FORWARD]
             partner_climbed = partner_actions[Actions.CLIMB]
@@ -362,6 +353,9 @@ class EmptyJungle:
                 agent.on_shoulders = True
 
         elif agent.color == Definitions.WHITE:
+            partner_on_cell = self.check_cell_occupancy(agent,actions,next_cell)
+            if not partner_on_cell:
+                agent_rew = float(Definitions.REWARD_INVIABLE_CLIMB.value)
             partner_actions = actions[self.agent_black]
             partner_forward = partner_actions[Actions.FORWARD]
             partner_climbed = partner_actions[Actions.CLIMB]
@@ -373,14 +367,14 @@ class EmptyJungle:
 
         return agent_rew
 
-    def check_partner_reactions(self, agent, actions, agent_rew,forward):
+    def check_partner_reactions(self, agent, actions, agent_rew, forward):
         if agent.color == Definitions.BLACK:
             partner_actions = actions[self.agent_white]
             partner_climbed = partner_actions[Actions.CLIMB]
             partner_forward = partner_actions[Actions.FORWARD]
             if partner_climbed == 1:
                 agent_rew = float(Definitions.REWARD_CARRYING.value)
-            elif agent.on_shoulders and partner_forward == 1 and forward ==0:
+            elif agent.on_shoulders and partner_forward == 1 and forward == 0:
                 print('comes here')
 
                 agent_rew = float(Definitions.REWARD_FELL.value)
@@ -405,3 +399,42 @@ class EmptyJungle:
                 agent.on_shoulders = True
 
         return agent_rew
+
+    def check_cell_occupancy(self,agent,actions,next_cell):
+        print('checking occupancy')
+        if agent.color == Definitions.BLACK:
+
+            partner_row, partner_col = self.agent_white.grid_position
+            partner_angle = self.agent_white.angle
+            partner_actions = actions[self.agent_white]
+            partner_rotation = partner_actions[Actions.ROTATE]
+            partner_angle = (partner_angle + partner_rotation)
+            partner_forward = partner_actions[Actions.FORWARD]
+
+            _, _, partner_next_cell = self.get_proximal_coordinate(partner_row, partner_col, partner_angle)
+
+            if partner_next_cell == next_cell:
+                self.on_same_cell = True
+                return True
+            else:
+                return  False
+
+        if agent.color == Definitions.WHITE:
+
+            partner_row, partner_col = self.agent_black.grid_position
+            partner_angle = self.agent_black.angle
+            partner_actions = actions[self.agent_black]
+            partner_rotation = partner_actions[Actions.ROTATE]
+            partner_angle = (partner_angle + partner_rotation)
+            partner_forward = partner_actions[Actions.FORWARD]
+
+            _, _, partner_next_cell = self.get_proximal_coordinate(partner_row, partner_col, partner_angle)
+
+            if partner_next_cell == next_cell:
+                self.on_same_cell = True
+                return True
+            else:
+                return  False
+
+
+

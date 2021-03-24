@@ -441,7 +441,8 @@ def test_gameplay_exit():
     assert agent_2.done
     assert done
 
-#TODO if both approach same tree randomly assigned
+
+# TODO if both approach same tree randomly assigned
 
 def test_cut_tree():
     # agent takes 3 actions and comes to a tree. once cut , the cell becomes empty
@@ -565,9 +566,6 @@ def test_climb_action():
     # agents should do something and land on the same cell
     # then they can climb
 
-    # TODO talk to MG about what if they both decide to climb
-    # TODO talk to MG about climb down action, moving around on shoulders of other agent
-
     actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0},
                agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 1, Actions.CLIMB: 0}}
 
@@ -631,11 +629,8 @@ def test_approach_boulders():
     simple_jungle = EmptyJungle(size=11)
     simple_jungle.add_agents(agent_1, agent_2)
 
-    simple_jungle.add_object(ElementsEnv.BOULDER, (4, 6))
-    simple_jungle.add_object(ElementsEnv.BOULDER, (4, 3))
-
-    # if alone at boulder (a) cannot cross it (b) range is reduced
-    # if on shoulders can (a) get range back (b) cross it
+    # agents should do something and land on the same cell
+    # then they can climb
 
     actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0},
                agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 1, Actions.CLIMB: 0}}
@@ -652,12 +647,6 @@ def test_approach_boulders():
 
     _, rew, done = simple_jungle.step(actions)
 
-    assert rew[agent_2] == Definitions.REWARD_BUMP.value
-    assert agent_2.range_observation == 2
-
-    # TODO ^ make sure this is on the basis of next cell calculation - if agent backs away from boulder obs range
-    #  needs to be restored
-
     actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
                agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 1, Actions.CLIMB: 0}}
 
@@ -668,30 +657,24 @@ def test_approach_boulders():
 
     _, rew, done = simple_jungle.step(actions)
 
-    print ('before climb')
-    print('ag1 pos', agent_1.grid_position)
-    print('ag2 pos', agent_2.grid_position)
+    assert agent_1.grid_position == (4, 4)
+    assert agent_2.grid_position == (4, 4)
 
     actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 1, Actions.CLIMB: 1},
                agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
 
     _, rew, done = simple_jungle.step(actions)
 
+    assert simple_jungle.on_same_cell
     assert agent_1.on_shoulders
     assert agent_1.range_observation == 6
 
-    print(agent_1.on_shoulders)
-    print('ag1 pos', agent_1.grid_position)
-    print('ag2 pos', agent_2.grid_position)
+    simple_jungle.add_object(ElementsEnv.BOULDER, (4, 3))
 
     actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0},
                agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0}}
 
     _, rew, done = simple_jungle.step(actions)
-
-    print(agent_1.on_shoulders)
-    print('ag1 pos', agent_1.grid_position)
-    print('ag2 pos', agent_2.grid_position)
 
     assert agent_1.grid_position == (4, 3)
     assert rew[agent_2] == Definitions.REWARD_BUMP.value

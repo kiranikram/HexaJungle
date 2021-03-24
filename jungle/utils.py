@@ -40,6 +40,7 @@ class Definitions(Enum):
     REWARD_FELL = -10
     REWARD_CARRYING = -5
     REWARD_BOTH_CLIMBED = -20
+    REWARD_INVIABLE_CLIMB = -100
 
 
 

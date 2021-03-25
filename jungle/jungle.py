@@ -247,6 +247,8 @@ class EmptyJungle:
 
         obs = []
 
+        self.check_cross_obstacles(agent)
+
         # iterate over range
         for obs_range in range(1, agent.range_observation + 1):
 
@@ -497,3 +499,60 @@ class EmptyJungle:
             next_cell = 0
 
         return row_new, col_new, next_cell
+
+    # TODO ammend observe to make list of grid positions (lists) - we will take out from these
+    def check_cross_obstacles(self, agent):
+
+
+        row, col = agent.grid_position
+        # check directly left
+        for i in range(1, agent.range_observation):
+
+            # TODO include other obstacles besides trees
+            if self.grid_env[int(row), int(col - i)] == ElementsEnv.TREE.value:
+                agent.left_view_obstructed = True
+                cells_to_drop = self.eliminate_left_view(i)
+
+
+        # check directly right
+        for j in range(1, agent.range_observation):
+
+            if self.grid_env[int(row), int(col + j)] == ElementsEnv.TREE.value:
+
+                agent.right_view_obstructed = True
+                cells_to_drop = self.eliminate_right_view(j)
+                break
+
+        # check directly below
+        for k in range(1, agent.range_observation):
+            if self.grid_env[int(row + k), int(col)] == ElementsEnv.TREE.value:
+                agent.bottom_view_obstructed = True
+                cells_to_drop = self.eliminate_bottom_view(k)
+                break
+
+        # check directly above
+        for l in range(1, agent.range_observation):
+            if self.grid_env[int(row - l), int(col)] == ElementsEnv.TREE.value:
+                agent.top_view_obstructed = True
+                cells_to_drop = self.eliminate_top_view(l)
+                break
+
+
+
+    def eliminate_right_view(self, start):
+        cells_to_drop = [1, 1]
+        return cells_to_drop
+
+    def eliminate_left_view(self, start):
+        cells_to_drop = [1, 1]
+        return cells_to_drop
+
+    def eliminate_bottom_view(self, start):
+        cells_to_drop = [1, 1]
+        return cells_to_drop
+
+    def eliminate_top_view(self, start):
+        cells_to_drop = [1, 1]
+        return cells_to_drop
+
+        # TODO the same as above for diagonals

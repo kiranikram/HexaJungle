@@ -680,6 +680,7 @@ def test_approach_boulders():
     assert rew[agent_2] == Definitions.REWARD_BUMP.value
     assert agent_2.grid_position == (4, 4)
 
+
 def test_obs():
     agent_1 = Agent(range_observation=4)
     agent_2 = Agent(range_observation=4)
@@ -697,15 +698,15 @@ def test_obs():
 
     # put in some trees , check that it does include trees
 
-    #for both agents
+    # for both agents
 
-    #obs for iniitial starting point
+    # obs for iniitial starting point
 
-    #agents move
+    # agents move
 
-    #obs from new point
+    # obs from new point
 
-    #assert that they are different ?
+    # assert that they are different ?
 
     print(obs)
 
@@ -728,8 +729,10 @@ def test_obstacles_in_obs_cross():
 
     obs, rew, done = simple_jungle.step(actions)
 
-    assert agent_1.view_obstructed
-    assert agent_2.view_obstructed
+    # @MG these assert statements were just to do some checks - they
+    # will not be part of the final codebase 
+    assert agent_1.left_view_obstructed
+    assert agent_2.right_view_obstructed
 
     # directly below agent 1
     simple_jungle.add_object(ElementsEnv.TREE, (8, 4))
@@ -742,11 +745,8 @@ def test_obstacles_in_obs_cross():
 
     obs, rew, done = simple_jungle.step(actions)
 
-    assert agent_1.view_obstructed
-    assert agent_2.view_obstructed
-
-
-
+    assert agent_1.bottom_view_obstructed
+    assert agent_2.top_view_obstructed
 
 
 def test_obstacles_in_obs_diagonal():

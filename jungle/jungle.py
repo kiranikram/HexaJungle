@@ -248,7 +248,7 @@ class EmptyJungle:
         obs = []
         full_obs = []
 
-        cells_to_drop = self.check_cross_obstacles(agent)
+        cells_to_drop = self.check_cross_obstacles(agent) + self.check_diagonal_obstacles(agent)
 
         # iterate over range
         for obs_range in range(1, agent.range_observation + 1):
@@ -509,7 +509,7 @@ class EmptyJungle:
 
         return row_new, col_new, next_cell
 
-    # TODO ammend observe to make list of grid positions (lists) - we will take out from these
+
     def check_cross_obstacles(self, agent):
 
         row, col = agent.grid_position
@@ -584,3 +584,75 @@ class EmptyJungle:
         return cells_to_drop
 
         # TODO the same as above for diagonals
+
+    def check_diagonal_obstacles(self, agent):
+
+        row, col = agent.grid_position
+        top_left_cells_to_drop = []
+        top_right_cells_to_drop = []
+        bottom_left_cells_to_drop = []
+        bottom_right_cells_to_drop = []
+
+        # check top left
+        for i in range(1, agent.range_observation):
+            # TODO include other obstacles besides trees
+            if self.grid_env[int(row-i), int(col - i)] == ElementsEnv.TREE.value:
+                agent.top_left_obstructed = True
+                top_left_cells_to_drop = self.eliminate_top_left_view(i, row, col, agent)
+                break
+
+        # check top right
+        for j in range(1, agent.range_observation):
+            if self.grid_env[int(row-j), int(col + j)] == ElementsEnv.TREE.value:
+                agent.top_right_obstructed = True
+                top_right_cells_to_drop = self.eliminate_top_right_view(j, row, col, agent)
+                break
+
+        # check bottom left
+        for k in range(1, agent.range_observation):
+            if self.grid_env[int(row + k), int(col-k)] == ElementsEnv.TREE.value:
+                agent.bottom_left_obstructed = True
+                bottom_left_cells_to_drop = self.eliminate_bottom_left_view(k, row, col, agent)
+                break
+
+        # check bottom right
+        for l in range(1, agent.range_observation):
+            if self.grid_env[int(row + l), int(col + l)] == ElementsEnv.TREE.value:
+                agent.bottom_right_obstructed = True
+                bottom_right_cells_to_drop = self.eliminate_bottom_right_view(l, row, col, agent)
+
+                break
+
+        cells_to_drop = top_left_cells_to_drop + top_right_cells_to_drop + bottom_left_cells_to_drop + bottom_right_cells_to_drop
+        return cells_to_drop
+
+    #TODO amend these accordingly
+    def eliminate_top_left_view(self, start, row, col, agent):
+        cells_to_drop = []
+        for i in range(start, agent.range_observation):
+            coords = (row, col + i)
+            cells_to_drop.append(coords)
+        return cells_to_drop
+
+    def eliminate_top_right_view(self, start, row, col, agent):
+        cells_to_drop = []
+        for i in range(start, agent.range_observation):
+            coords = (row, col - i)
+            cells_to_drop.append(coords)
+        return cells_to_drop
+
+    def eliminate_bottom_left_view(self, start, row, col, agent):
+        cells_to_drop = []
+        for i in range(start, agent.range_observation):
+            coords = (row + i, col)
+            cells_to_drop.append(coords)
+        return cells_to_drop
+
+    def eliminate_bottom_right_view(self, start, row, col, agent):
+        cells_to_drop = []
+        for i in range(start, agent.range_observation):
+            coords = (row - i, col)
+            cells_to_drop.append(coords)
+        return cells_to_drop
+
+

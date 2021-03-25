@@ -682,6 +682,7 @@ def test_approach_boulders():
 
 
 def test_obs():
+    # @MG I was just testing that observations are processed and returned
     agent_1 = Agent(range_observation=4)
     agent_2 = Agent(range_observation=4)
 
@@ -695,20 +696,6 @@ def test_obs():
                agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 1, Actions.CLIMB: 0}}
 
     obs, rew, done = simple_jungle.step(actions)
-
-    # put in some trees , check that it does include trees
-
-    # for both agents
-
-    # obs for iniitial starting point
-
-    # agents move
-
-    # obs from new point
-
-    # assert that they are different ?
-
-    print(obs)
 
 
 def test_obstacles_in_obs_cross():

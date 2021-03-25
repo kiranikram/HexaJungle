@@ -689,8 +689,6 @@ def test_obs():
     simple_jungle = EmptyJungle(size=11)
     simple_jungle.add_agents(agent_1, agent_2)
 
-    # agents should do something and land on the same cell
-    # then they can climb
 
     actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0},
                agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 1, Actions.CLIMB: 0}}

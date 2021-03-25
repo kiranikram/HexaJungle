@@ -4,13 +4,14 @@ from jungle.utils_agent import Actions
 """For Rotation angles reference:
  . . . . . .  . .
 . . . . 2 1 . . .
- . . 3 . A . 0 . .
+ . . . 3 A 0 . .
 . . . . 4 5 . . .
  . . . . . . . . """
 
+
 class Agent:
 
-    def __init__(self, range_observation):
+    def __init__(self, range_observation=None):
 
         self.color = None
         self.range_observation = range_observation

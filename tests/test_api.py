@@ -730,7 +730,7 @@ def test_obstacles_in_obs_cross():
     obs, rew, done = simple_jungle.step(actions)
 
     # @MG these assert statements were just to do some checks - they
-    # will not be part of the final codebase 
+    # will not be part of the final codebase
     assert agent_1.left_view_obstructed
     assert agent_2.right_view_obstructed
 
@@ -747,6 +747,45 @@ def test_obstacles_in_obs_cross():
 
     assert agent_1.bottom_view_obstructed
     assert agent_2.top_view_obstructed
+
+
+def test_agent_view():
+    # depending on the obstacle(tree) position , agents should be able to see / not see
+    # rivers, boulders , exits etc
+
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=4)
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    # directly left of agent 1
+    simple_jungle.add_object(ElementsEnv.TREE, (5, 3))
+    # should not be able to see this boulder
+    simple_jungle.add_object(ElementsEnv.BOULDER, (5, 2))
+    # should be able to see this river
+    simple_jungle.add_object(ElementsEnv.RIVER, (3, 3))
+
+    # directly right of agent 2
+    simple_jungle.add_object(ElementsEnv.TREE, (5, 8))
+    # should not be able to see this boulder
+    simple_jungle.add_object(ElementsEnv.BOULDER, (5, 9))
+    # should be able to see this river
+    simple_jungle.add_object(ElementsEnv.RIVER, (3, 9))
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+
+    obs, rew, done = simple_jungle.step(actions)
+
+    assert ElementsEnv.RIVER.value in obs[agent_1]
+    assert ElementsEnv.BOULDER.value not in obs[agent_1]
+
+    assert ElementsEnv.RIVER.value in obs[agent_2]
+    assert ElementsEnv.BOULDER.value not in obs[agent_2]
+
+
+
 
 
 def test_obstacles_in_obs_diagonal():

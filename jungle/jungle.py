@@ -282,6 +282,7 @@ class EmptyJungle:
                 else:
                     obs.append(0)
 
+        print(obs)
         return np.asarray(obs)
 
     def cell_type(self, x, y):
@@ -503,7 +504,6 @@ class EmptyJungle:
     # TODO ammend observe to make list of grid positions (lists) - we will take out from these
     def check_cross_obstacles(self, agent):
 
-
         row, col = agent.grid_position
         # check directly left
         for i in range(1, agent.range_observation):
@@ -511,16 +511,14 @@ class EmptyJungle:
             # TODO include other obstacles besides trees
             if self.grid_env[int(row), int(col - i)] == ElementsEnv.TREE.value:
                 agent.left_view_obstructed = True
-                cells_to_drop = self.eliminate_left_view(i)
-
+                cells_to_drop = self.eliminate_left_view(i,row,col)
 
         # check directly right
         for j in range(1, agent.range_observation):
 
             if self.grid_env[int(row), int(col + j)] == ElementsEnv.TREE.value:
-
                 agent.right_view_obstructed = True
-                cells_to_drop = self.eliminate_right_view(j)
+                cells_to_drop = self.eliminate_right_view(j,row,col)
                 break
 
         # check directly below
@@ -537,13 +535,11 @@ class EmptyJungle:
                 cells_to_drop = self.eliminate_top_view(l)
                 break
 
-
-
-    def eliminate_right_view(self, start):
+    def eliminate_right_view(self, start, row, col):
         cells_to_drop = [1, 1]
         return cells_to_drop
 
-    def eliminate_left_view(self, start):
+    def eliminate_left_view(self, start,row,col):
         cells_to_drop = [1, 1]
         return cells_to_drop
 

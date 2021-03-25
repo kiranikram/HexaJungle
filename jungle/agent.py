@@ -20,11 +20,15 @@ class Agent:
         self.wood_logs = 0
         self.on_shoulders = False
 
-        # this is temporary , will be removed
+        # @MG these is temporary , will be removed from final codebase - only to help me build
         self.left_view_obstructed = False
         self.right_view_obstructed = False
         self.bottom_view_obstructed = False
         self.top_view_obstructed = False
+        self.top_left_obstructed = False
+        self.top_right_obstructed = False
+        self.bottom_left_obstructed = False
+        self.bottom_right_obstructed = False
 
         self.done = False
 

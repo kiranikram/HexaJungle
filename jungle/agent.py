@@ -19,6 +19,7 @@ class Agent:
         # similar to angle, use a property instead to make sure that you don't go beyond max number of logs allowed
         self.wood_logs = 0
         self.on_shoulders = False
+        self.view_obstructed = False
 
         self.done = False
 

@@ -710,5 +710,44 @@ def test_obs():
     print(obs)
 
 
-def test_occlusions():
+def test_obstacles_in_obs_cross():
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=4)
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    # directly left of agent 1
+    simple_jungle.add_object(ElementsEnv.TREE, (5, 3))
+
+    # directly right of agent 2
+    simple_jungle.add_object(ElementsEnv.TREE, (5, 8))
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+
+    obs, rew, done = simple_jungle.step(actions)
+
+    assert agent_1.view_obstructed
+    assert agent_2.view_obstructed
+
+    # directly below agent 1
+    simple_jungle.add_object(ElementsEnv.TREE, (8, 4))
+
+    # directly above agent 2
+    simple_jungle.add_object(ElementsEnv.TREE, (3, 7))
+
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 1, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 1, Actions.CLIMB: 0}}
+
+    obs, rew, done = simple_jungle.step(actions)
+
+    assert agent_1.view_obstructed
+    assert agent_2.view_obstructed
+
+
+
+
+
+def test_obstacles_in_obs_diagonal():
     pass

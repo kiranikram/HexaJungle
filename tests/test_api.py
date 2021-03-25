@@ -793,3 +793,26 @@ def test_obstacles_in_obs_diagonal():
     # will not be part of the final codebase
     assert agent_1.bottom_left_obstructed
     assert agent_2.top_right_obstructed
+
+
+def test_agent_diagonal_view():
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=4)
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    # bottom left diagonal for agent 1
+    simple_jungle.add_object(ElementsEnv.TREE, (6, 3))
+
+    # should not be able to see around the diagonal
+    simple_jungle.add_object(ElementsEnv.RIVER, (6, 2))
+    simple_jungle.add_object(ElementsEnv.RIVER, (7, 2))
+    simple_jungle.add_object(ElementsEnv.RIVER, (7, 3))
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+
+    obs, rew, done = simple_jungle.step(actions)
+
+    assert ElementsEnv.RIVER.value not in obs[agent_1]

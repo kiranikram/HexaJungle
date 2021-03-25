@@ -626,7 +626,7 @@ class EmptyJungle:
         cells_to_drop = top_left_cells_to_drop + top_right_cells_to_drop + bottom_left_cells_to_drop + bottom_right_cells_to_drop
         return cells_to_drop
 
-    #TODO amend these accordingly
+    #TODO ammend these accordingly
     def eliminate_top_left_view(self, start, row, col, agent):
         cells_to_drop = []
         for i in range(start, agent.range_observation):

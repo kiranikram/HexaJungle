@@ -29,7 +29,7 @@ class Definitions(Enum):
     MIN_SIZE_ENVIR = 5
     LOG_RATE = 3
     RANGE_INCREASE = 2
-    REWARD_BUMP = -5
+    REWARD_COLLISION = -5
     REWARD_CUT_TREE = -2
     REWARD_EXIT_AVERAGE = 15
     REWARD_EXIT_HIGH = 50

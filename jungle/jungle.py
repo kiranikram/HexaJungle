@@ -176,12 +176,12 @@ class EmptyJungle:
         elif agent_climbs == 0:
             agent_rew = self.check_partner_reactions(agent, actions, agent_rew, movement_forward)
         if next_cell == ElementsEnv.OBSTACLE.value:
-            agent_rew = float(Definitions.REWARD_BUMP.value)
+            agent_rew = float(Definitions.REWARD_COLLISION.value)
             row_new, col_new = row, col
 
         elif next_cell == ElementsEnv.BOULDER.value:
             print('we here ')
-            agent_rew = float(Definitions.REWARD_BUMP.value)
+            agent_rew = float(Definitions.REWARD_COLLISION.value)
             if not agent.on_shoulders:
                 row_new, col_new = row, col
             agent.range_observation = agent.range_observation - Definitions.RANGE_INCREASE.value

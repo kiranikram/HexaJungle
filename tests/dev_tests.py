@@ -132,7 +132,7 @@ def test_collisions():
     assert agent_1.grid_position == (7, 4)
     assert agent_1.angle == 2
 
-    assert rew[agent_1] == Definitions.REWARD_BUMP.value
+    assert rew[agent_1] == Definitions.REWARD_COLLISION.value
 
 
 def test_exit_types():

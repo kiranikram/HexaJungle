@@ -55,8 +55,6 @@ class EmptyJungle:
         # place additional obstacles so that all corners have the same shape.
         # ^done
 
-        print(self.grid_env)
-
     def add_agents(self, agent_1, agent_2):
 
         # flip a coin
@@ -521,6 +519,7 @@ class EmptyJungle:
         # check directly left
         for i in range(1, agent.range_observation):
             # TODO include other obstacles besides trees
+            # while col - i >= 0:
             if self.grid_env[int(row), int(col - i)] == ElementsEnv.TREE.value:
                 agent.left_view_obstructed = True
                 left_cells_to_drop = self.eliminate_left_view(i, row, col, agent)
@@ -529,6 +528,8 @@ class EmptyJungle:
 
         # check directly right
         for j in range(1, agent.range_observation):
+            if col + j == self.size:
+                break
 
             if self.grid_env[int(row), int(col + j)] == ElementsEnv.TREE.value:
                 agent.right_view_obstructed = True
@@ -538,6 +539,7 @@ class EmptyJungle:
 
         # check directly below
         for k in range(1, agent.range_observation):
+            # while row + k <= self.size:
             if self.grid_env[int(row + k), int(col)] == ElementsEnv.TREE.value:
                 agent.bottom_view_obstructed = True
                 bottom_cells_to_drop = self.eliminate_bottom_view(k, row, col, agent)
@@ -546,6 +548,7 @@ class EmptyJungle:
 
         # check directly above
         for l in range(1, agent.range_observation):
+            # while row - l >= 0:
             if self.grid_env[int(row - l), int(col)] == ElementsEnv.TREE.value:
                 agent.top_view_obstructed = True
                 top_cells_to_drop = self.eliminate_top_view(l, row, col, agent)
@@ -594,34 +597,46 @@ class EmptyJungle:
         bottom_right_cells_to_drop = []
 
         # check top left
-        for i, a in range(1, agent.range_observation):
-            # TODO include other obstacles besides trees
-            if self.grid_env[int(row - i), int(col - a)] == ElementsEnv.TREE.value:
-                agent.top_left_obstructed = True
-                top_left_cells_to_drop = self.eliminate_top_left_view(i, a, row, col, agent)
-                break
+        for i in range(1, agent.range_observation):
+            for a in range(1, agent.range_observation):
+                # TODO include other obstacles besides trees
+                # while (row-i) >= 0 and (col-a) >=0:
+                if self.grid_env[int(row - i), int(col - a)] == ElementsEnv.TREE.value:
+                    agent.top_left_obstructed = True
+                    top_left_cells_to_drop = self.eliminate_top_left_view(i, a, row, col, agent)
+                    break
 
         # check top right
-        for j, b in range(1, agent.range_observation):
-            if self.grid_env[int(row - j), int(col + b)] == ElementsEnv.TREE.value:
-                agent.top_right_obstructed = True
-                top_right_cells_to_drop = self.eliminate_top_right_view(j, b, row, col, agent)
-                break
+        for j in range(1, agent.range_observation):
+            for b in range(1, agent.range_observation):
+                # while (row - j) >= 0 and (col +b) <= self.size:
+                if col + b == self.size:
+                    break
+                if self.grid_env[int(row - j), int(col + b)] == ElementsEnv.TREE.value:
+                    agent.top_right_obstructed = True
+                    top_right_cells_to_drop = self.eliminate_top_right_view(j, b, row, col, agent)
+                    break
 
         # check bottom left
-        for k, c in range(1, agent.range_observation):
-            if self.grid_env[int(row + k), int(col - c)] == ElementsEnv.TREE.value:
-                agent.bottom_left_obstructed = True
-                bottom_left_cells_to_drop = self.eliminate_bottom_left_view(k, c, row, col, agent)
-                break
+        for k in range(1, agent.range_observation):
+            for c in range(1, agent.range_observation):
+                # while (row +k ) <= self.size and (col - c) >= 0:
+                if self.grid_env[int(row + k), int(col - c)] == ElementsEnv.TREE.value:
+                    agent.bottom_left_obstructed = True
+                    bottom_left_cells_to_drop = self.eliminate_bottom_left_view(k, c, row, col, agent)
+                    break
 
         # check bottom right
-        for l, d in range(1, agent.range_observation):
-            if self.grid_env[int(row + l), int(col + d)] == ElementsEnv.TREE.value:
-                agent.bottom_right_obstructed = True
-                bottom_right_cells_to_drop = self.eliminate_bottom_right_view(l, d, row, col, agent)
+        for l in range(1, agent.range_observation):
+            for d in range(1, agent.range_observation):
+                if col + d == self.size:
+                    break
+                # while (row + l) <= self.size and (col +d ) <= self.size:
+                if self.grid_env[int(row + l), int(col + d)] == ElementsEnv.TREE.value:
+                    agent.bottom_right_obstructed = True
+                    bottom_right_cells_to_drop = self.eliminate_bottom_right_view(l, d, row, col, agent)
 
-                break
+                    break
 
         cells_to_drop = top_left_cells_to_drop + top_right_cells_to_drop + bottom_left_cells_to_drop + bottom_right_cells_to_drop
         return cells_to_drop

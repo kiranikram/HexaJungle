@@ -126,8 +126,6 @@ def check_corners(envir):
     assert envir.cell_type(2, 0) == ElementsEnv.OBSTACLE.value
     assert envir.cell_type(2, 1) == ElementsEnv.OBSTACLE.value
 
-    
-
     assert envir.cell_type(1, 1) == ElementsEnv.EMPTY.value
     assert envir.cell_type(1, 2) == ElementsEnv.EMPTY.value
     assert envir.cell_type(2, 2) == ElementsEnv.EMPTY.value
@@ -274,9 +272,9 @@ def test_collisions_with_obstacles():
     simple_jungle.add_object(ElementsEnv.OBSTACLE, (5, 3))
     simple_jungle.add_object(ElementsEnv.OBSTACLE, (3, 3))
 
-    # just forward, towards the object.
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0}
+    # agent_1 moves forward, towards the object.
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}
                }
 
     obs, rew, done = simple_jungle.step(actions)
@@ -288,8 +286,9 @@ def test_collisions_with_obstacles():
     # agent receives reward for collision
     assert rew[agent_1] == Definitions.REWARD_COLLISION.value
 
-    # now rotate, then forward towards another object.
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1},
+    # agent_1 now rotates, then moves forward towards another object.
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}
                }
 
     obs, rew, done = simple_jungle.step(actions)
@@ -299,8 +298,11 @@ def test_collisions_with_obstacles():
     assert rew[agent_1] == 0.0
     assert agent_1.angle == 2
 
-    # Then move forward, now it should bump
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0}}
+    # agent_1 moves forward, now it should bump
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}
+               }
+
     obs, rew, done = simple_jungle.step(actions)
 
     assert agent_1.grid_position == (4, 4)

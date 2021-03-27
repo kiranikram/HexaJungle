@@ -16,8 +16,7 @@ class EmptyJungle:
         if self.size % 2 == 0 or size < Definitions.MIN_SIZE_ENVIR.value:
             raise ValueError('size should be an odd number')
 
-        # check with ones mulitpy by definition s
-        self.grid_env = np.zeros((self.size, self.size), dtype=int)
+        self.grid_env = np.ones((self.size, self.size), dtype=int)
         self.place_obstacles()
         self.agent_white = None
         self.agent_black = None
@@ -58,7 +57,6 @@ class EmptyJungle:
 
         print(self.grid_env)
 
-
     def add_agents(self, agent_1, agent_2):
 
         # flip a coin
@@ -95,8 +93,8 @@ class EmptyJungle:
     def step(self, actions):
 
         # because you pass objects (agents), you can make that much more simple
-        #for agent in actions:
-            #agent.apply_actions(actions[agent])
+        # for agent in actions:
+        # agent.apply_actions(actions[agent])
         #     print(agent)
 
         # Apply physical actions, White starts
@@ -114,13 +112,13 @@ class EmptyJungle:
         ag_black_rew, black_done = self.apply_action(self.agent_black, actions, rew[self.agent_black],
                                                      done[self.agent_black])
 
-        #done[self.agent_white] = white_done
-        #done[self.agent_black] = black_done
+        # done[self.agent_white] = white_done
+        # done[self.agent_black] = black_done
 
-        #if white_done is True and black_done is True:
-            #done = True
-        #else:
-            #done = False
+        # if white_done is True and black_done is True:
+        # done = True
+        # else:
+        # done = False
 
         self.agent_white.done = white_done
 
@@ -140,7 +138,7 @@ class EmptyJungle:
         self.agent_black.x, self.agent_black.y = self.update_cartesian(self.agent_black)
         self.agent_white.x, self.agent_white.y = self.update_cartesian(self.agent_white)
 
-        print('done in func',done)
+        print('done in func', done)
 
         return obs, rew, done
 
@@ -153,13 +151,13 @@ class EmptyJungle:
         angle = agent.angle
         next_cell = self.grid_env[int(row), int(col)]
 
-        #agent_actions = actions.get(agent, {})
+        # agent_actions = actions.get(agent, {})
         agent_actions = actions[agent]
 
         # MG said use this 26 Mar
         #
         #
-        #agent_actions = actions.get(agent, {})
+        # agent_actions = actions.get(agent, {})
         # Edited
         # agent_actions.get(Actions.ROTATE, 0)
 

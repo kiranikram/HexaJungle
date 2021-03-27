@@ -126,12 +126,11 @@ def check_corners(envir):
     assert envir.cell_type(2, 0) == ElementsEnv.OBSTACLE.value
     assert envir.cell_type(2, 1) == ElementsEnv.OBSTACLE.value
 
-    print('check')
-    print(envir.grid_env[int(1), int(1)])
+    
 
-    # assert envir.cell_type(1, 1) == ElementsEnv.EMPTY
-    # assert envir.cell_type(1, 2) == ElementsEnv.EMPTY
-    # assert envir.cell_type(2, 2) == ElementsEnv.EMPTY
+    assert envir.cell_type(1, 1) == ElementsEnv.EMPTY.value
+    assert envir.cell_type(1, 2) == ElementsEnv.EMPTY.value
+    assert envir.cell_type(2, 2) == ElementsEnv.EMPTY.value
 
     # Top-right corner
     #   x x x
@@ -163,7 +162,7 @@ def check_corners(envir):
     assert envir.cell_type(envir.size - 2, envir.size - 1) == ElementsEnv.OBSTACLE.value
     assert envir.cell_type(envir.size - 3, envir.size - 1) == ElementsEnv.OBSTACLE.value
     assert envir.cell_type(envir.size - 1, envir.size - 3) == ElementsEnv.OBSTACLE.value
-    assert envir.cell_type(envir.size - 3, envir.size - 2) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 3, envir.size - 2) == ElementsEnv.EMPTY.value
 
     assert envir.cell_type(envir.size - 3, envir.size - 3) == ElementsEnv.EMPTY.value
     assert envir.cell_type(envir.size - 2, envir.size - 3) == ElementsEnv.EMPTY.value

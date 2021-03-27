@@ -387,13 +387,21 @@ def run_tree_experiment():
     simple_jungle.add_object(ElementsEnv.TREE, (5, 5))
 
     # face the tree
-    actions = {agent_2: {Actions.ROTATE: -1}, agent_1: {Actions.ROTATE: -1}}
+    # agent_1 and agent_2 rotate -1
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0}
+               }
+
     simple_jungle.step(actions)
     simple_jungle.step(actions)
     simple_jungle.step(actions)
 
     # move towards the tree
-    actions = {agent_1: {Actions.FORWARD: 1}, agent_2: {Actions.FORWARD: -1}}
+    # agent_1 fwd 1 , agent_2 fwd -1
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: -1, Actions.ROTATE: 0, Actions.CLIMB: 0}
+               }
+
     simple_jungle.step(actions)
 
     # one of them gets the log

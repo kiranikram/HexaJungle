@@ -136,8 +136,6 @@ class EmptyJungle:
         self.agent_black.x, self.agent_black.y = self.update_cartesian(self.agent_black)
         self.agent_white.x, self.agent_white.y = self.update_cartesian(self.agent_white)
 
-
-
         return obs, rew, done
 
     # same cell check will have similar issues to reward same cell (the lag)
@@ -654,9 +652,10 @@ class EmptyJungle:
             row = start_row
             coords = (row, col - a)
             cells_to_drop.append(coords)
-        for i, a in range(0, agent.range_observation):
-            coords = (start_row - i, start_col - a)
-            cells_to_drop.append(coords)
+        for i in range(0, agent.range_observation):
+            for a in range(0, agent.range_observation):
+                coords = (start_row - i, start_col - a)
+                cells_to_drop.append(coords)
         return cells_to_drop
 
     def eliminate_top_right_view(self, start_row, start_col, row, col, agent):
@@ -669,9 +668,12 @@ class EmptyJungle:
             row = start_row
             coords = (row, col + a)
             cells_to_drop.append(coords)
-        for i, a in range(0, agent.range_observation):
-            coords = (start_row - i, start_col + a)
-            cells_to_drop.append(coords)
+        for i in range(0, agent.range_observation):
+            for  a in range(0, agent.range_observation):
+                if start_col + a == self.size:
+                    break
+                coords = (start_row - i, start_col + a)
+                cells_to_drop.append(coords)
         return cells_to_drop
 
     def eliminate_bottom_left_view(self, start_row, start_col, row, col, agent):
@@ -684,9 +686,12 @@ class EmptyJungle:
             row = start_row
             coords = (row, col - a)
             cells_to_drop.append(coords)
-        for i, a in range(0, agent.range_observation):
-            coords = (start_row + i, start_col - a)
-            cells_to_drop.append(coords)
+        for i in range(0, agent.range_observation):
+            for a in range(0, agent.range_observation):
+                if start_row + i == self.size:
+                    break
+                coords = (start_row + i, start_col - a)
+                cells_to_drop.append(coords)
         return cells_to_drop
 
     def eliminate_bottom_right_view(self, start_row, start_col, row, col, agent):
@@ -699,7 +704,12 @@ class EmptyJungle:
             row = start_row
             coords = (row, col + a)
             cells_to_drop.append(coords)
-        for i, a in range(0, agent.range_observation):
-            coords = (start_row + i, start_col + a)
-            cells_to_drop.append(coords)
+        for i in range(0, agent.range_observation):
+            for a in range(0, agent.range_observation):
+                if start_col + a == self.size:
+                    break
+                if start_row + i == self.size:
+                    break
+                coords = (start_row + i, start_col + a)
+                cells_to_drop.append(coords)
         return cells_to_drop

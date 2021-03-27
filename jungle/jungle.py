@@ -539,7 +539,8 @@ class EmptyJungle:
 
         # check directly below
         for k in range(1, agent.range_observation):
-            # while row + k <= self.size:
+            if row + k == self.size:
+                break
             if self.grid_env[int(row + k), int(col)] == ElementsEnv.TREE.value:
                 agent.bottom_view_obstructed = True
                 bottom_cells_to_drop = self.eliminate_bottom_view(k, row, col, agent)
@@ -621,6 +622,8 @@ class EmptyJungle:
         for k in range(1, agent.range_observation):
             for c in range(1, agent.range_observation):
                 # while (row +k ) <= self.size and (col - c) >= 0:
+                if row + k == self.size:
+                    break
                 if self.grid_env[int(row + k), int(col - c)] == ElementsEnv.TREE.value:
                     agent.bottom_left_obstructed = True
                     bottom_left_cells_to_drop = self.eliminate_bottom_left_view(k, c, row, col, agent)

@@ -329,7 +329,11 @@ def test_collision_with_tree():
     simple_jungle.add_object(ElementsEnv.TREE, (4, 2))
 
     # move to first tree
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1}}
+    # agent_1 forward +1 and rotates -1
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}
+               }
+
     obs, rew, done = simple_jungle.step(actions)
 
     assert agent_1.grid_position == (4, 4)
@@ -338,7 +342,11 @@ def test_collision_with_tree():
     assert agent_1.wood_logs == 1
 
     # move to second tree
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 1}}
+    # agent_1 forward +1 and rotates 1
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 1, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}
+               }
+
     obs, rew, done = simple_jungle.step(actions)
 
     assert agent_1.grid_position == (4, 3)
@@ -347,7 +355,11 @@ def test_collision_with_tree():
     assert agent_1.wood_logs == 2
 
     # move to third tree
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0}}
+    # agent_1 forward +1
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}
+               }
+
     obs, rew, done = simple_jungle.step(actions)
 
     assert agent_1.grid_position == (4, 2)

@@ -136,7 +136,7 @@ class EmptyJungle:
         self.agent_black.x, self.agent_black.y = self.update_cartesian(self.agent_black)
         self.agent_white.x, self.agent_white.y = self.update_cartesian(self.agent_white)
 
-        print('done in func', done)
+
 
         return obs, rew, done
 

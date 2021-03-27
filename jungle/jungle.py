@@ -56,6 +56,9 @@ class EmptyJungle:
         # place additional obstacles so that all corners have the same shape.
         # ^done
 
+        print(self.grid_env)
+
+
     def add_agents(self, agent_1, agent_2):
 
         # flip a coin
@@ -92,8 +95,8 @@ class EmptyJungle:
     def step(self, actions):
 
         # because you pass objects (agents), you can make that much more simple
-        # for agent in actions:
-        #     agent.apply_actions(actions[agent])
+        #for agent in actions:
+            #agent.apply_actions(actions[agent])
         #     print(agent)
 
         # Apply physical actions, White starts
@@ -102,29 +105,22 @@ class EmptyJungle:
         # and positions and angle will be changed in self.apply_actions.
         # so maybe, instead:  elevated, cut_tree = self.apply_action( agent, actions) ?
 
-        # dont need to return position etccc changed in apply action automatically
-        # self.agent_white.grid_position, self.agent_white.angle, self.agent_white.wood_logs = self.apply_action(
-        # self.agent_white, actions)
-
-        # self.agent_black.grid_position, self.agent_black.angle, self.agent_black.wood_logs = self.apply_action(
-        # self.agent_black, actions)
-
         rew = {self.agent_black: 0.0, self.agent_white: 0.0}
         done = {self.agent_black: False, self.agent_white: False}
-        obs = {self.agent_black: [], self.agent_white: []}
+        obs = {self.agent_black: None, self.agent_white: None}
 
         ag_white_rew, white_done = self.apply_action(self.agent_white, actions, rew[self.agent_white],
                                                      done[self.agent_white])
         ag_black_rew, black_done = self.apply_action(self.agent_black, actions, rew[self.agent_black],
                                                      done[self.agent_black])
 
-        done[self.agent_white] = white_done
-        done[self.agent_black] = black_done
+        #done[self.agent_white] = white_done
+        #done[self.agent_black] = black_done
 
-        if white_done is True and black_done is True:
-            done = True
-        else:
-            done = False
+        #if white_done is True and black_done is True:
+            #done = True
+        #else:
+            #done = False
 
         self.agent_white.done = white_done
 
@@ -136,16 +132,18 @@ class EmptyJungle:
         # @MG I feel that this reward dict needs to be outside of step, as each call to step will
         # update a running total for each of the agents
 
-        obs[self.agent_white] = self.generate_agent_obs(self.agent_white)
-        obs[self.agent_black] = self.generate_agent_obs(self.agent_black)
+        if self.agent_white.range_observation is not None:
+            obs[self.agent_white] = self.generate_agent_obs(self.agent_white)
+        if self.agent_black.range_observation is not None:
+            obs[self.agent_black] = self.generate_agent_obs(self.agent_black)
 
         self.agent_black.x, self.agent_black.y = self.update_cartesian(self.agent_black)
         self.agent_white.x, self.agent_white.y = self.update_cartesian(self.agent_white)
 
+        print('done in func',done)
+
         return obs, rew, done
 
-    # TODO: write function that determines if in fact agent can climb on other agent; for this they have to be on the
-    #  same cell ; this will tie into action selection {legal actions}
     # same cell check will have similar issues to reward same cell (the lag)
     def apply_action(self, agent, actions, agent_rew, agent_done):
 
@@ -155,7 +153,15 @@ class EmptyJungle:
         angle = agent.angle
         next_cell = self.grid_env[int(row), int(col)]
 
+        #agent_actions = actions.get(agent, {})
         agent_actions = actions[agent]
+
+        # MG said use this 26 Mar
+        #
+        #
+        #agent_actions = actions.get(agent, {})
+        # Edited
+        # agent_actions.get(Actions.ROTATE, 0)
 
         rotation = agent_actions[Actions.ROTATE]
         movement_forward = agent_actions[Actions.FORWARD]
@@ -180,7 +186,7 @@ class EmptyJungle:
             row_new, col_new = row, col
 
         elif next_cell == ElementsEnv.BOULDER.value:
-            print('we here ')
+
             agent_rew = float(Definitions.REWARD_COLLISION.value)
             if not agent.on_shoulders:
                 row_new, col_new = row, col
@@ -246,7 +252,6 @@ class EmptyJungle:
     def generate_agent_obs(self, agent):
 
         obs = []
-        full_obs = []
 
         cells_to_drop = self.check_cross_obstacles(agent) + self.check_diagonal_obstacles(agent)
 
@@ -288,8 +293,6 @@ class EmptyJungle:
                         obs.remove(self.grid_env[int(row), int(col)])
                 else:
                     obs.append(0)
-
-        cells_to_drop = self.check_cross_obstacles(agent)
 
         return np.asarray(obs)
 
@@ -509,7 +512,6 @@ class EmptyJungle:
 
         return row_new, col_new, next_cell
 
-
     def check_cross_obstacles(self, agent):
 
         row, col = agent.grid_position
@@ -594,70 +596,69 @@ class EmptyJungle:
         bottom_right_cells_to_drop = []
 
         # check top left
-        for i,a in range(1, agent.range_observation):
+        for i, a in range(1, agent.range_observation):
             # TODO include other obstacles besides trees
-            if self.grid_env[int(row-i), int(col - a)] == ElementsEnv.TREE.value:
+            if self.grid_env[int(row - i), int(col - a)] == ElementsEnv.TREE.value:
                 agent.top_left_obstructed = True
-                top_left_cells_to_drop = self.eliminate_top_left_view(i,a, row, col, agent)
+                top_left_cells_to_drop = self.eliminate_top_left_view(i, a, row, col, agent)
                 break
 
         # check top right
-        for j,b in range(1, agent.range_observation):
-            if self.grid_env[int(row-j), int(col + b)] == ElementsEnv.TREE.value:
+        for j, b in range(1, agent.range_observation):
+            if self.grid_env[int(row - j), int(col + b)] == ElementsEnv.TREE.value:
                 agent.top_right_obstructed = True
-                top_right_cells_to_drop = self.eliminate_top_right_view(j,b, row, col, agent)
+                top_right_cells_to_drop = self.eliminate_top_right_view(j, b, row, col, agent)
                 break
 
         # check bottom left
-        for k,c in range(1, agent.range_observation):
-            if self.grid_env[int(row + k), int(col-c)] == ElementsEnv.TREE.value:
+        for k, c in range(1, agent.range_observation):
+            if self.grid_env[int(row + k), int(col - c)] == ElementsEnv.TREE.value:
                 agent.bottom_left_obstructed = True
-                bottom_left_cells_to_drop = self.eliminate_bottom_left_view(k,c, row, col, agent)
+                bottom_left_cells_to_drop = self.eliminate_bottom_left_view(k, c, row, col, agent)
                 break
 
         # check bottom right
-        for l,d in range(1, agent.range_observation):
+        for l, d in range(1, agent.range_observation):
             if self.grid_env[int(row + l), int(col + d)] == ElementsEnv.TREE.value:
                 agent.bottom_right_obstructed = True
-                bottom_right_cells_to_drop = self.eliminate_bottom_right_view(l,d ,row, col, agent)
+                bottom_right_cells_to_drop = self.eliminate_bottom_right_view(l, d, row, col, agent)
 
                 break
 
         cells_to_drop = top_left_cells_to_drop + top_right_cells_to_drop + bottom_left_cells_to_drop + bottom_right_cells_to_drop
         return cells_to_drop
 
-    
-    def eliminate_top_left_view(self, start_row,start_col, row, col, agent):
+    def eliminate_top_left_view(self, start_row, start_col, row, col, agent):
         cells_to_drop = []
         for i in range(start_row, agent.range_observation):
             col = start_col
-            coords = (row - i , col)
+            coords = (row - i, col)
             cells_to_drop.append(coords)
         for a in range(start_col, agent.range_observation):
             row = start_row
             coords = (row, col - a)
             cells_to_drop.append(coords)
-        for i ,a in range(0, agent.range_observation):
-            coords = (start_row - i , start_col - a)
+        for i, a in range(0, agent.range_observation):
+            coords = (start_row - i, start_col - a)
             cells_to_drop.append(coords)
         return cells_to_drop
 
-    def eliminate_top_right_view(self, start_row,start_col, row, col, agent):
+    def eliminate_top_right_view(self, start_row, start_col, row, col, agent):
         cells_to_drop = []
         for i in range(start_row, agent.range_observation):
             col = start_col
-            coords = (row - i , col)
+            coords = (row - i, col)
             cells_to_drop.append(coords)
         for a in range(start_col, agent.range_observation):
             row = start_row
             coords = (row, col + a)
             cells_to_drop.append(coords)
-        for i ,a in range(0, agent.range_observation):
-            coords = (start_row - i , start_col + a)
+        for i, a in range(0, agent.range_observation):
+            coords = (start_row - i, start_col + a)
             cells_to_drop.append(coords)
         return cells_to_drop
 
-    def eliminate_bottom_left_view(self, start_row,start_col, row, col, agent):
+    def eliminate_bottom_left_view(self, start_row, start_col, row, col, agent):
         cells_to_drop = []
         for i in range(start_row, agent.range_observation):
             col = start_col
@@ -672,7 +673,7 @@ class EmptyJungle:
             cells_to_drop.append(coords)
         return cells_to_drop
 
-    def eliminate_bottom_right_view(self, start_row,start_col, row, col, agent):
+    def eliminate_bottom_right_view(self, start_row, start_col, row, col, agent):
         cells_to_drop = []
         for i in range(start_row, agent.range_observation):
             col = start_col
@@ -686,5 +687,3 @@ class EmptyJungle:
             coords = (start_row + i, start_col + a)
             cells_to_drop.append(coords)
         return cells_to_drop
-
-

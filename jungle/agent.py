@@ -9,6 +9,9 @@ from jungle.utils_agent import Actions
  . . . . . . . . """
 
 
+
+
+
 class Agent:
 
     def __init__(self, range_observation=None):
@@ -20,6 +23,8 @@ class Agent:
         # similar to angle, use a property instead to make sure that you don't go beyond max number of logs allowed
         self.wood_logs = 0
         self.on_shoulders = False
+
+        self.current_actions = None
 
         # @MG these is temporary , will be removed from final codebase - only to help me build
         self.left_view_obstructed = False
@@ -57,13 +62,13 @@ class Agent:
         # Make sure that angles are between 0 to 5
         self._angle = angle % 6
 
+    def apply_action(self, actions):
+        self.current_actions = actions
+        print(self.current_actions.items())
+
     # @property
     # def carthesian_coordinates(self):
     #
     #     # TODO: convert grid_position to cartesian position
     #     x = ...
     #     y = /
-
-
-
-

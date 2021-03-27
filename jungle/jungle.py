@@ -139,6 +139,8 @@ class EmptyJungle:
         return obs, rew, done
 
     # same cell check will have similar issues to reward same cell (the lag)
+
+    # SAT : might need to pass in rew for other agent - same cell for tree cutting
     def apply_action(self, agent, actions, agent_rew, agent_done):
 
         # assuming moves forward first, then changes angle
@@ -198,15 +200,59 @@ class EmptyJungle:
 
         agent.grid_position = row_new, col_new
 
+        # need to check first if both agents on same tree cell
+
+
         if next_cell == ElementsEnv.TREE.value:
-            self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
-            agent_rew = float(Definitions.REWARD_CUT_TREE.value)
-            # There is a cap on the number of logs an agent can collect
-            # This should be a parameter of the jungle subclass
-            if agent.wood_logs < 2:
-                agent.wood_logs += 1
+            agent_rew = self.tree_dynamics(agent,actions,agent_rew,next_cell,row_new,col_new)
+
+
+
 
         return agent_rew, agent_done
+
+    #TODO change reward to only if they have space to get logs
+
+    def tree_dynamics(self,agent, actions, agent_rew, next_cell,row_new,col_new):
+
+        if agent.color == Definitions.BLACK:
+            partner_on_cell = self.check_cell_occupancy(agent, actions, next_cell)
+            if not partner_on_cell:
+                if agent.wood_logs < 2:
+                    agent.wood_logs += 1
+                    agent_rew = float(Definitions.REWARD_CUT_TREE.value)
+                self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
+
+            else:
+                if random.random() > 0.5:
+                    if agent.wood_logs < 2:
+                        agent_rew = float(Definitions.REWARD_CUT_TREE.value)
+                        agent.wood_logs += 1
+                # agent black gets log if he has less than 2
+                # else ag white gets log if he has less than 2
+                self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
+
+        if agent.color == Definitions.WHITE:
+            partner_on_cell = self.check_cell_occupancy(agent, actions, next_cell)
+            if not partner_on_cell:
+                if agent.wood_logs < 2:
+                    agent.wood_logs += 1
+                    agent_rew = float(Definitions.REWARD_CUT_TREE.value)
+                self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
+
+            else:
+                if random.random() > 0.5:
+                    if agent.wood_logs < 2:
+                        agent_rew = float(Definitions.REWARD_CUT_TREE.value)
+                        agent.wood_logs += 1
+                # agent black gets log if he has less than 2
+                # else ag white gets log if he has less than 2
+                self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
+
+
+
+
+        return  agent_rew
 
     def get_proximal_coordinate(self, row, col, angle):
 

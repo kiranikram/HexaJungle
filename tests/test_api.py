@@ -42,7 +42,7 @@ def test_rl_loop():
     assert isinstance(rew[agent_1], float)
     assert isinstance(rew[agent_2], float)
 
-    
+
     assert not done[agent_1] and not done[agent_2]
 
     # should work with some actions not set (default to 0
@@ -76,13 +76,19 @@ def test_agents_on_same_cell():
     # Move agent 2 on cell of agent 1
 
     # First rotate
-    actions = {agent_2: {Actions.ROTATE: 1}}
+    # agent_2 rotates
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 1, Actions.CLIMB: 0}
+               }
     simple_jungle.step(actions)
     simple_jungle.step(actions)
     simple_jungle.step(actions)
 
     # then move forward twice
-    actions = {agent_2: {Actions.FORWARD: 1}}
+    # agent_2 moves fwd
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0}
+               }
     simple_jungle.step(actions)
     obs, rew, done = simple_jungle.step(actions)
 

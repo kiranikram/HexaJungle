@@ -42,11 +42,11 @@ def test_rl_loop():
     assert isinstance(rew[agent_1], float)
     assert isinstance(rew[agent_2], float)
 
-
     assert not done[agent_1] and not done[agent_2]
 
     # should work with some actions not set (default to 0
 
+    # agent_1 moves fwd ; agent_2 rotates -1
     actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0},
                agent_2: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0}
                }
@@ -56,6 +56,7 @@ def test_rl_loop():
 
     pos_before = agent_1.grid_position
 
+    # agent_2 rotates -1
     actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
                agent_2: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0}
                }

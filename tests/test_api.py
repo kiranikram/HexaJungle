@@ -386,6 +386,14 @@ def run_tree_experiment():
 
     simple_jungle.add_object(ElementsEnv.TREE, (5, 5))
 
+    print('ag1 is ', agent_1.color)
+    print('ag2 is ', agent_2.color)
+    print(" ")
+
+    print('start')
+    print(agent_1.grid_position, agent_1.angle)
+    print(agent_2.grid_position, agent_2.angle)
+
     # face the tree
     # agent_1 and agent_2 rotate -1
     actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0},
@@ -394,7 +402,14 @@ def run_tree_experiment():
 
     simple_jungle.step(actions)
     simple_jungle.step(actions)
+
+
+
     simple_jungle.step(actions)
+
+    print('after 3 rotation actions')
+    print(agent_1.grid_position, agent_1.angle)
+    print(agent_2.grid_position, agent_2.angle)
 
     # move towards the tree
     # agent_1 fwd 1 , agent_2 fwd -1
@@ -404,16 +419,23 @@ def run_tree_experiment():
 
     simple_jungle.step(actions)
 
-    print(agent_1.grid_position)
-    print(agent_2.grid_position)
+    print('after inverse fwd movements ')
+    print(agent_1.grid_position, agent_1.angle)
+    print(agent_2.grid_position, agent_2.angle)
+    print(" ")
+
+    print(agent_1.color, 'gets', agent_1.wood_logs)
+    print(agent_2.color, 'gets', agent_2.wood_logs)
 
     # one of them gets the log
     assert ((agent_1.wood_logs == 1 and agent_2.wood_logs == 0)
             or (agent_1.wood_logs == 0 and agent_2.wood_logs == 1))
 
+
+
+
+    print(" END")
     print(" ")
-    print(agent_1.color , 'gets', agent_1.wood_logs )
-    print(agent_2.color, 'gets', agent_2.wood_logs)
     print(" ")
     return agent_1.wood_logs, agent_2.wood_logs
 
@@ -425,10 +447,12 @@ def test_two_agents_cutting_a_tree():
     # check that the log doesn't go all the time to the same agent
 
     for i in range(100):
+
         log_1, log_2 = run_tree_experiment()
 
         agent_1_gets_log += log_1
         agent_2_gets_log += log_2
+
 
     assert agent_2_gets_log != 0 and agent_1_gets_log != 0
 

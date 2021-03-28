@@ -23,6 +23,7 @@ class EmptyJungle:
         self.agents = []
         self.done = False
         self.both_at_river = False
+        self.both_at_tree = False
         self.on_same_cell = False
 
     def place_obstacles(self):
@@ -204,6 +205,7 @@ class EmptyJungle:
 
 
         if next_cell == ElementsEnv.TREE.value:
+            print('going into tree dynamics', agent.color)
             agent_rew = self.tree_dynamics(agent,actions,agent_rew,next_cell,row_new,col_new)
 
 
@@ -214,40 +216,51 @@ class EmptyJungle:
     #TODO change reward to only if they have space to get logs
 
     def tree_dynamics(self,agent, actions, agent_rew, next_cell,row_new,col_new):
+        if self.both_at_tree:
+            print('BOTH AT TREE')
+            self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
 
-        if agent.color == Definitions.BLACK:
-            partner_on_cell = self.check_cell_occupancy(agent, actions, next_cell)
-            if not partner_on_cell:
-                if agent.wood_logs < 2:
-                    agent.wood_logs += 1
-                    agent_rew = float(Definitions.REWARD_CUT_TREE.value)
-                self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
+            if self.agent_white.wood_logs == 0:
+                self.agent_black.wood_logs += 1
 
-            else:
-                if random.random() > 0.5:
+        else:
+            print('BOTH NOT!!! AT TREE')
+            if agent.color == Definitions.BLACK:
+                partner_on_cell = self.check_cell_occupancy(agent, actions, next_cell)
+                if not partner_on_cell:
                     if agent.wood_logs < 2:
-                        agent_rew = float(Definitions.REWARD_CUT_TREE.value)
                         agent.wood_logs += 1
+                        agent_rew = float(Definitions.REWARD_CUT_TREE.value)
+                    self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
+
+                else:
+                    self.both_at_tree = True
+                    print('when ag1 is black should look here')
+                    if random.random() > 0.5:
+                        if agent.wood_logs < 2:
+                            agent_rew = float(Definitions.REWARD_CUT_TREE.value)
+                            agent.wood_logs += 1
                 # agent black gets log if he has less than 2
                 # else ag white gets log if he has less than 2
-                self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
+                #self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
 
-        if agent.color == Definitions.WHITE:
-            partner_on_cell = self.check_cell_occupancy(agent, actions, next_cell)
-            if not partner_on_cell:
-                if agent.wood_logs < 2:
-                    agent.wood_logs += 1
-                    agent_rew = float(Definitions.REWARD_CUT_TREE.value)
-                self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
-
-            else:
-                if random.random() > 0.5:
+            elif agent.color == Definitions.WHITE:
+                partner_on_cell = self.check_cell_occupancy(agent, actions, next_cell)
+                if not partner_on_cell:
                     if agent.wood_logs < 2:
-                        agent_rew = float(Definitions.REWARD_CUT_TREE.value)
                         agent.wood_logs += 1
+                        agent_rew = float(Definitions.REWARD_CUT_TREE.value)
+                    self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
+
+                else:
+                    self.both_at_tree = True
+                    if random.random() > 0.5:
+                        if agent.wood_logs < 2:
+                            agent_rew = float(Definitions.REWARD_CUT_TREE.value)
+                            agent.wood_logs += 1
                 # agent black gets log if he has less than 2
                 # else ag white gets log if he has less than 2
-                self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
+                #self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
 
 
 
@@ -491,6 +504,7 @@ class EmptyJungle:
     def check_cell_occupancy(self, agent, actions, next_cell):
 
         if agent.color == Definitions.BLACK:
+            print('agent is black')
 
             partner_row, partner_col = self.agent_white.grid_position
             partner_angle = self.agent_white.angle
@@ -498,16 +512,18 @@ class EmptyJungle:
             partner_rotation = partner_actions[Actions.ROTATE]
             partner_angle = (partner_angle + partner_rotation)
             partner_forward = partner_actions[Actions.FORWARD]
+            print('partner_row, partner_col, partner_angle', partner_row, partner_col, partner_angle)
 
             _, _, partner_next_cell = self.get_proximal_coordinate(partner_row, partner_col, partner_angle)
-
+            print(next_cell , partner_next_cell)
             if partner_next_cell == next_cell:
                 self.on_same_cell = True
                 return True
             else:
                 return False
 
-        if agent.color == Definitions.WHITE:
+        elif agent.color == Definitions.WHITE:
+            print('agent is white')
 
             partner_row, partner_col = self.agent_black.grid_position
             partner_angle = self.agent_black.angle
@@ -515,9 +531,9 @@ class EmptyJungle:
             partner_rotation = partner_actions[Actions.ROTATE]
             partner_angle = (partner_angle + partner_rotation)
             partner_forward = partner_actions[Actions.FORWARD]
-
+            print('partner_row, partner_col, partner_angle', partner_row, partner_col, partner_angle)
             _, _, partner_next_cell = self.get_proximal_coordinate(partner_row, partner_col, partner_angle)
-
+            print(next_cell, partner_next_cell)
             if partner_next_cell == next_cell:
                 self.on_same_cell = True
                 return True

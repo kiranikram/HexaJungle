@@ -203,28 +203,24 @@ class EmptyJungle:
 
         # need to check first if both agents on same tree cell
 
-
         if next_cell == ElementsEnv.TREE.value:
             print('going into tree dynamics', agent.color)
-            agent_rew = self.tree_dynamics(agent,actions,agent_rew,next_cell,row_new,col_new)
-
-
-
+            agent_rew = self.tree_dynamics(agent, actions, agent_rew, next_cell, row_new, col_new)
 
         return agent_rew, agent_done
 
-    #TODO change reward to only if they have space to get logs
+    # TODO change reward to only if they have space to get logs
 
-    def tree_dynamics(self,agent, actions, agent_rew, next_cell,row_new,col_new):
+    def tree_dynamics(self, agent, actions, agent_rew, next_cell, row_new, col_new):
         if self.both_at_tree:
-            print('BOTH AT TREE')
+
             self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
 
             if self.agent_white.wood_logs == 0:
                 self.agent_black.wood_logs += 1
 
         else:
-            print('BOTH NOT!!! AT TREE')
+
             if agent.color == Definitions.BLACK:
                 partner_on_cell = self.check_cell_occupancy(agent, actions, next_cell)
                 if not partner_on_cell:
@@ -240,9 +236,6 @@ class EmptyJungle:
                         if agent.wood_logs < 2:
                             agent_rew = float(Definitions.REWARD_CUT_TREE.value)
                             agent.wood_logs += 1
-                # agent black gets log if he has less than 2
-                # else ag white gets log if he has less than 2
-                #self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
 
             elif agent.color == Definitions.WHITE:
                 partner_on_cell = self.check_cell_occupancy(agent, actions, next_cell)
@@ -258,14 +251,8 @@ class EmptyJungle:
                         if agent.wood_logs < 2:
                             agent_rew = float(Definitions.REWARD_CUT_TREE.value)
                             agent.wood_logs += 1
-                # agent black gets log if he has less than 2
-                # else ag white gets log if he has less than 2
-                #self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
 
-
-
-
-        return  agent_rew
+        return agent_rew
 
     def get_proximal_coordinate(self, row, col, angle):
 
@@ -515,7 +502,7 @@ class EmptyJungle:
             print('partner_row, partner_col, partner_angle', partner_row, partner_col, partner_angle)
 
             _, _, partner_next_cell = self.get_proximal_coordinate(partner_row, partner_col, partner_angle)
-            print(next_cell , partner_next_cell)
+            print(next_cell, partner_next_cell)
             if partner_next_cell == next_cell:
                 self.on_same_cell = True
                 return True
@@ -661,7 +648,7 @@ class EmptyJungle:
         for i in range(1, agent.range_observation):
             for a in range(1, agent.range_observation):
                 # TODO include other obstacles besides trees
-                # while (row-i) >= 0 and (col-a) >=0:
+
                 if self.grid_env[int(row - i), int(col - a)] == ElementsEnv.TREE.value:
                     agent.top_left_obstructed = True
                     top_left_cells_to_drop = self.eliminate_top_left_view(i, a, row, col, agent)
@@ -670,7 +657,7 @@ class EmptyJungle:
         # check top right
         for j in range(1, agent.range_observation):
             for b in range(1, agent.range_observation):
-                # while (row - j) >= 0 and (col +b) <= self.size:
+
                 if col + b == self.size:
                     break
                 if self.grid_env[int(row - j), int(col + b)] == ElementsEnv.TREE.value:
@@ -681,7 +668,7 @@ class EmptyJungle:
         # check bottom left
         for k in range(1, agent.range_observation):
             for c in range(1, agent.range_observation):
-                # while (row +k ) <= self.size and (col - c) >= 0:
+
                 if row + k == self.size:
                     break
                 if self.grid_env[int(row + k), int(col - c)] == ElementsEnv.TREE.value:
@@ -694,7 +681,7 @@ class EmptyJungle:
             for d in range(1, agent.range_observation):
                 if col + d == self.size:
                     break
-                # while (row + l) <= self.size and (col +d ) <= self.size:
+                
                 if self.grid_env[int(row + l), int(col + d)] == ElementsEnv.TREE.value:
                     agent.bottom_right_obstructed = True
                     bottom_right_cells_to_drop = self.eliminate_bottom_right_view(l, d, row, col, agent)
@@ -731,7 +718,7 @@ class EmptyJungle:
             coords = (row, col + a)
             cells_to_drop.append(coords)
         for i in range(0, agent.range_observation):
-            for  a in range(0, agent.range_observation):
+            for a in range(0, agent.range_observation):
                 if start_col + a == self.size:
                     break
                 coords = (start_row - i, start_col + a)

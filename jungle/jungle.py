@@ -55,6 +55,7 @@ class EmptyJungle:
 
         # place additional obstacles so that all corners have the same shape.
         # ^done
+        self.grid_env[5,6] = 11
 
 
 
@@ -92,8 +93,9 @@ class EmptyJungle:
         self.agent_white.x, self.agent_white.y = self.update_cartesian(self.agent_white)
 
     def step(self, actions):
+        print (self.grid_env)
 
-        
+
 
         # because you pass objects (agents), you can make that much more simple
         # for agent in actions:

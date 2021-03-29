@@ -1014,9 +1014,6 @@ def test_obs_cooperation_sequence():
 
     # empty actions to pass to the step function
 
-    print(agent_1.grid_position, agent_1.angle)
-    print(agent_2.grid_position, agent_2.angle)
-
     # agent 1 turns towards agent 2
     actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0},
                agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
@@ -1024,9 +1021,6 @@ def test_obs_cooperation_sequence():
     obs, rew, done = simple_jungle.step(actions)
     obs, rew, done = simple_jungle.step(actions)
     obs, rew, done = simple_jungle.step(actions)
-
-    print(agent_1.grid_position, agent_1.angle)
-    print(agent_2.grid_position, agent_2.angle)
 
     assert agent_2.top_right_obstructed
 
@@ -1039,21 +1033,16 @@ def test_obs_cooperation_sequence():
     obs, rew, done = simple_jungle.step(actions)
     obs, rew, done = simple_jungle.step(actions)
 
-    print(agent_1.grid_position, agent_1.angle)
-    print(agent_2.grid_position, agent_2.angle)
-
     assert agent_1.grid_position == (5, 6)
     assert agent_2.grid_position == (5, 6)
 
     # agent 2 climbs on the shoulders of agent 1
 
-    print('pre range', agent_2.range_observation)
     actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
                agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 1}}
     obs, rew, done = simple_jungle.step(actions)
 
     assert agent_2.on_shoulders
-    print('post range', agent_2.range_observation)
 
     # agent 2's observability is restored to full
     assert ElementsEnv.RIVER.value in obs[agent_2]

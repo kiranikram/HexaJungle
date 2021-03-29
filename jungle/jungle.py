@@ -308,9 +308,9 @@ class EmptyJungle:
             if 0 <= row < self.size and 0 <= col < self.size:
                 obs.append(self.grid_env[int(row), int(col)])
 
-
-                if (row, col) in cells_to_drop:
-                    obs.remove(self.grid_env[int(row), int(col)])
+                if not agent.on_shoulders:
+                    if (row, col) in cells_to_drop:
+                        obs.remove(self.grid_env[int(row), int(col)])
 
             else:
                 obs.append(0)
@@ -322,8 +322,9 @@ class EmptyJungle:
                 if 0 <= row < self.size and 0 <= col < self.size:
                     obs.append(self.grid_env[int(row), int(col)])
 
-                    if (row, col) in cells_to_drop:
-                        obs.remove(self.grid_env[int(row), int(col)])
+                    if not agent.on_shoulders:
+                        if (row, col) in cells_to_drop:
+                            obs.remove(self.grid_env[int(row), int(col)])
 
                 else:
                     obs.append(0)
@@ -335,8 +336,9 @@ class EmptyJungle:
                 if 0 <= row < self.size and 0 <= col < self.size:
                     obs.append(self.grid_env[int(row), int(col)])
 
-                    if (row, col) in cells_to_drop:
-                        obs.remove(self.grid_env[int(row), int(col)])
+                    if not agent.on_shoulders:
+                        if (row, col) in cells_to_drop:
+                            obs.remove(self.grid_env[int(row), int(col)])
 
                 else:
                     obs.append(0)

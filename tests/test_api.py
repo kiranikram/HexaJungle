@@ -907,8 +907,11 @@ def test_obstacles_in_obs_diagonal():
     assert agent_1.bottom_left_obstructed
     assert agent_2.top_right_obstructed
 
-
+# TODO write tests for all four quadrants
 def test_agent_diagonal_view():
+
+    # test for bottom left
+
     agent_1 = Agent(range_observation=4)
     agent_2 = Agent(range_observation=4)
 

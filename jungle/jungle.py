@@ -55,9 +55,7 @@ class EmptyJungle:
 
         # place additional obstacles so that all corners have the same shape.
         # ^done
-        self.grid_env[5,6] = 11
-
-
+        self.grid_env[5, 6] = 11
 
     def add_agents(self, agent_1, agent_2):
 
@@ -93,9 +91,6 @@ class EmptyJungle:
         self.agent_white.x, self.agent_white.y = self.update_cartesian(self.agent_white)
 
     def step(self, actions):
-        print (self.grid_env)
-
-
 
         # because you pass objects (agents), you can make that much more simple
         # for agent in actions:
@@ -210,7 +205,6 @@ class EmptyJungle:
         # need to check first if both agents on same tree cell
 
         if next_cell == ElementsEnv.TREE.value:
-
             agent_rew = self.tree_dynamics(agent, actions, agent_rew, next_cell, row_new, col_new)
 
         return agent_rew, agent_done
@@ -314,11 +308,9 @@ class EmptyJungle:
             if 0 <= row < self.size and 0 <= col < self.size:
                 obs.append(self.grid_env[int(row), int(col)])
 
+
                 if (row, col) in cells_to_drop:
-
                     obs.remove(self.grid_env[int(row), int(col)])
-
-
 
             else:
                 obs.append(0)
@@ -331,7 +323,6 @@ class EmptyJungle:
                     obs.append(self.grid_env[int(row), int(col)])
 
                     if (row, col) in cells_to_drop:
-
                         obs.remove(self.grid_env[int(row), int(col)])
 
                 else:
@@ -345,7 +336,6 @@ class EmptyJungle:
                     obs.append(self.grid_env[int(row), int(col)])
 
                     if (row, col) in cells_to_drop:
-
                         obs.remove(self.grid_env[int(row), int(col)])
 
                 else:
@@ -445,7 +435,6 @@ class EmptyJungle:
     # from the perspective of the agent that climbs - also need to account for the agent bearing the burden
     def climb_dynamics(self, agent, actions, agent_rew, next_cell):
 
-
         if agent.color == Definitions.BLACK:
             partner_on_cell = self.check_cell_occupancy(agent, actions, next_cell)
             if not partner_on_cell:
@@ -509,14 +498,12 @@ class EmptyJungle:
 
         if agent.color == Definitions.BLACK:
 
-
             partner_row, partner_col = self.agent_white.grid_position
             partner_angle = self.agent_white.angle
             partner_actions = actions[self.agent_white]
             partner_rotation = partner_actions[Actions.ROTATE]
             partner_angle = (partner_angle + partner_rotation)
             partner_forward = partner_actions[Actions.FORWARD]
-
 
             _, _, partner_next_cell = self.get_proximal_coordinate(partner_row, partner_col, partner_angle)
 
@@ -527,7 +514,6 @@ class EmptyJungle:
                 return False
 
         elif agent.color == Definitions.WHITE:
-
 
             partner_row, partner_col = self.agent_black.grid_position
             partner_angle = self.agent_black.angle
@@ -759,7 +745,6 @@ class EmptyJungle:
                     break
                 coords = (row + i, col - a)
                 cells_to_drop.append(coords)
-
 
         return cells_to_drop
 

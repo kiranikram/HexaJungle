@@ -908,7 +908,6 @@ def test_obstacles_in_obs_diagonal():
     assert agent_2.top_right_obstructed
 
 
-# TODO write tests for all four quadrants
 def test_diagonal_view_bottom_left():
     # test for bottom left
 
@@ -966,6 +965,7 @@ def test__diagonal_view_top_right():
 
     assert ElementsEnv.RIVER.value not in obs[agent_2]
 
+
 def test__diagonal_view_bottom_right():
     # test for top right
 
@@ -994,3 +994,66 @@ def test__diagonal_view_bottom_right():
     assert agent_2.bottom_right_obstructed
 
     assert ElementsEnv.RIVER.value not in obs[agent_2]
+
+
+def test_obs_cooperation_sequence():
+    # agent 2's view is obstructed
+
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=4)
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    simple_jungle.add_object(ElementsEnv.TREE, (4, 7))
+
+    # should not be able to see around the diagonal
+    simple_jungle.add_object(ElementsEnv.RIVER, (4, 8))
+    simple_jungle.add_object(ElementsEnv.RIVER, (3, 7))
+    simple_jungle.add_object(ElementsEnv.RIVER, (3, 8))
+
+    # empty actions to pass to the step function
+
+    print(agent_1.grid_position, agent_1.angle)
+    print(agent_2.grid_position, agent_2.angle)
+
+    # agent 1 turns towards agent 2
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+
+    obs, rew, done = simple_jungle.step(actions)
+    obs, rew, done = simple_jungle.step(actions)
+    obs, rew, done = simple_jungle.step(actions)
+
+    print(agent_1.grid_position, agent_1.angle)
+    print(agent_2.grid_position, agent_2.angle)
+
+    assert agent_2.top_right_obstructed
+
+    assert ElementsEnv.RIVER.value not in obs[agent_2]
+
+    # agent 1 moves towards agent 2
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+
+    obs, rew, done = simple_jungle.step(actions)
+    obs, rew, done = simple_jungle.step(actions)
+
+    print(agent_1.grid_position, agent_1.angle)
+    print(agent_2.grid_position, agent_2.angle)
+
+    assert agent_1.grid_position == (5, 6)
+    assert agent_2.grid_position == (5, 6)
+
+    # agent 2 climbs on the shoulders of agent 1
+
+    print('pre range', agent_2.range_observation)
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 1}}
+    obs, rew, done = simple_jungle.step(actions)
+
+    assert agent_2.on_shoulders
+    print('post range', agent_2.range_observation)
+
+    # agent 2's observability is restored to full
+    assert ElementsEnv.RIVER.value in obs[agent_2]

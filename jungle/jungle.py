@@ -56,8 +56,7 @@ class EmptyJungle:
         # place additional obstacles so that all corners have the same shape.
         # ^done
 
-        # temporary:
-        self.grid_env[5, 4] = 11
+
 
     def add_agents(self, agent_1, agent_2):
 
@@ -94,7 +93,7 @@ class EmptyJungle:
 
     def step(self, actions):
 
-        print(self.grid_env)
+        
 
         # because you pass objects (agents), you can make that much more simple
         # for agent in actions:
@@ -209,7 +208,7 @@ class EmptyJungle:
         # need to check first if both agents on same tree cell
 
         if next_cell == ElementsEnv.TREE.value:
-            print('going into tree dynamics', agent.color)
+
             agent_rew = self.tree_dynamics(agent, actions, agent_rew, next_cell, row_new, col_new)
 
         return agent_rew, agent_done
@@ -236,7 +235,7 @@ class EmptyJungle:
 
                 else:
                     self.both_at_tree = True
-                    print('when ag1 is black should look here')
+
                     if random.random() > 0.5:
                         if agent.wood_logs < 2:
                             agent_rew = float(Definitions.REWARD_CUT_TREE.value)
@@ -314,7 +313,7 @@ class EmptyJungle:
                 obs.append(self.grid_env[int(row), int(col)])
 
                 if (row, col) in cells_to_drop:
-                    print('yes')
+
                     obs.remove(self.grid_env[int(row), int(col)])
 
 
@@ -330,7 +329,7 @@ class EmptyJungle:
                     obs.append(self.grid_env[int(row), int(col)])
 
                     if (row, col) in cells_to_drop:
-                        print('yes')
+
                         obs.remove(self.grid_env[int(row), int(col)])
 
                 else:
@@ -344,7 +343,7 @@ class EmptyJungle:
                     obs.append(self.grid_env[int(row), int(col)])
 
                     if (row, col) in cells_to_drop:
-                        print('yes')
+
                         obs.remove(self.grid_env[int(row), int(col)])
 
                 else:
@@ -443,7 +442,7 @@ class EmptyJungle:
 
     # from the perspective of the agent that climbs - also need to account for the agent bearing the burden
     def climb_dynamics(self, agent, actions, agent_rew, next_cell):
-        print('we are climbing')
+
 
         if agent.color == Definitions.BLACK:
             partner_on_cell = self.check_cell_occupancy(agent, actions, next_cell)
@@ -507,7 +506,7 @@ class EmptyJungle:
     def check_cell_occupancy(self, agent, actions, next_cell):
 
         if agent.color == Definitions.BLACK:
-            print('agent is black')
+
 
             partner_row, partner_col = self.agent_white.grid_position
             partner_angle = self.agent_white.angle
@@ -515,10 +514,10 @@ class EmptyJungle:
             partner_rotation = partner_actions[Actions.ROTATE]
             partner_angle = (partner_angle + partner_rotation)
             partner_forward = partner_actions[Actions.FORWARD]
-            print('partner_row, partner_col, partner_angle', partner_row, partner_col, partner_angle)
+
 
             _, _, partner_next_cell = self.get_proximal_coordinate(partner_row, partner_col, partner_angle)
-            print(next_cell, partner_next_cell)
+
             if partner_next_cell == next_cell:
                 self.on_same_cell = True
                 return True
@@ -526,7 +525,7 @@ class EmptyJungle:
                 return False
 
         elif agent.color == Definitions.WHITE:
-            print('agent is white')
+
 
             partner_row, partner_col = self.agent_black.grid_position
             partner_angle = self.agent_black.angle
@@ -534,9 +533,9 @@ class EmptyJungle:
             partner_rotation = partner_actions[Actions.ROTATE]
             partner_angle = (partner_angle + partner_rotation)
             partner_forward = partner_actions[Actions.FORWARD]
-            print('partner_row, partner_col, partner_angle', partner_row, partner_col, partner_angle)
+
             _, _, partner_next_cell = self.get_proximal_coordinate(partner_row, partner_col, partner_angle)
-            print(next_cell, partner_next_cell)
+
             if partner_next_cell == next_cell:
                 self.on_same_cell = True
                 return True
@@ -586,7 +585,7 @@ class EmptyJungle:
             if self.grid_env[int(row), int(col - i)] == ElementsEnv.TREE.value:
                 agent.left_view_obstructed = True
                 left_cells_to_drop = self.eliminate_left_view(i, row, col, agent)
-                # print('left', cells_to_drop)
+
                 break
 
         # check directly right
@@ -597,7 +596,7 @@ class EmptyJungle:
             if self.grid_env[int(row), int(col + j)] == ElementsEnv.TREE.value:
                 agent.right_view_obstructed = True
                 right_cells_to_drop = self.eliminate_right_view(j, row, col, agent)
-                # print('right', cells_to_drop)
+
                 break
 
         # check directly below
@@ -607,16 +606,16 @@ class EmptyJungle:
             if self.grid_env[int(row + k), int(col)] == ElementsEnv.TREE.value:
                 agent.bottom_view_obstructed = True
                 bottom_cells_to_drop = self.eliminate_bottom_view(k, row, col, agent)
-                # print('below', cells_to_drop)
+
                 break
 
         # check directly above
         for l in range(1, agent.range_observation):
-            # while row - l >= 0:
+
             if self.grid_env[int(row - l), int(col)] == ElementsEnv.TREE.value:
                 agent.top_view_obstructed = True
                 top_cells_to_drop = self.eliminate_top_view(l, row, col, agent)
-                # print('above', cells_to_drop)
+
                 break
 
         cells_to_drop = left_cells_to_drop + right_cells_to_drop + bottom_cells_to_drop + top_cells_to_drop
@@ -758,7 +757,7 @@ class EmptyJungle:
                     break
                 coords = (row + i, col - a)
                 cells_to_drop.append(coords)
-        print('in bottom left', cells_to_drop)
+
 
         return cells_to_drop
 

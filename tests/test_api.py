@@ -931,7 +931,6 @@ def test_agent_diagonal_view():
 
     obs, rew, done = simple_jungle.step(actions)
     assert agent_1.bottom_left_obstructed
-    print(ElementsEnv.RIVER.value)
-    print(obs[agent_1])
+
 
     assert ElementsEnv.RIVER.value not in obs[agent_1]

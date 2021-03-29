@@ -909,7 +909,7 @@ def test_obstacles_in_obs_diagonal():
 
 
 # TODO write tests for all four quadrants
-def test_agent_diagonal_view():
+def test_diagonal_view_bottom_left():
     # test for bottom left
 
     agent_1 = Agent(range_observation=4)
@@ -937,7 +937,7 @@ def test_agent_diagonal_view():
     assert ElementsEnv.RIVER.value not in obs[agent_1]
 
 
-def test_agent_diagonal_view_right():
+def test__diagonal_view_top_right():
     # test for top right
 
     agent_1 = Agent(range_observation=4)
@@ -963,5 +963,34 @@ def test_agent_diagonal_view_right():
 
     print(obs[agent_2])
     assert agent_2.top_right_obstructed
+
+    assert ElementsEnv.RIVER.value not in obs[agent_2]
+
+def test__diagonal_view_bottom_right():
+    # test for top right
+
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=4)
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    # bottom left diagonal for agent 1
+    simple_jungle.add_object(ElementsEnv.TREE, (6, 7))
+
+    # should not be able to see around the diagonal
+    simple_jungle.add_object(ElementsEnv.RIVER, (6, 8))
+    simple_jungle.add_object(ElementsEnv.RIVER, (7, 7))
+    simple_jungle.add_object(ElementsEnv.RIVER, (7, 8))
+
+    # empty actions to pass to the step function
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+
+    obs, rew, done = simple_jungle.step(actions)
+
+    print(obs[agent_2])
+    assert agent_2.bottom_right_obstructed
 
     assert ElementsEnv.RIVER.value not in obs[agent_2]

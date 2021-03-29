@@ -56,6 +56,9 @@ class EmptyJungle:
         # place additional obstacles so that all corners have the same shape.
         # ^done
 
+        # temporary:
+        self.grid_env[5, 4] = 11
+
     def add_agents(self, agent_1, agent_2):
 
         # flip a coin
@@ -90,6 +93,8 @@ class EmptyJungle:
         self.agent_white.x, self.agent_white.y = self.update_cartesian(self.agent_white)
 
     def step(self, actions):
+
+        print(self.grid_env)
 
         # because you pass objects (agents), you can make that much more simple
         # for agent in actions:
@@ -307,8 +312,13 @@ class EmptyJungle:
 
             if 0 <= row < self.size and 0 <= col < self.size:
                 obs.append(self.grid_env[int(row), int(col)])
+
                 if (row, col) in cells_to_drop:
+                    print('yes')
                     obs.remove(self.grid_env[int(row), int(col)])
+
+
+
             else:
                 obs.append(0)
 
@@ -318,8 +328,11 @@ class EmptyJungle:
 
                 if 0 <= row < self.size and 0 <= col < self.size:
                     obs.append(self.grid_env[int(row), int(col)])
+
                     if (row, col) in cells_to_drop:
+                        print('yes')
                         obs.remove(self.grid_env[int(row), int(col)])
+
                 else:
                     obs.append(0)
 
@@ -329,8 +342,11 @@ class EmptyJungle:
 
                 if 0 <= row < self.size and 0 <= col < self.size:
                     obs.append(self.grid_env[int(row), int(col)])
+
                     if (row, col) in cells_to_drop:
+                        print('yes')
                         obs.remove(self.grid_env[int(row), int(col)])
+
                 else:
                     obs.append(0)
 
@@ -673,6 +689,7 @@ class EmptyJungle:
                     break
                 if self.grid_env[int(row + k), int(col - c)] == ElementsEnv.TREE.value:
                     agent.bottom_left_obstructed = True
+
                     bottom_left_cells_to_drop = self.eliminate_bottom_left_view(k, c, row, col, agent)
                     break
 
@@ -681,7 +698,7 @@ class EmptyJungle:
             for d in range(1, agent.range_observation):
                 if col + d == self.size:
                     break
-                
+
                 if self.grid_env[int(row + l), int(col + d)] == ElementsEnv.TREE.value:
                     agent.bottom_right_obstructed = True
                     bottom_right_cells_to_drop = self.eliminate_bottom_right_view(l, d, row, col, agent)
@@ -707,7 +724,7 @@ class EmptyJungle:
                 cells_to_drop.append(coords)
         return cells_to_drop
 
-    def eliminate_top_right_view(self, start_row, start_col, row, col, agent):
+    def eliminate_top_right_view(self, start_rows, start_cols, row, col, agent):
         cells_to_drop = []
         for i in range(start_row, agent.range_observation):
             col = start_col
@@ -725,22 +742,24 @@ class EmptyJungle:
                 cells_to_drop.append(coords)
         return cells_to_drop
 
-    def eliminate_bottom_left_view(self, start_row, start_col, row, col, agent):
+    def eliminate_bottom_left_view(self, start_rows, start_cols, row, col, agent):
         cells_to_drop = []
-        for i in range(start_row, agent.range_observation):
-            col = start_col
+        row = row + start_rows
+        col = col - start_cols
+        for i in range(1, agent.range_observation):
             coords = (row + i, col)
             cells_to_drop.append(coords)
-        for a in range(start_col, agent.range_observation):
-            row = start_row
+        for a in range(1, agent.range_observation):
             coords = (row, col - a)
             cells_to_drop.append(coords)
-        for i in range(0, agent.range_observation):
-            for a in range(0, agent.range_observation):
-                if start_row + i == self.size:
+        for i in range(1, agent.range_observation):
+            for a in range(1, agent.range_observation):
+                if row + i == self.size:
                     break
-                coords = (start_row + i, start_col - a)
+                coords = (row + i, col - a)
                 cells_to_drop.append(coords)
+        print('in bottom left', cells_to_drop)
+
         return cells_to_drop
 
     def eliminate_bottom_right_view(self, start_row, start_col, row, col, agent):

@@ -8,7 +8,7 @@ from jungle.utils import Actions, Definitions, ElementsEnv
 from jungle.jungle import EmptyJungle
 
 
-# TODO this test
+
 def test_rl_loop():
     """
     Tests the general RL api.
@@ -1046,3 +1046,70 @@ def test_obs_cooperation_sequence():
 
     # agent 2's observability is restored to full
     assert ElementsEnv.RIVER.value in obs[agent_2]
+
+def test_boulders():
+    # cannot cross boulders
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=4)
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    simple_jungle.add_object(ElementsEnv.BOULDER, (4, 7))
+    simple_jungle.add_object(ElementsEnv.BOULDER, (6, 6))
+
+    print(agent_2.grid_position)
+
+    # agent 2 moves to top right boulder, gets neg reward, stays at original position
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 1, Actions.CLIMB: 0}}
+    obs, rew, done = simple_jungle.step(actions)
+
+    # assert rew[agent_2] == Definitions.REWARD_COLLISION.value
+    # assert agent_2.grid_position == (5,6)
+
+    print(agent_1.grid_position, agent_1.angle)
+    print(agent_2.grid_position, agent_2.angle)
+
+    # agent 1 turns towards agent 2
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+
+    obs, rew, done = simple_jungle.step(actions)
+    obs, rew, done = simple_jungle.step(actions)
+    obs, rew, done = simple_jungle.step(actions)
+
+    # agent 1 moves towards agent 2
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+
+    obs, rew, done = simple_jungle.step(actions)
+    obs, rew, done = simple_jungle.step(actions)
+
+    print(agent_1.grid_position , agent_1.angle)
+    print(agent_2.grid_position, agent_2.angle)
+
+
+
+
+
+    # agent 1 moves to agent 2, agent 2 gets on agent 1's shoulders
+
+    #TODO need to set
+
+    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
+               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 1}}
+    obs, rew, done = simple_jungle.step(actions)
+
+    #assert agent_2.on_shoulders
+
+
+    # both agents move together to bottom boulder
+
+    # agent 2 can cross the boulder, agent 1 remains on the prior cell
+
+    #assert agent_2.grid_position == (6,6)
+    #assert agent_1.grid_position == (5,6)
+
+
+

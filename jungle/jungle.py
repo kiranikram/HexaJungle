@@ -92,6 +92,8 @@ class EmptyJungle:
 
     def step(self, actions):
 
+        print(self.grid_env)
+
         # because you pass objects (agents), you can make that much more simple
         # for agent in actions:
         # agent.apply_actions(actions[agent])

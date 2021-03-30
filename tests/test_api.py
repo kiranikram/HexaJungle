@@ -8,7 +8,6 @@ from jungle.utils import Actions, Definitions, ElementsEnv
 from jungle.jungle import EmptyJungle
 
 
-
 def test_rl_loop():
     """
     Tests the general RL api.
@@ -26,11 +25,8 @@ def test_rl_loop():
     assert (agent_1.color is Definitions.BLACK and agent_2.color is Definitions.WHITE) \
            or (agent_1.color is Definitions.WHITE and agent_2.color is Definitions.BLACK)
 
-    # @MG I have added the climb action in jungle.py so adding it here
-
-    # TODO set default to zero to be able to pass some not all
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0}
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1},
+               agent_2: {Actions.FORWARD: 1}
                }
 
     obs, rew, done = simple_jungle.step(actions)
@@ -47,8 +43,8 @@ def test_rl_loop():
     # should work with some actions not set (default to 0
 
     # agent_1 moves fwd ; agent_2 rotates -1
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0}
+    actions = {agent_1: {Actions.FORWARD: 1},
+               agent_2: {Actions.ROTATE: -1}
                }
     simple_jungle.step(actions)
 
@@ -57,8 +53,7 @@ def test_rl_loop():
     pos_before = agent_1.grid_position
 
     # agent_2 rotates -1
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0}
+    actions = {agent_2: {Actions.ROTATE: -1}
                }
     simple_jungle.step(actions)
 
@@ -78,8 +73,7 @@ def test_agents_on_same_cell():
 
     # First rotate
     # agent_2 rotates
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 1, Actions.CLIMB: 0}
+    actions = {agent_2: {Actions.ROTATE: 1}
                }
     simple_jungle.step(actions)
     simple_jungle.step(actions)
@@ -87,8 +81,7 @@ def test_agents_on_same_cell():
 
     # then move forward twice
     # agent_2 moves fwd
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0}
+    actions = {agent_2: {Actions.FORWARD: 1}
                }
     simple_jungle.step(actions)
     obs, rew, done = simple_jungle.step(actions)
@@ -140,12 +133,8 @@ def check_corners(envir):
     assert envir.cell_type(0, envir.size - 3) == ElementsEnv.OBSTACLE.value
     assert envir.cell_type(1, envir.size - 1) == ElementsEnv.OBSTACLE.value
     assert envir.cell_type(2, envir.size - 1) == ElementsEnv.OBSTACLE.value
-    # TODO Kiran: check the following line, I think it shoul be empty instead
-    # You only need to add obstacles on the left for the environment to be symmetrical.
-    assert envir.cell_type(2, envir.size - 2) == ElementsEnv.EMPTY.value
 
-    # TODO Kiran: So this should be adapted
-    # I assume the rest also have similar mistakes
+    assert envir.cell_type(2, envir.size - 2) == ElementsEnv.EMPTY.value
     assert envir.cell_type(2, envir.size - 3) == ElementsEnv.EMPTY.value
     assert envir.cell_type(1, envir.size - 3) == ElementsEnv.EMPTY.value
     assert envir.cell_type(1, envir.size - 2) == ElementsEnv.EMPTY.value
@@ -160,14 +149,14 @@ def check_corners(envir):
     assert envir.cell_type(envir.size - 2, envir.size - 1) == ElementsEnv.OBSTACLE.value
     assert envir.cell_type(envir.size - 3, envir.size - 1) == ElementsEnv.OBSTACLE.value
     assert envir.cell_type(envir.size - 1, envir.size - 3) == ElementsEnv.OBSTACLE.value
-    assert envir.cell_type(envir.size - 3, envir.size - 2) == ElementsEnv.EMPTY.value
 
+    assert envir.cell_type(envir.size - 3, envir.size - 2) == ElementsEnv.EMPTY.value
     assert envir.cell_type(envir.size - 3, envir.size - 3) == ElementsEnv.EMPTY.value
     assert envir.cell_type(envir.size - 2, envir.size - 3) == ElementsEnv.EMPTY.value
     assert envir.cell_type(envir.size - 2, envir.size - 2) == ElementsEnv.EMPTY.value
 
     # Bottom-left corner
-    #   x x .
+    #   x x . .
     #    x . .
     #   x x x
     assert envir.cell_type(envir.size - 3, 0) == ElementsEnv.OBSTACLE.value

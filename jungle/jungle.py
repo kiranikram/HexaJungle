@@ -16,15 +16,16 @@ class EmptyJungle:
         if self.size % 2 == 0 or size < Definitions.MIN_SIZE_ENVIR.value:
             raise ValueError('size should be an odd number')
 
-        self.grid_env = np.ones((self.size, self.size), dtype=int)
+        # Initialize with empty values
+        self.grid_env = np.ones((self.size, self.size), dtype=int)*ElementsEnv.EMPTY.value
         self.place_obstacles()
+
         self.agent_white = None
         self.agent_black = None
-        self.agents = []
-        self.done = False
-        self.both_at_river = False
-        self.both_at_tree = False
-        self.on_same_cell = False
+
+    @property
+    def agents(self):
+        return [self.agent_white, self.agent_white]
 
     def place_obstacles(self):
 
@@ -38,81 +39,119 @@ class EmptyJungle:
         for row in range(2, self.size - 2, 2):
             self.grid_env[row, 1] = ElementsEnv.OBSTACLE.value
 
-        # @  kiran: because of symmetry, not sure you need this one.
-        # for row in range(2, self.size - 2, 2):
-        #     self.grid_env[row, self.size - 2] = ElementsEnv.OBSTACLE.value
-
-        # place exits
-        #
-        # @ kiran: do that in a subclass.
-        # TODO: set function that randomly determines exits
-
-        # place unique obstacles
-
-        # add trees
-        # TODO: function that randomly sets trees in the forest env
-        # self.grid_env[3, 6] = ElementsEnv.TREE.value
-
-        # place additional obstacles so that all corners have the same shape.
-        # ^done
-        self.grid_env[5, 6] = 11
-
     def add_agents(self, agent_1, agent_2):
 
-        # flip a coin
+        # Agent 1 always start on the left.
+        agent_1.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
+        agent_1.angle = 3
+
+        agent_2.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
+        agent_2.angle = 0
+
+        # flip a coin to decide who is black or white
         if random.random() > 0.5:
             self.agent_black = agent_1
             self.agent_white = agent_2
-
-            # need better way of setting these
-            self.agent_black.angle = 3
-            self.agent_white.angle = 0
-
-            self.agent_black.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
-            self.agent_white.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
 
         else:
             self.agent_black = agent_2
             self.agent_white = agent_1
 
-            self.agent_black.angle = 0
-            self.agent_white.angle = 3
-
-            self.agent_black.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
-            self.agent_white.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
-
-        # @ kiran: you don't have to, but if it helps.
         self.agent_black.color = Definitions.BLACK
         self.agent_white.color = Definitions.WHITE
 
-        # @ kiran: instead, use properties
-        # can change in agent
-        self.agent_black.x, self.agent_black.y = self.update_cartesian(self.agent_black)
-        self.agent_white.x, self.agent_white.y = self.update_cartesian(self.agent_white)
-
     def step(self, actions):
 
-        print(self.grid_env)
+        # First Physical move
 
-        # because you pass objects (agents), you can make that much more simple
-        # for agent in actions:
-        # agent.apply_actions(actions[agent])
-        #     print(agent)
+        rew_white = self.move(self.agent_white, actions)
+        rew_black = self.move(self.agent_black, actions)
 
-        # Apply physical actions, White starts
+        white_climbs = actions.get(self.agent_white, {}).get(Actions.CLIMB, 0)
+        black_climbs = actions.get(self.agent_black, {}).get(Actions.CLIMB, 0)
 
-        # @ kiran: we should also know if agent climbs on boulder / shoulders of other agent (elevated)
-        # and positions and angle will be changed in self.apply_actions.
-        # so maybe, instead:  elevated, cut_tree = self.apply_action( agent, actions) ?
+        # Then Test for different cases
 
-        rew = {self.agent_black: 0.0, self.agent_white: 0.0}
-        done = {self.agent_black: False, self.agent_white: False}
-        obs = {self.agent_black: None, self.agent_white: None}
+        # If both on same position:
+        if self.agent_white.grid_position == self.agent_black.grid_position:
 
-        ag_white_rew, white_done = self.apply_action(self.agent_white, actions, rew[self.agent_white],
-                                                     done[self.agent_white])
-        ag_black_rew, black_done = self.apply_action(self.agent_black, actions, rew[self.agent_black],
-                                                     done[self.agent_black])
+            r, c = self.agent_white.grid_position
+
+            # TREE
+            if self.grid_env[r, c] == ElementsEnv.TREE:
+                # If they are on a tree they cut it
+                self.grid_env[r, c] = ElementsEnv.EMPTY
+
+                # one of them only gets the log
+                if random.random() > 0.5:
+                    self.agent_black.wood_logs += 1
+                else:
+                    self.agent_white.wood_logs += 1
+
+            # RIVER
+            if self.grid_env[r, c] == ElementsEnv.RIVER:
+
+                # If they have enough logs they build a bridge
+                if self.agent_white.wood_logs + self.agent_black.wood_logs == 4:
+                    self.agent_white.wood_logs = 0
+                    self.agent_black.wood_logs = 0
+                    self.grid_env[r, c] = ElementsEnv.EMPTY
+
+                # else they will drown, but we will see that later.
+
+            # CLIMB Behavior if they are on the same cell
+
+            if white_climbs and not black_climbs:
+                self.agent_white.on_shoulders = True
+
+            elif black_climbs and not white_climbs:
+                self.agent_black.on_shoulders = True
+
+            elif black_climbs and white_climbs:
+                rew_white += Definitions.REWARD_FELL.value
+                rew_black += Definitions.REWARD_FELL.value
+
+        # If not on the same cell
+        else:
+
+            # If try to climb, fails
+            if black_climbs:
+                rew_black += Definitions.REWARD_FELL.value
+
+            if white_climbs:
+                rew_white += Definitions.REWARD_FELL.value
+
+
+        # If on a tree, cut log
+        self.agent_white.wood_logs += self.cutting_tree(self.agent_white)
+        self.agent_black.wood_logs += self.cutting_tree(self.agent_black)
+
+        # If on a river, drown
+        r, white_drowns = self.on_a_river(self.agent_white)
+        rew_white += r
+
+        r, black_drowns = self.on_a_river(self.agent_black)
+        rew_black += r
+
+        # If on an exit, receive reward and is done
+        r, white_exits = self.exits(self.agent_white)
+        rew_white += r
+
+        r, black_exits = self.exits(self.agent_black)
+        rew_black += r
+
+        white_done = white_exits or white_drowns
+        black_done = black_exits or black_drowns
+
+
+
+
+        # After the movements, up and downs, we can now see what happens with exits
+
+
+            # If they have enough logs they build a bridge
+
+
 
         # done[self.agent_white] = white_done
         # done[self.agent_black] = black_done
@@ -145,6 +184,83 @@ class EmptyJungle:
     # same cell check will have similar issues to reward same cell (the lag)
 
     # SAT : might need to pass in rew for other agent - same cell for tree cutting
+
+    def cutting_tree(self, agent):
+        r, c = agent.grid_position
+        if self.grid_env[r, c] == ElementsEnv.TREE:
+            # If they are on a tree they cut it
+            self.grid_env[r, c] = ElementsEnv.EMPTY
+            return 1
+        return 0
+
+    def on_a_river(self, agent):
+        r, c = agent.grid_position
+        if self.grid_env[r, c] == ElementsEnv.RIVER:
+            return True
+        return False
+
+    def move(self, agent, actions):
+
+        reward = 0
+
+        action_dict = actions.get(agent, {})
+        rotation = action_dict.get(Actions.ROTATE, 0)
+        forward = action_dict.get(Actions.FORWARD, 0)
+
+        # First, change angle
+        # the modulo is taken care of in the agent property
+        agent.angle += rotation
+
+        # Then move forward
+
+        # In order to move forward, we first check the destinations cell
+
+        row, col = agent.grid_position
+        current_cell = self.cell_type(row, col)
+
+        # If we don't move forward nothing happens
+        if forward == 0:
+            return 0, False
+
+        # Else we see where we go
+        row_new, col_new = self.get_proximal_coordinate(row, col, agent.angle)
+
+        next_cell = self.cell_type(row_new, col_new)
+
+        # If we were on a boulder, we can move to boulders or empty cells or trees or exits.
+        # We collide only if we go toward an obstacle.
+        if current_cell == ElementsEnv.BOULDER.value:
+
+            if next_cell == ElementsEnv.OBSTACLE.value:
+                reward = Definitions.REWARD_COLLISION.value
+                row_new, col_new = row, col
+
+        # If we were on the ground, we move unless we face a boulder or obstacle
+        else:
+
+            # Check if next cell is an obstacle, we don't move
+            if next_cell == ElementsEnv.OBSTACLE.value:
+                reward = Definitions.REWARD_COLLISION.value
+                row_new, col_new = row, col
+
+            # Check if next cell is a boulder
+            elif next_cell == ElementsEnv.BOULDER.value:
+
+                # If not on shoulders, we collide
+                if not agent.on_shoulders:
+                    reward = float(Definitions.REWARD_COLLISION.value)
+                    row_new, col_new = row, col
+
+                # Else we move to boulders, and starting then we can go from boulder to boulder
+
+        # Whatever happens, if we move forward, we are not on shoulders anymore
+        agent.on_shoulders = False
+
+        # Now that we now if we can move or not, we change position
+        agent.grid_position = row_new, col_new
+
+        return reward
+
     def apply_action(self, agent, actions, agent_rew, agent_done):
 
         # assuming moves forward first, then changes angle
@@ -170,10 +286,7 @@ class EmptyJungle:
 
         # TODO agent rew can consist of multiple items : eg neg rew for carrying but also neg reward for bumping
 
-        if movement_forward != 0:
-            row_new, col_new, next_cell = self.get_proximal_coordinate(row, col, agent.angle)
-        else:
-            row_new, col_new = row, col
+
 
         if agent_climbs != 0:
 
@@ -181,17 +294,8 @@ class EmptyJungle:
 
         elif agent_climbs == 0:
             agent_rew = self.check_partner_reactions(agent, actions, agent_rew, movement_forward)
-        if next_cell == ElementsEnv.OBSTACLE.value:
-            agent_rew = float(Definitions.REWARD_COLLISION.value)
-            row_new, col_new = row, col
 
-        elif next_cell == ElementsEnv.BOULDER.value:
 
-            agent_rew = float(Definitions.REWARD_COLLISION.value)
-            if not agent.on_shoulders:
-                row_new, col_new = row, col
-            agent.range_observation = agent.range_observation - Definitions.RANGE_INCREASE.value
-            # TODO come back to this as need a way
 
 
         elif next_cell == ElementsEnv.RIVER.value:
@@ -277,9 +381,7 @@ class EmptyJungle:
             row_new += 1
             col_new += row % 2
 
-        next_cell = self.grid_env[int(row_new), int(col_new)]
-
-        return row_new, col_new, next_cell
+        return row_new, col_new
 
     def agent_exited(self, next_cell):
 

@@ -738,6 +738,12 @@ def test_climb_boulders():
     assert rew[agent_1] == 0
 
 
+#####################################
+# TODO: We are here!
+# Now what we have to do is set up the observations corectly.
+# The classical observations should already be working, so it is about filterning when there is occlusion.
+
+
 def test_obs():
     # @MG I was just testing that observations are processed and returned
     agent_1 = Agent(range_observation=4)

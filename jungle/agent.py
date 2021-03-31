@@ -39,6 +39,26 @@ class Agent:
         self.done = False
 
     @property
+    def wood_logs(self):
+        return self._wood_logs
+
+    @wood_logs.setter
+    def wood_logs(self, wood_log):
+        self._wood_logs = wood_log
+        if self._wood_logs > 2:
+            self._wood_logs = 2
+
+    @property
+    def done(self):
+        return self._done
+
+    @done.setter
+    def done(self, done_bool):
+        if done_bool:
+            self.grid_position = None
+        self._done = done_bool
+
+    @property
     def grid_position(self):
         return self._r, self._c
 
@@ -65,10 +85,3 @@ class Agent:
     def apply_action(self, actions):
         self.current_actions = actions
         print(self.current_actions.items())
-
-    # @property
-    # def carthesian_coordinates(self):
-    #
-    #     # TODO: convert grid_position to cartesian position
-    #     x = ...
-    #     y = /

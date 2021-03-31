@@ -42,10 +42,10 @@ class EmptyJungle:
     def add_agents(self, agent_1, agent_2):
 
         # Agent 1 always start on the left.
-        agent_1.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 - 1)
+        agent_1.grid_position = int( (self.size - 1) / 2), int((self.size - 1) / 2 - 1)
         agent_1.angle = 3
 
-        agent_2.grid_position = ((self.size - 1) / 2, (self.size - 1) / 2 + 1)
+        agent_2.grid_position = int( (self.size - 1) / 2), int((self.size - 1) / 2 + 1)
         agent_2.angle = 0
 
         # flip a coin to decide who is black or white
@@ -60,27 +60,40 @@ class EmptyJungle:
         self.agent_black.color = Definitions.BLACK
         self.agent_white.color = Definitions.WHITE
 
+        self.agent_black.done = False
+        self.agent_white.done = False
+
     def step(self, actions):
 
         # First Physical move
+        if not self.agent_white.done:
+            rew_white = self.move(self.agent_white, actions)
+            white_climbs = actions.get(self.agent_white, {}).get(Actions.CLIMB, 0)
+        else:
+            rew_white = 0
+            white_climbs = False
 
-        rew_white = self.move(self.agent_white, actions)
-        rew_black = self.move(self.agent_black, actions)
+        if not self.agent_black.done:
+            rew_black = self.move(self.agent_black, actions)
+            black_climbs = actions.get(self.agent_black, {}).get(Actions.CLIMB, 0)
+        else:
+            rew_black = 0
+            black_climbs = False
 
-        white_climbs = actions.get(self.agent_white, {}).get(Actions.CLIMB, 0)
-        black_climbs = actions.get(self.agent_black, {}).get(Actions.CLIMB, 0)
 
         # Then Test for different cases
 
         # If both on same position:
+        # This will be false if one agent is done
+
         if self.agent_white.grid_position == self.agent_black.grid_position:
 
             r, c = self.agent_white.grid_position
 
             # TREE
-            if self.grid_env[r, c] == ElementsEnv.TREE:
+            if self.grid_env[r, c] == ElementsEnv.TREE.value:
                 # If they are on a tree they cut it
-                self.grid_env[r, c] = ElementsEnv.EMPTY
+                self.grid_env[r, c] = ElementsEnv.EMPTY.value
 
                 # one of them only gets the log
                 if random.random() > 0.5:
@@ -88,24 +101,38 @@ class EmptyJungle:
                 else:
                     self.agent_white.wood_logs += 1
 
+                # But both have neg reward from the effort
+                rew_white += Definitions.REWARD_CUT_TREE.value
+                rew_black += Definitions.REWARD_CUT_TREE.value
+
             # RIVER
-            if self.grid_env[r, c] == ElementsEnv.RIVER:
+            if self.grid_env[r, c] == ElementsEnv.RIVER.value:
 
                 # If they have enough logs they build a bridge
                 if self.agent_white.wood_logs + self.agent_black.wood_logs == 4:
                     self.agent_white.wood_logs = 0
                     self.agent_black.wood_logs = 0
-                    self.grid_env[r, c] = ElementsEnv.EMPTY
+                    self.grid_env[r, c] = ElementsEnv.EMPTY.value
+                    rew_black += Definitions.REWARD_BUILT_BRIDGE.value
+                    rew_white += Definitions.REWARD_BUILT_BRIDGE.value
 
                 # else they will drown, but we will see that later.
+                else:
+                    self.agent_white.done = True
+                    self.agent_white.done = True
+                    rew_white += Definitions.REWARD_DROWN.value
+                    rew_black += Definitions.REWARD_DROWN.value
 
             # CLIMB Behavior if they are on the same cell
 
             if white_climbs and not black_climbs:
                 self.agent_white.on_shoulders = True
+                rew_black += Definitions.REWARD_CARRYING.value
 
             elif black_climbs and not white_climbs:
                 self.agent_black.on_shoulders = True
+                rew_white += Definitions.REWARD_CARRYING.value
+
 
             elif black_climbs and white_climbs:
                 rew_white += Definitions.REWARD_FELL.value
@@ -113,7 +140,6 @@ class EmptyJungle:
 
         # If not on the same cell
         else:
-
             # If try to climb, fails
             if black_climbs:
                 rew_black += Definitions.REWARD_FELL.value
@@ -121,83 +147,99 @@ class EmptyJungle:
             if white_climbs:
                 rew_white += Definitions.REWARD_FELL.value
 
+        # Apply environment rules
+
+        if not self.agent_black.done:
+            rew, self.agent_black.done = self.apply_rules(self.agent_black)
+            rew_black += rew
+
+        if not self.agent_white.done:
+            rew, self.agent_white.done = self.apply_rules(self.agent_white)
+            rew_white += rew
+
+        # All rewards and terinations are now calculated
+        rewards = {self.agent_black:rew_black, self.agent_white:rew_white}
+
+        done = self.agent_white.done and self.agent_black.done
+
+
+        # Now we calculate the observations
+        obs = {}
+        obs[self.agent_white] = []#self.generate_agent_obs(self.agent_white)
+        obs[self.agent_black] = []#self.generate_agent_obs(self.agent_black)
+
+        return obs, rewards, done
+
+
+    def apply_rules(self, agent):
+
+        rew = 0
 
         # If on a tree, cut log
-        self.agent_white.wood_logs += self.cutting_tree(self.agent_white)
-        self.agent_black.wood_logs += self.cutting_tree(self.agent_black)
+        agent_cuts = self.cutting_tree(agent)
+        if agent_cuts:
+            agent.wood_logs += 1
+            rew += Definitions.REWARD_CUT_TREE.value
 
         # If on a river, drown
-        r, white_drowns = self.on_a_river(self.agent_white)
-        rew_white += r
-
-        r, black_drowns = self.on_a_river(self.agent_black)
-        rew_black += r
+        agent_drowns = self.on_a_river(agent)
+        if agent_drowns:
+            rew += Definitions.REWARD_DROWN.value
 
         # If on an exit, receive reward and is done
-        r, white_exits = self.exits(self.agent_white)
-        rew_white += r
+        r, agent_exits = self.exits(agent)
+        rew += r
 
-        r, black_exits = self.exits(self.agent_black)
-        rew_black += r
+        agent_done = agent_exits or agent_drowns
 
-        white_done = white_exits or white_drowns
-        black_done = black_exits or black_drowns
-
-
-
-
-        # After the movements, up and downs, we can now see what happens with exits
-
-
-            # If they have enough logs they build a bridge
-
-
-
-        # done[self.agent_white] = white_done
-        # done[self.agent_black] = black_done
-
-        # if white_done is True and black_done is True:
-        # done = True
-        # else:
-        # done = False
-
-        self.agent_white.done = white_done
-
-        self.agent_black.done = black_done
-
-        rew[self.agent_white] = ag_white_rew
-        rew[self.agent_black] = ag_black_rew
-
-        # @MG I feel that this reward dict needs to be outside of step, as each call to step will
-        # update a running total for each of the agents
-
-        if self.agent_white.range_observation is not None:
-            obs[self.agent_white] = self.generate_agent_obs(self.agent_white)
-        if self.agent_black.range_observation is not None:
-            obs[self.agent_black] = self.generate_agent_obs(self.agent_black)
-
-        self.agent_black.x, self.agent_black.y = self.update_cartesian(self.agent_black)
-        self.agent_white.x, self.agent_white.y = self.update_cartesian(self.agent_white)
-
-        return obs, rew, done
-
-    # same cell check will have similar issues to reward same cell (the lag)
-
-    # SAT : might need to pass in rew for other agent - same cell for tree cutting
+        return rew, agent_done
 
     def cutting_tree(self, agent):
         r, c = agent.grid_position
-        if self.grid_env[r, c] == ElementsEnv.TREE:
+
+        if self.cell_type(r, c) == ElementsEnv.TREE.value:
             # If they are on a tree they cut it
-            self.grid_env[r, c] = ElementsEnv.EMPTY
-            return 1
-        return 0
+            self.grid_env[r, c] = ElementsEnv.EMPTY.value
+            return True
+        return False
 
     def on_a_river(self, agent):
         r, c = agent.grid_position
-        if self.grid_env[r, c] == ElementsEnv.RIVER:
+        if self.cell_type(r, c) == ElementsEnv.RIVER.value:
             return True
         return False
+
+    def exits(self, agent):
+
+        r, c = agent.grid_position
+        current_cell = self.cell_type(r, c)
+
+        done = True
+
+        if current_cell == ElementsEnv.EXIT_BLACK.value and agent.color == Definitions.BLACK:
+            reward = Definitions.REWARD_EXIT_VERY_HIGH.value
+
+        elif current_cell == ElementsEnv.EXIT_BLACK.value and agent.color == Definitions.WHITE:
+            reward = Definitions.REWARD_EXIT_LOW.value
+
+        elif current_cell == ElementsEnv.EXIT_WHITE.value and agent.color == Definitions.WHITE:
+            reward = Definitions.REWARD_EXIT_VERY_HIGH.value
+
+        elif current_cell == ElementsEnv.EXIT_WHITE.value and agent.color == Definitions.BLACK:
+            reward = Definitions.REWARD_EXIT_LOW.value
+
+        elif current_cell == ElementsEnv.EXIT_EASY.value:
+            reward = Definitions.REWARD_EXIT_AVERAGE.value
+
+        elif current_cell == ElementsEnv.EXIT_DIFFICULT.value:
+            reward = Definitions.REWARD_EXIT_HIGH.value
+
+        # if we are not on an exit
+        else :
+            reward = 0
+            done = False
+
+        return reward, done
 
     def move(self, agent, actions):
 
@@ -220,7 +262,7 @@ class EmptyJungle:
 
         # If we don't move forward nothing happens
         if forward == 0:
-            return 0, False
+            return 0
 
         # Else we see where we go
         row_new, col_new = self.get_proximal_coordinate(row, col, agent.angle)
@@ -248,7 +290,7 @@ class EmptyJungle:
 
                 # If not on shoulders, we collide
                 if not agent.on_shoulders:
-                    reward = float(Definitions.REWARD_COLLISION.value)
+                    reward = Definitions.REWARD_COLLISION.value
                     row_new, col_new = row, col
 
                 # Else we move to boulders, and starting then we can go from boulder to boulder
@@ -260,105 +302,6 @@ class EmptyJungle:
         agent.grid_position = row_new, col_new
 
         return reward
-
-    def apply_action(self, agent, actions, agent_rew, agent_done):
-
-        # assuming moves forward first, then changes angle
-
-        row, col = agent.grid_position
-        angle = agent.angle
-        next_cell = self.grid_env[int(row), int(col)]
-
-        # agent_actions = actions.get(agent, {})
-        agent_actions = actions[agent]
-
-        # MG said use this 26 Mar
-        #
-        #
-        # agent_actions = actions.get(agent, {})
-        # Edited
-        # agent_actions.get(Actions.ROTATE, 0)
-
-        rotation = agent_actions[Actions.ROTATE]
-        movement_forward = agent_actions[Actions.FORWARD]
-        agent_climbs = agent_actions[Actions.CLIMB]
-        agent.angle = (angle + rotation) % 6
-
-        # TODO agent rew can consist of multiple items : eg neg rew for carrying but also neg reward for bumping
-
-
-
-        if agent_climbs != 0:
-
-            agent_rew = self.climb_dynamics(agent, actions, agent_rew, next_cell)
-
-        elif agent_climbs == 0:
-            agent_rew = self.check_partner_reactions(agent, actions, agent_rew, movement_forward)
-
-
-
-
-        elif next_cell == ElementsEnv.RIVER.value:
-
-            row_new, col_new, agent_rew = self.check_agents_at_river(agent, next_cell, actions, agent_rew, row_new,
-                                                                     col_new, row, col)
-        else:
-            agent_rew = self.get_reward(next_cell, agent_rew, agent)
-            agent_done = self.agent_exited(next_cell)
-
-        agent.grid_position = row_new, col_new
-
-        # need to check first if both agents on same tree cell
-
-        if next_cell == ElementsEnv.TREE.value:
-            agent_rew = self.tree_dynamics(agent, actions, agent_rew, next_cell, row_new, col_new)
-
-        return agent_rew, agent_done
-
-    # TODO change reward to only if they have space to get logs
-
-    def tree_dynamics(self, agent, actions, agent_rew, next_cell, row_new, col_new):
-        if self.both_at_tree:
-
-            self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
-
-            if self.agent_white.wood_logs == 0:
-                self.agent_black.wood_logs += 1
-
-        else:
-
-            if agent.color == Definitions.BLACK:
-                partner_on_cell = self.check_cell_occupancy(agent, actions, next_cell)
-                if not partner_on_cell:
-                    if agent.wood_logs < 2:
-                        agent.wood_logs += 1
-                        agent_rew = float(Definitions.REWARD_CUT_TREE.value)
-                    self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
-
-                else:
-                    self.both_at_tree = True
-
-                    if random.random() > 0.5:
-                        if agent.wood_logs < 2:
-                            agent_rew = float(Definitions.REWARD_CUT_TREE.value)
-                            agent.wood_logs += 1
-
-            elif agent.color == Definitions.WHITE:
-                partner_on_cell = self.check_cell_occupancy(agent, actions, next_cell)
-                if not partner_on_cell:
-                    if agent.wood_logs < 2:
-                        agent.wood_logs += 1
-                        agent_rew = float(Definitions.REWARD_CUT_TREE.value)
-                    self.grid_env[int(row_new), int(col_new)] = ElementsEnv.EMPTY.value
-
-                else:
-                    self.both_at_tree = True
-                    if random.random() > 0.5:
-                        if agent.wood_logs < 2:
-                            agent_rew = float(Definitions.REWARD_CUT_TREE.value)
-                            agent.wood_logs += 1
-
-        return agent_rew
 
     def get_proximal_coordinate(self, row, col, angle):
 
@@ -382,16 +325,6 @@ class EmptyJungle:
             col_new += row % 2
 
         return row_new, col_new
-
-    def agent_exited(self, next_cell):
-
-        exits = [ElementsEnv.EXIT_EASY.value, ElementsEnv.EXIT_DIFFICULT.value, ElementsEnv.EXIT_WHITE.value,
-                 ElementsEnv.EXIT_BLACK.value]
-
-        if next_cell in exits:
-            return True
-        else:
-            return False
 
     def generate_agent_obs(self, agent):
 

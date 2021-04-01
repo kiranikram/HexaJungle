@@ -133,13 +133,22 @@ class EmptyJungle:
                 self.agent_black.on_shoulders = True
                 rew_white += Definitions.REWARD_CARRYING.value
 
-
             elif black_climbs and white_climbs:
                 rew_white += Definitions.REWARD_FELL.value
                 rew_black += Definitions.REWARD_FELL.value
 
         # If not on the same cell
         else:
+
+            # If agent was on shoulders, but other agent moved:
+            if self.agent_black.on_shoulders:
+                self.agent_black.on_shoulders = False
+                rew_black += Definitions.REWARD_FELL.value
+
+            if self.agent_white.on_shoulders:
+                self.agent_white.on_shoulders = False
+                rew_white += Definitions.REWARD_FELL.value
+
             # If try to climb, fails
             if black_climbs:
                 rew_black += Definitions.REWARD_FELL.value
@@ -157,8 +166,8 @@ class EmptyJungle:
             rew, self.agent_white.done = self.apply_rules(self.agent_white)
             rew_white += rew
 
-        # All rewards and terinations are now calculated
-        rewards = {self.agent_black:rew_black, self.agent_white:rew_white}
+        # All rewards and terminations are now calculated
+        rewards = {self.agent_black: rew_black, self.agent_white: rew_white}
 
         done = self.agent_white.done and self.agent_black.done
 
@@ -169,7 +178,6 @@ class EmptyJungle:
         obs[self.agent_black] = []#self.generate_agent_obs(self.agent_black)
 
         return obs, rewards, done
-
 
     def apply_rules(self, agent):
 

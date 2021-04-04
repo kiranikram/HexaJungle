@@ -1,6 +1,6 @@
 import math
 import pytest
-import nose
+
 
 from jungle.agent import Agent
 from jungle.utils import Actions, Definitions, ElementsEnv

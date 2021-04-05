@@ -676,7 +676,7 @@ class EmptyJungle:
             cells_to_drop.append(coords)
         return cells_to_drop
 
-        # TODO the same as above for diagonals
+
 
     def check_diagonal_obstacles(self, agent):
 

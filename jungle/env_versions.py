@@ -10,8 +10,10 @@ Exit 2 is better off for Black"""
 
 
 class EasyJungle(EmptyJungle):
-    super().__init__(size=11)
-    pass
+    def __init__(self):
+        super().__init__(size=11)
+        self.add_object()
+
 
 
 """Env that requires cooperation. River Exit has a high reward for both. 

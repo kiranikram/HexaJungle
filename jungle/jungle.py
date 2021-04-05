@@ -17,7 +17,7 @@ class EmptyJungle:
             raise ValueError('size should be an odd number')
 
         # Initialize with empty values
-        self.grid_env = np.ones((self.size, self.size), dtype=int)*ElementsEnv.EMPTY.value
+        self.grid_env = np.ones((self.size, self.size), dtype=int) * ElementsEnv.EMPTY.value
         self.place_obstacles()
 
         self.agent_white = None
@@ -42,10 +42,10 @@ class EmptyJungle:
     def add_agents(self, agent_1, agent_2):
 
         # Agent 1 always start on the left.
-        agent_1.grid_position = int( (self.size - 1) / 2), int((self.size - 1) / 2 - 1)
+        agent_1.grid_position = int((self.size - 1) / 2), int((self.size - 1) / 2 - 1)
         agent_1.angle = 3
 
-        agent_2.grid_position = int( (self.size - 1) / 2), int((self.size - 1) / 2 + 1)
+        agent_2.grid_position = int((self.size - 1) / 2), int((self.size - 1) / 2 + 1)
         agent_2.angle = 0
 
         # flip a coin to decide who is black or white
@@ -79,7 +79,6 @@ class EmptyJungle:
         else:
             rew_black = 0
             black_climbs = False
-
 
         # Then Test for different cases
 
@@ -158,18 +157,19 @@ class EmptyJungle:
             rew_white += rew
 
         # All rewards and terinations are now calculated
-        rewards = {self.agent_black:rew_black, self.agent_white:rew_white}
+        rewards = {self.agent_black: rew_black, self.agent_white: rew_white}
 
         done = self.agent_white.done and self.agent_black.done
 
-
         # Now we calculate the observations
         obs = {}
-        obs[self.agent_white] = []#self.generate_agent_obs(self.agent_white)
-        obs[self.agent_black] = []#self.generate_agent_obs(self.agent_black)
+        # obs[self.agent_white] = []#self.generate_agent_obs(self.agent_white)
+        # obs[self.agent_black] = []#self.generate_agent_obs(self.agent_black)
+
+        obs[self.agent_white] = self.generate_agent_obs(self.agent_white)
+        obs[self.agent_black] = self.generate_agent_obs(self.agent_black)
 
         return obs, rewards, done
-
 
     def apply_rules(self, agent):
 
@@ -235,7 +235,7 @@ class EmptyJungle:
             reward = Definitions.REWARD_EXIT_HIGH.value
 
         # if we are not on an exit
-        else :
+        else:
             reward = 0
             done = False
 
@@ -600,30 +600,23 @@ class EmptyJungle:
     def check_cross_obstacles(self, agent):
 
         row, col = agent.grid_position
-        left_cells_to_drop = []
-        right_cells_to_drop = []
-        bottom_cells_to_drop = []
-        top_cells_to_drop = []
+        cells_to_drop = []
 
         # check directly left
         for i in range(1, agent.range_observation):
             # TODO include other obstacles besides trees
-            # while col - i >= 0:
             if self.grid_env[int(row), int(col - i)] == ElementsEnv.TREE.value:
                 agent.left_view_obstructed = True
-                left_cells_to_drop = self.eliminate_left_view(i, row, col, agent)
-
+                cells_to_drop.append(self.eliminate_left_view(i, row, col, agent))
                 break
 
         # check directly right
         for j in range(1, agent.range_observation):
             if col + j == self.size:
                 break
-
             if self.grid_env[int(row), int(col + j)] == ElementsEnv.TREE.value:
                 agent.right_view_obstructed = True
-                right_cells_to_drop = self.eliminate_right_view(j, row, col, agent)
-
+                cells_to_drop.append(self.eliminate_right_view(j, row, col, agent))
                 break
 
         # check directly below
@@ -632,20 +625,16 @@ class EmptyJungle:
                 break
             if self.grid_env[int(row + k), int(col)] == ElementsEnv.TREE.value:
                 agent.bottom_view_obstructed = True
-                bottom_cells_to_drop = self.eliminate_bottom_view(k, row, col, agent)
-
+                cells_to_drop.append(self.eliminate_bottom_view(k, row, col, agent))
                 break
 
         # check directly above
         for l in range(1, agent.range_observation):
-
             if self.grid_env[int(row - l), int(col)] == ElementsEnv.TREE.value:
                 agent.top_view_obstructed = True
-                top_cells_to_drop = self.eliminate_top_view(l, row, col, agent)
-
+                cells_to_drop.append(self.eliminate_top_view(l, row, col, agent))
                 break
 
-        cells_to_drop = left_cells_to_drop + right_cells_to_drop + bottom_cells_to_drop + top_cells_to_drop
         return cells_to_drop
 
     def eliminate_right_view(self, start, row, col, agent):
@@ -675,8 +664,6 @@ class EmptyJungle:
             coords = (row - i, col)
             cells_to_drop.append(coords)
         return cells_to_drop
-
-
 
     def check_diagonal_obstacles(self, agent):
 

@@ -1057,5 +1057,39 @@ def test_boulders():
     #assert agent_2.grid_position == (6,6)
     #assert agent_1.grid_position == (5,6)
 
+def test_obs_new_jungle():
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=4)
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    # directly left of agent 1
+    simple_jungle.add_object(ElementsEnv.TREE, (5, 3))
+
+    # directly right of agent 2
+    simple_jungle.add_object(ElementsEnv.TREE, (5, 8))
+
+    actions = {}
+    obs, rew, done = simple_jungle.step(actions)
+
+    assert agent_1.left_view_obstructed
+    assert agent_2.right_view_obstructed
+
+    # directly below agent 1
+    simple_jungle.add_object(ElementsEnv.TREE, (8, 4))
+
+    # directly above agent 2
+    simple_jungle.add_object(ElementsEnv.TREE, (3, 7))
+
+    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 1},
+               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 1}}
+
+    obs, rew, done = simple_jungle.step(actions)
+
+    assert agent_1.bottom_view_obstructed
+    assert agent_2.top_view_obstructed
+
+
 
 

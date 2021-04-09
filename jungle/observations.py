@@ -8,7 +8,7 @@ from jungle.utils import Actions, Definitions, ElementsEnv
 
 
 def restrict_observations(agent, obstacles):
-    print('in restrict', obstacles)
+
     agent_row, agent_col = agent.grid_position
     all_ctd = []
     ctd = []
@@ -44,7 +44,7 @@ def restrict_observations(agent, obstacles):
             #ctd.append(bottom_right_cells_to_drop(obs_row, obs_col))
 
         elif obs_col < agent_col and obs_row < agent_row:
-            ctd = ctd + right_cells_to_drop(obs_row, obs_col)
+            ctd = ctd + top_left_cells_to_drop(obs_row, obs_col)
             #ctd.append(right_cells_to_drop(obs_row, obs_col))
 
         elif obs_col < agent_col and obs_row > agent_row:
@@ -53,7 +53,7 @@ def restrict_observations(agent, obstacles):
 
 
         #all_ctd.append(ctd)
-        print('ctd', ctd)
+
 
     return ctd
 

@@ -1068,8 +1068,37 @@ def test_obs_mediumenv():
     print("OBS")
     print(obs[agent_2])
 
+
 # In this scenario, trees and boulders occur such that one agent cannot see
 # the exit location past the boulders, whilst another agent cannot see rivers
-# past the trees. 
+# past the trees.
+
+def test_partial_observability():
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=4)
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    simple_jungle.add_object(ElementsEnv.AGENT_1, (5, 4))
+    simple_jungle.add_object(ElementsEnv.AGENT_2, (5, 6))
+
+    simple_jungle.add_object(ElementsEnv.RIVER, (1, 8))
+    simple_jungle.add_object(ElementsEnv.RIVER, (2, 9))
+    simple_jungle.add_object(ElementsEnv.EXIT_WHITE, (3, 1))
+    actions = {}
+    obs, rew, done = simple_jungle.step(actions)
+
+    assert ElementsEnv.EXIT_WHITE.value in obs[agent_1]
+    assert ElementsEnv.RIVER.value in obs[agent_2]
+
+    simple_jungle.add_object(ElementsEnv.BOULDER, (3, 2))
+    simple_jungle.add_object(ElementsEnv.TREE, (3, 8))
+
+    actions = {}
+    obs, rew, done = simple_jungle.step(actions)
+
+    assert ElementsEnv.EXIT_WHITE.value not in obs[agent_1]
+    assert ElementsEnv.RIVER.value not in obs[agent_2]
 
 

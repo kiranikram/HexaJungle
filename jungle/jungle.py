@@ -397,25 +397,23 @@ class EmptyJungle:
         for i in obs_coordinates:
 
             current_cell = self.cell_type(i[0], i[1])
-            if current_cell == ElementsEnv.TREE.value:
+            if current_cell == ElementsEnv.TREE.value or current_cell ==ElementsEnv.RIVER.value\
+                    or current_cell == ElementsEnv.BOULDER.value:
                 obstacles.append((i[0], i[1]))
-                print('obstacles', obstacles)
+
         cells_to_drop = restrict_observations(agent, obstacles)
 
-        print('obs coords looks like')
-        print(len(obs_coordinates))
-        print('cells to drop looks like')
-        print(len(cells_to_drop))
+
 
         if not agent.on_shoulders:
             for i in obs_coordinates:
                 if i in cells_to_drop:
                     r_row = i[0]
                     r_col = i[1]
-                    print('removing', r_row, r_col)
+
                     obs.remove(self.grid_env[int(r_row), int(r_col)])
 
-        print('cells_to_drop', cells_to_drop)
+
 
         return np.asarray(obs)
 

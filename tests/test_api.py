@@ -1068,4 +1068,8 @@ def test_obs_mediumenv():
     print("OBS")
     print(obs[agent_2])
 
+# In this scenario, trees and boulders occur such that one agent cannot see
+# the exit location past the boulders, whilst another agent cannot see rivers
+# past the trees. 
+
 

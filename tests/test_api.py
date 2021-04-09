@@ -1053,8 +1053,7 @@ def test_obs_mediumenv():
 
     actions = {}
     obs, rew, done = simple_jungle.step(actions)
-    print("OBS")
-    print(obs[agent_2])
+
     assert ElementsEnv.RIVER.value in obs[agent_2]
 
     simple_jungle.add_object(ElementsEnv.TREE, (4, 7))
@@ -1064,9 +1063,6 @@ def test_obs_mediumenv():
     obs, rew, done = simple_jungle.step(actions)
     assert agent_2.top_right_obstructed
     assert ElementsEnv.RIVER.value not in obs[agent_2]
-
-    print("OBS")
-    print(obs[agent_2])
 
 
 # In this scenario, trees and boulders occur such that one agent cannot see
@@ -1100,5 +1096,3 @@ def test_partial_observability():
 
     assert ElementsEnv.EXIT_WHITE.value not in obs[agent_1]
     assert ElementsEnv.RIVER.value not in obs[agent_2]
-
-

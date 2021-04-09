@@ -3,6 +3,7 @@ import random
 import math
 
 from jungle.utils import ElementsEnv, Actions, Definitions
+from jungle.observations import restrict_observations
 
 
 # DO MENTION AGENTs CAN BE ON SAME CELL
@@ -64,6 +65,8 @@ class EmptyJungle:
         self.agent_white.done = False
 
     def step(self, actions):
+
+        print(self.grid_env)
 
         # First Physical move
         if not self.agent_white.done:
@@ -329,8 +332,10 @@ class EmptyJungle:
     def generate_agent_obs(self, agent):
 
         obs = []
+        obs_coordinates = []
+        obstacles = []
 
-        cells_to_drop = self.check_cross_obstacles(agent) + self.check_diagonal_obstacles(agent)
+        #cells_to_drop = self.check_cross_obstacles(agent) + self.check_diagonal_obstacles(agent)
 
         # iterate over range
         for obs_range in range(1, agent.range_observation + 1):
@@ -344,10 +349,13 @@ class EmptyJungle:
 
             if 0 <= row < self.size and 0 <= col < self.size:
                 obs.append(self.grid_env[int(row), int(col)])
+                obs_coordinates.append((row, col))
 
-                if not agent.on_shoulders:
-                    if (row, col) in cells_to_drop:
-                        obs.remove(self.grid_env[int(row), int(col)])
+                #if not agent.on_shoulders:
+                    #if (row, col) in cells_to_drop:
+                        #obs.remove(self.grid_env[int(row), int(col)])
+
+
 
             else:
                 obs.append(0)
@@ -358,10 +366,13 @@ class EmptyJungle:
 
                 if 0 <= row < self.size and 0 <= col < self.size:
                     obs.append(self.grid_env[int(row), int(col)])
+                    obs_coordinates.append((row, col))
 
-                    if not agent.on_shoulders:
-                        if (row, col) in cells_to_drop:
-                            obs.remove(self.grid_env[int(row), int(col)])
+                    #if not agent.on_shoulders:
+                        #if (row, col) in cells_to_drop:
+                            #obs.remove(self.grid_env[int(row), int(col)])
+
+
 
                 else:
                     obs.append(0)
@@ -372,13 +383,39 @@ class EmptyJungle:
 
                 if 0 <= row < self.size and 0 <= col < self.size:
                     obs.append(self.grid_env[int(row), int(col)])
+                    obs_coordinates.append((row, col))
 
-                    if not agent.on_shoulders:
-                        if (row, col) in cells_to_drop:
-                            obs.remove(self.grid_env[int(row), int(col)])
+                    #if not agent.on_shoulders:
+                        #if (row, col) in cells_to_drop:
+                            #obs.remove(self.grid_env[int(row), int(col)])
+
+
 
                 else:
                     obs.append(0)
+
+        for i in obs_coordinates:
+
+            current_cell = self.cell_type(i[0], i[1])
+            if current_cell == ElementsEnv.TREE.value:
+                obstacles.append((i[0], i[1]))
+                print('obstacles', obstacles)
+        cells_to_drop = restrict_observations(agent, obstacles)
+
+        print('obs coords looks like')
+        print(len(obs_coordinates))
+        print('cells to drop looks like')
+        print(len(cells_to_drop))
+
+        if not agent.on_shoulders:
+            for i in obs_coordinates:
+                if i in cells_to_drop:
+                    r_row = i[0]
+                    r_col = i[1]
+                    print('removing', r_row, r_col)
+                    obs.remove(self.grid_env[int(r_row), int(r_col)])
+
+        print('cells_to_drop', cells_to_drop)
 
         return np.asarray(obs)
 
@@ -640,34 +677,31 @@ class EmptyJungle:
     def eliminate_right_view(self, start, row, col, agent):
         cells_to_drop = []
         for i in range(start, agent.range_observation):
-            coords = (row, col + i)
-            cells_to_drop.append(coords)
+            cells_to_drop.append((row, col + i))
         return cells_to_drop
 
     def eliminate_left_view(self, start, row, col, agent):
         cells_to_drop = []
         for i in range(start, agent.range_observation):
-            coords = (row, col - i)
-            cells_to_drop.append(coords)
+            cells_to_drop.append((row, col - i))
         return cells_to_drop
 
     def eliminate_bottom_view(self, start, row, col, agent):
         cells_to_drop = []
         for i in range(start, agent.range_observation):
-            coords = (row + i, col)
-            cells_to_drop.append(coords)
+            cells_to_drop.append((row + i, col))
         return cells_to_drop
 
     def eliminate_top_view(self, start, row, col, agent):
         cells_to_drop = []
         for i in range(start, agent.range_observation):
-            coords = (row - i, col)
-            cells_to_drop.append(coords)
+            cells_to_drop.append((row - i, col))
         return cells_to_drop
 
     def check_diagonal_obstacles(self, agent):
 
         row, col = agent.grid_position
+
         top_left_cells_to_drop = []
         top_right_cells_to_drop = []
         bottom_left_cells_to_drop = []
@@ -681,6 +715,7 @@ class EmptyJungle:
                 if self.grid_env[int(row - i), int(col - a)] == ElementsEnv.TREE.value:
                     agent.top_left_obstructed = True
                     top_left_cells_to_drop = self.eliminate_top_left_view(i, a, row, col, agent)
+
                     break
 
         # check top right
@@ -692,6 +727,7 @@ class EmptyJungle:
                 if self.grid_env[int(row - j), int(col + b)] == ElementsEnv.TREE.value:
                     agent.top_right_obstructed = True
                     top_right_cells_to_drop = self.eliminate_top_right_view(j, b, row, col, agent)
+
                     break
 
         # check bottom left
@@ -704,6 +740,7 @@ class EmptyJungle:
                     agent.bottom_left_obstructed = True
 
                     bottom_left_cells_to_drop = self.eliminate_bottom_left_view(k, c, row, col, agent)
+
                     break
 
         # check bottom right
@@ -719,6 +756,7 @@ class EmptyJungle:
                     break
 
         cells_to_drop = top_left_cells_to_drop + top_right_cells_to_drop + bottom_left_cells_to_drop + bottom_right_cells_to_drop
+
         return cells_to_drop
 
     def eliminate_top_left_view(self, start_rows, start_cols, row, col, agent):
@@ -753,6 +791,7 @@ class EmptyJungle:
                     break
                 coords = (row - i, col + a)
                 cells_to_drop.append(coords)
+
         return cells_to_drop
 
     def eliminate_bottom_left_view(self, start_rows, start_cols, row, col, agent):

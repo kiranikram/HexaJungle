@@ -1,7 +1,6 @@
 import math
 import pytest
 
-
 from jungle.agent import Agent
 from jungle.utils import Actions, Definitions, ElementsEnv
 
@@ -599,7 +598,6 @@ def test_approach_river_together():
 
 
 def test_build_bridge():
-
     agent_1 = Agent()
     agent_2 = Agent()
 
@@ -638,10 +636,8 @@ def test_build_bridge():
     simple_jungle.step(actions)
     _, rew, done = simple_jungle.step(actions)
 
-
     # assert river cell becomes empty cell
     assert simple_jungle.cell_type(5, 5) == ElementsEnv.EMPTY.value
-
 
     # assert they both get reward for building bridge (both need to be at river)
     assert rew[agent_1] == Definitions.REWARD_BUILT_BRIDGE.value
@@ -662,19 +658,19 @@ def test_climb_action():
     # agents should do something and land on the same cell
     # then they can climb
 
-    actions = {agent_1: { Actions.ROTATE: -1}}
+    actions = {agent_1: {Actions.ROTATE: -1}}
     simple_jungle.step(actions)
     simple_jungle.step(actions)
     simple_jungle.step(actions)
 
-    actions = {agent_1: { Actions.FORWARD: -1}}
+    actions = {agent_1: {Actions.FORWARD: -1}}
     simple_jungle.step(actions)
     simple_jungle.step(actions)
 
     # They are now on the same cell
-    assert agent_1.grid_position ==  agent_2.grid_position
+    assert agent_1.grid_position == agent_2.grid_position
 
-    actions = {agent_1: {Actions.CLIMB: 1} }
+    actions = {agent_1: {Actions.CLIMB: 1}}
 
     _, rew, done = simple_jungle.step(actions)
 
@@ -687,7 +683,6 @@ def test_climb_action():
 
 
 def test_climb_boulders():
-
     #   . . B 1 . . 2 .
 
     agent_1 = Agent(range_observation=4)
@@ -726,7 +721,7 @@ def test_climb_boulders():
     simple_jungle.step(actions)
 
     # Now, should be on same position as boulder
-    assert agent_1.grid_position == (5,3)
+    assert agent_1.grid_position == (5, 3)
     assert agent_1.on_shoulders is False
 
     # After that, the agent can move forward on the next empty cell
@@ -844,8 +839,7 @@ def test_obstacles_in_obs_diagonal():
     # top right diagonal agent 2
     simple_jungle.add_object(ElementsEnv.TREE, (3, 8))
 
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+    actions = {}
 
     obs, rew, done = simple_jungle.step(actions)
 
@@ -951,6 +945,15 @@ def test_obs_cooperation_sequence():
     simple_jungle = EmptyJungle(size=11)
     simple_jungle.add_agents(agent_1, agent_2)
 
+    print(agent_1.grid_position, agent_1.angle)
+    print(agent_2.grid_position, agent_2.angle)
+
+    simple_jungle.add_object(ElementsEnv.TREE, (5, 3))
+    actions = {}
+    obs, rew, done = simple_jungle.step(actions)
+
+    assert agent_1.left_view_obstructed
+
     simple_jungle.add_object(ElementsEnv.TREE, (4, 7))
 
     # should not be able to see around the diagonal
@@ -993,69 +996,6 @@ def test_obs_cooperation_sequence():
     # agent 2's observability is restored to full
     assert ElementsEnv.RIVER.value in obs[agent_2]
 
-def test_boulders():
-    # cannot cross boulders
-    agent_1 = Agent(range_observation=4)
-    agent_2 = Agent(range_observation=4)
-
-    simple_jungle = EmptyJungle(size=11)
-    simple_jungle.add_agents(agent_1, agent_2)
-
-    simple_jungle.add_object(ElementsEnv.BOULDER, (4, 7))
-    simple_jungle.add_object(ElementsEnv.BOULDER, (6, 6))
-
-    print(agent_2.grid_position)
-
-    # agent 2 moves to top right boulder, gets neg reward, stays at original position
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 1, Actions.CLIMB: 0}}
-    obs, rew, done = simple_jungle.step(actions)
-
-    # assert rew[agent_2] == Definitions.REWARD_COLLISION.value
-    # assert agent_2.grid_position == (5,6)
-
-    print(agent_1.grid_position, agent_1.angle)
-    print(agent_2.grid_position, agent_2.angle)
-
-    # agent 1 turns towards agent 2
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
-
-    obs, rew, done = simple_jungle.step(actions)
-    obs, rew, done = simple_jungle.step(actions)
-    obs, rew, done = simple_jungle.step(actions)
-
-    # agent 1 moves towards agent 2
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
-
-    obs, rew, done = simple_jungle.step(actions)
-    obs, rew, done = simple_jungle.step(actions)
-
-    print(agent_1.grid_position , agent_1.angle)
-    print(agent_2.grid_position, agent_2.angle)
-
-
-
-
-
-    # agent 1 moves to agent 2, agent 2 gets on agent 1's shoulders
-
-    #TODO need to set
-
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 1}}
-    obs, rew, done = simple_jungle.step(actions)
-
-    #assert agent_2.on_shoulders
-
-
-    # both agents move together to bottom boulder
-
-    # agent 2 can cross the boulder, agent 1 remains on the prior cell
-
-    #assert agent_2.grid_position == (6,6)
-    #assert agent_1.grid_position == (5,6)
 
 def test_obs_new_jungle():
     agent_1 = Agent(range_observation=4)
@@ -1091,5 +1031,41 @@ def test_obs_new_jungle():
     assert agent_2.top_view_obstructed
 
 
+# To display the effect of the obs function,
+# I will place trees in different locations relative to the agents.
+# If a tree is obstructing the agent's view, it should not, for example be able
+# to see a particular type of exit.
+
+# This env has one river exit and one free exit.
+# The river exit is not seen by agent 2, and the free exit is not seen by agent 1.
+def test_obs_mediumenv():
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=4)
+
+    simple_jungle = EmptyJungle(size=11)
+    simple_jungle.add_agents(agent_1, agent_2)
+
+    simple_jungle.add_object(ElementsEnv.AGENT_1, (5, 4))
+    simple_jungle.add_object(ElementsEnv.AGENT_2, (5, 6))
+    simple_jungle.add_object(ElementsEnv.EXIT_DIFFICULT, (1, 9))
+    simple_jungle.add_object(ElementsEnv.RIVER, (1, 8))
+    simple_jungle.add_object(ElementsEnv.RIVER, (2, 9))
+
+    actions = {}
+    obs, rew, done = simple_jungle.step(actions)
+    print("OBS")
+    print(obs[agent_2])
+    assert ElementsEnv.RIVER.value in obs[agent_2]
+
+    simple_jungle.add_object(ElementsEnv.TREE, (4, 7))
+    simple_jungle.add_object(ElementsEnv.TREE, (3, 8))
+    simple_jungle.add_object(ElementsEnv.TREE, (3, 7))
+    actions = {}
+    obs, rew, done = simple_jungle.step(actions)
+    assert agent_2.top_right_obstructed
+    assert ElementsEnv.RIVER.value not in obs[agent_2]
+
+    print("OBS")
+    print(obs[agent_2])
 
 

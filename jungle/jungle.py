@@ -121,7 +121,8 @@ class EmptyJungle:
                 # else they will drown, but we will see that later.
                 else:
                     self.agent_white.done = True
-                    self.agent_white.done = True
+                    # @MG white was repeated, so changed to black
+                    self.agent_black.done = True
                     rew_white += Definitions.REWARD_DROWN.value
                     rew_black += Definitions.REWARD_DROWN.value
 

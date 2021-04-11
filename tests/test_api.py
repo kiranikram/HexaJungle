@@ -1,5 +1,6 @@
 import math
 import pytest
+import random
 
 from jungle.agent import Agent
 from jungle.utils import Actions, Definitions, ElementsEnv
@@ -1096,3 +1097,24 @@ def test_partial_observability():
 
     assert ElementsEnv.EXIT_WHITE.value not in obs[agent_1]
     assert ElementsEnv.RIVER.value not in obs[agent_2]
+
+def generate_actions():
+    fwd = random.choice([-1, 0, 1])
+    rot = random.choice([1, 0])
+    climb = random.choice([1, 0])
+    agent_actions = {Actions.FORWARD: fwd, Actions.ROTATE: rot, Actions.CLIMB: climb}
+
+    return agent_actions
+
+def test_run_check():
+    agent_1 = Agent()
+    agent_2 = Agent()
+    agents = [agent_1,agent_2]
+
+    actions = {}
+
+    for agent in agents:
+        actions[agent] = generate_actions()
+    print(actions)
+
+    return actions

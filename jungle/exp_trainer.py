@@ -16,10 +16,11 @@ def generate_actions():
 
     return agent_actions
 
+
 def run_check():
     agent_1 = Agent()
     agent_2 = Agent()
-    agents = [agent_1,agent_2]
+    agents = [agent_1, agent_2]
 
     actions = {}
 
@@ -27,6 +28,21 @@ def run_check():
         actions[agent] = generate_actions()
 
     return actions
+
+
+def run(max_steps, agents, env, agent_1,agent_2):
+    for x in range(max_steps):
+        print('step', x)
+        actions = {}
+        for agent in agents:
+            actions[agent] = generate_actions()
+
+            obs, reward, done = env.step(actions)
+            print('obs',obs)
+            print(agent_1.grid_position)
+            print(agent_2.grid_position)
+
+
 
 
 
@@ -54,6 +70,7 @@ def run_one_episode(env, verbose=False):
         print("cumulative reward", sum_reward)
 
     return sum_reward
+
 
 acts = run_check()
 print(acts)

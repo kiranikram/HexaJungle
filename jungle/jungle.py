@@ -71,6 +71,26 @@ class EmptyJungle:
                                       (self.size - 2, self.size - 3),
                                       (self.size - 3, self.size - 2))
 
+    def determine_tree_locations(self):
+
+        # trees must not be on any exit coordinates
+        # trees must not be where agents are
+        trees = []
+        for row in range(3,self.size-4):
+            for col in range(3,self.size-4):
+                trees.append((row,col))
+        agent_1_location = int( (self.size - 1) / 2), int((self.size - 1) / 2 - 1)
+        trees.remove(agent_1_location)
+        agent_2_location = int( (self.size - 1) / 2), int((self.size - 1) / 2 + 1)
+        trees.remove(agent_2_location)
+
+        no_of_trees = math.floor(self.size/3)
+        tree_coordinates = random.sample(trees,no_of_trees)
+
+        return tree_coordinates
+
+    
+
     def select_random_exit(self):
 
         """ Picks a random exit. """
@@ -676,6 +696,7 @@ class EmptyJungle:
     def get_next_cell(self, row, col, angle):
 
         row_new, col_new = row, col
+        print('col_new', col_new)
 
         if angle == 0:
             col_new += 1

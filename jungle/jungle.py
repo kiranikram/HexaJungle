@@ -86,14 +86,13 @@ class EmptyJungle:
         agent_2_location = int((self.size - 1) / 2), int((self.size - 1) / 2 + 1)
         trees.remove(agent_2_location)
 
-        no_of_trees = math.floor(self.size / 3)
+        no_of_trees = math.floor(self.size / 2)
         self.tree_coordinates = random.sample(trees, no_of_trees)
 
     def add_trees(self):
 
         for location in self.tree_coordinates:
             self.add_object(ElementsEnv.TREE, location)
-
 
     def select_random_exit(self):
 
@@ -219,7 +218,6 @@ class EmptyJungle:
                 self.agent_black.on_shoulders = True
                 rew_white += Definitions.REWARD_CARRYING.value
 
-
             elif black_climbs and white_climbs:
                 rew_white += Definitions.REWARD_FELL.value
                 rew_black += Definitions.REWARD_FELL.value
@@ -257,14 +255,20 @@ class EmptyJungle:
         rewards = {self.agent_black: rew_black, self.agent_white: rew_white}
 
         done = self.agent_white.done and self.agent_black.done
+        if self.agent_white.done:
+            print('ag white done')
+
+        if self.agent_black.done:
+            print('ag black done')
 
         # Now we calculate the observations
         obs = {}
         # obs[self.agent_white] = []#self.generate_agent_obs(self.agent_white)
         # obs[self.agent_black] = []#self.generate_agent_obs(self.agent_black)
-
-        obs[self.agent_white] = self.generate_agent_obs(self.agent_white)
-        obs[self.agent_black] = self.generate_agent_obs(self.agent_black)
+        if not self.agent_white.done:
+            obs[self.agent_white] = self.generate_agent_obs(self.agent_white)
+        if not self.agent_black.done:
+            obs[self.agent_black] = self.generate_agent_obs(self.agent_black)
 
         return obs, rewards, done
 
@@ -429,16 +433,18 @@ class EmptyJungle:
         obs_coordinates = []
         obstacles = []
 
-        cells_to_drop = self.check_cross_obstacles(agent) + self.check_diagonal_obstacles(agent)
+        # cells_to_drop = self.check_cross_obstacles(agent) + self.check_diagonal_obstacles(agent)
 
         # iterate over range
         for obs_range in range(1, agent.range_observation + 1):
 
             row, col = agent.grid_position
+            print('grid pos', agent.grid_position)
             angle = agent.angle
 
             # go to start
             for i in range(obs_range):
+                print('row ,col at start', row, col)
                 row, col, _ = self.get_next_cell(row, col, (angle - 1) % 6)
 
             if 0 <= row < self.size and 0 <= col < self.size:
@@ -455,6 +461,7 @@ class EmptyJungle:
 
             # move first segment
             for i in range(obs_range):
+                print('row,col in 1st segment', row, col)
                 row, col, _ = self.get_next_cell(row, col, (angle + 1) % 6)
 
                 if 0 <= row < self.size and 0 <= col < self.size:
@@ -471,6 +478,7 @@ class EmptyJungle:
 
             # move second segment
             for i in range(obs_range):
+                print('row,col in second segment', row, col)
                 row, col, _ = self.get_next_cell(row, col, (angle + 2) % 6)
 
                 if 0 <= row < self.size and 0 <= col < self.size:
@@ -693,7 +701,6 @@ class EmptyJungle:
     def get_next_cell(self, row, col, angle):
 
         row_new, col_new = row, col
-        print('col_new', col_new)
 
         if angle == 0:
             col_new += 1

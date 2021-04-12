@@ -38,39 +38,17 @@ def run(max_steps, agents, env, agent_1,agent_2):
             actions[agent] = generate_actions()
 
             obs, reward, done = env.step(actions)
-            print('obs',obs)
-            print(agent_1.grid_position)
-            print(agent_2.grid_position)
+
+            if agent_1.done and agent_2.done:
+                break
+            if not agent_1.done:
+                print(agent_1.grid_position,reward[agent_1],obs[agent_1])
+            if not agent_2.done:
+                print(agent_2.grid_position, reward[agent_2], obs[agent_2])
 
 
 
 
 
-def run_one_episode(env, verbose=False):
-    env.reset()
-    sum_reward = 0
-
-    # change here
-    for i in range(env.MAX_STEPS):
-        action = env.action_space.sample()
-
-        if verbose:
-            print("action:", action)
-
-        obs, rewards, done = env.step(action)
-        sum_reward += rewards
-
-        if done:
-            if verbose:
-                print("done @ step {}".format(i))
-
-            break
-
-    if verbose:
-        print("cumulative reward", sum_reward)
-
-    return sum_reward
 
 
-acts = run_check()
-print(acts)

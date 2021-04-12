@@ -7,7 +7,6 @@ from collections import namedtuple
 from jungle.utils import ElementsEnv, Actions, Definitions
 from jungle.observations import restrict_observations
 
-
 # DO MENTION AGENTs CAN BE ON SAME CELL
 
 Exit = namedtuple('Exit', ['coordinates', 'surrounding_1', 'surrounding_2'])
@@ -23,7 +22,7 @@ class EmptyJungle:
             raise ValueError('size should be an odd number')
 
         # Initialize with empty values
-        self.grid_env = np.ones((self.size, self.size), dtype=int)*ElementsEnv.EMPTY.value
+        self.grid_env = np.ones((self.size, self.size), dtype=int) * ElementsEnv.EMPTY.value
         self.place_obstacles()
 
         self.agent_white = None
@@ -41,6 +40,9 @@ class EmptyJungle:
             self.exit_top_right,
             self.exit_bottom_left,
         ]
+
+        self.tree_coordinates = None
+        self.determine_tree_locations()
 
     @property
     def agents(self):
@@ -76,20 +78,22 @@ class EmptyJungle:
         # trees must not be on any exit coordinates
         # trees must not be where agents are
         trees = []
-        for row in range(3,self.size-4):
-            for col in range(3,self.size-4):
-                trees.append((row,col))
-        agent_1_location = int( (self.size - 1) / 2), int((self.size - 1) / 2 - 1)
+        for row in range(3, self.size - 4):
+            for col in range(3, self.size - 4):
+                trees.append((row, col))
+        agent_1_location = int((self.size - 1) / 2), int((self.size - 1) / 2 - 1)
         trees.remove(agent_1_location)
-        agent_2_location = int( (self.size - 1) / 2), int((self.size - 1) / 2 + 1)
+        agent_2_location = int((self.size - 1) / 2), int((self.size - 1) / 2 + 1)
         trees.remove(agent_2_location)
 
-        no_of_trees = math.floor(self.size/3)
-        tree_coordinates = random.sample(trees,no_of_trees)
+        no_of_trees = math.floor(self.size / 3)
+        self.tree_coordinates = random.sample(trees, no_of_trees)
 
-        return tree_coordinates
+    def add_trees(self):
 
-    
+        for location in self.tree_coordinates:
+            self.add_object(ElementsEnv.TREE, location)
+
 
     def select_random_exit(self):
 
@@ -113,7 +117,6 @@ class EmptyJungle:
                 line = "{0:1}".format("")
 
             for c in range(self.size):
-
                 repr = str(self.grid_env[r, c])
 
                 line += "{0:2}".format(repr)
@@ -125,10 +128,10 @@ class EmptyJungle:
     def add_agents(self, agent_1, agent_2):
 
         # Agent 1 always start on the left.
-        agent_1.grid_position = int( (self.size - 1) / 2), int((self.size - 1) / 2 - 1)
+        agent_1.grid_position = int((self.size - 1) / 2), int((self.size - 1) / 2 - 1)
         agent_1.angle = 3
 
-        agent_2.grid_position = int( (self.size - 1) / 2), int((self.size - 1) / 2 + 1)
+        agent_2.grid_position = int((self.size - 1) / 2), int((self.size - 1) / 2 + 1)
         agent_2.angle = 0
 
         # flip a coin to decide who is black or white
@@ -162,7 +165,6 @@ class EmptyJungle:
         else:
             rew_black = 0
             black_climbs = False
-
 
         # Then Test for different cases
 
@@ -255,7 +257,6 @@ class EmptyJungle:
         rewards = {self.agent_black: rew_black, self.agent_white: rew_white}
 
         done = self.agent_white.done and self.agent_black.done
-
 
         # Now we calculate the observations
         obs = {}
@@ -444,9 +445,9 @@ class EmptyJungle:
                 obs.append(self.grid_env[int(row), int(col)])
                 obs_coordinates.append((row, col))
 
-                #if not agent.on_shoulders:
-                    #if (row, col) in cells_to_drop:
-                        #obs.remove(self.grid_env[int(row), int(col)])
+                # if not agent.on_shoulders:
+                # if (row, col) in cells_to_drop:
+                # obs.remove(self.grid_env[int(row), int(col)])
 
 
             else:
@@ -460,9 +461,9 @@ class EmptyJungle:
                     obs.append(self.grid_env[int(row), int(col)])
                     obs_coordinates.append((row, col))
 
-                    #if not agent.on_shoulders:
-                        #if (row, col) in cells_to_drop:
-                            #obs.remove(self.grid_env[int(row), int(col)])
+                    # if not agent.on_shoulders:
+                    # if (row, col) in cells_to_drop:
+                    # obs.remove(self.grid_env[int(row), int(col)])
 
 
                 else:
@@ -476,9 +477,9 @@ class EmptyJungle:
                     obs.append(self.grid_env[int(row), int(col)])
                     obs_coordinates.append((row, col))
 
-                    #if not agent.on_shoulders:
-                        #if (row, col) in cells_to_drop:
-                            #obs.remove(self.grid_env[int(row), int(col)])
+                    # if not agent.on_shoulders:
+                    # if (row, col) in cells_to_drop:
+                    # obs.remove(self.grid_env[int(row), int(col)])
 
                 else:
                     obs.append(0)
@@ -486,13 +487,11 @@ class EmptyJungle:
         for i in obs_coordinates:
 
             current_cell = self.cell_type(i[0], i[1])
-            if current_cell == ElementsEnv.TREE.value or current_cell ==ElementsEnv.RIVER.value\
+            if current_cell == ElementsEnv.TREE.value or current_cell == ElementsEnv.RIVER.value \
                     or current_cell == ElementsEnv.BOULDER.value:
                 obstacles.append((i[0], i[1]))
 
         cells_to_drop = restrict_observations(agent, obstacles)
-
-
 
         if not agent.on_shoulders:
             for i in obs_coordinates:
@@ -501,8 +500,6 @@ class EmptyJungle:
                     r_col = i[1]
 
                     obs.remove(self.grid_env[int(r_row), int(r_col)])
-
-
 
         return np.asarray(obs)
 

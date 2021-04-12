@@ -208,6 +208,14 @@ class EmptyJungle:
                     rew_white += Definitions.REWARD_DROWN.value
                     rew_black += Definitions.REWARD_DROWN.value
 
+            # BOULDER
+
+            if self.grid_env[r, c] == ElementsEnv.BOULDER.value:
+                # if one agent is on shoulders, they can cross
+                if self.agent_white.on_shoulders or self.agent_black.on_shoulders:
+                    rew_white += Definitions.REWARD_CROSS_BOULDER.value
+                    rew_black += Definitions.REWARD_CROSS_BOULDER.value
+
             # CLIMB Behavior if they are on the same cell
 
             if white_climbs and not black_climbs:
@@ -287,11 +295,16 @@ class EmptyJungle:
         if agent_drowns:
             rew += Definitions.REWARD_DROWN.value
 
+        # If comes to boulder and not on shoulders, bumps into boulder
+        bumps_boulder = self.hits_boulder(agent)
+        if bumps_boulder:
+            rew += Definitions.REWARD_COLLISION.value
+
         # If on an exit, receive reward and is done
         r, agent_exits = self.exits(agent)
         rew += r
 
-        agent_done = agent_exits or agent_drowns
+        agent_done = agent_exits or agent_drowns or bumps_boulder
 
         return rew, agent_done
 
@@ -307,6 +320,12 @@ class EmptyJungle:
     def on_a_river(self, agent):
         r, c = agent.grid_position
         if self.cell_type(r, c) == ElementsEnv.RIVER.value:
+            return True
+        return False
+
+    def hits_boulder(self, agent):
+        r, c = agent.grid_position
+        if self.cell_type(r, c) == ElementsEnv.BOULDER.value:
             return True
         return False
 

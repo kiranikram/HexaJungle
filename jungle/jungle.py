@@ -72,6 +72,8 @@ class EmptyJungle:
 
     def select_random_exit(self):
 
+        """ Picks a random exit. """
+
         random.shuffle(self.list_selected_exits)
 
         if not self.list_selected_exits:

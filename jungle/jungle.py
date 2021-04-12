@@ -2,10 +2,15 @@ import numpy as np
 import random
 import math
 
+from collections import namedtuple
+
 from jungle.utils import ElementsEnv, Actions, Definitions
 
 
 # DO MENTION AGENTs CAN BE ON SAME CELL
+
+Exit = namedtuple('Exit', ['coordinates', 'surrounding_1', 'surrounding_2'])
+
 
 class EmptyJungle:
 
@@ -23,6 +28,19 @@ class EmptyJungle:
         self.agent_white = None
         self.agent_black = None
 
+        self.exit_top_left = None
+        self.exit_bottom_left = None
+        self.exit_top_right = None
+        self.exit_bottom_right = None
+        self.calculate_exit_coordinates()
+
+        self.list_selected_exits = [
+            self.exit_top_left,
+            self.exit_bottom_right,
+            self.exit_top_right,
+            self.exit_bottom_left,
+        ]
+
     @property
     def agents(self):
         return [self.agent_white, self.agent_white]
@@ -38,6 +56,48 @@ class EmptyJungle:
         # add corners
         for row in range(2, self.size - 2, 2):
             self.grid_env[row, 1] = ElementsEnv.OBSTACLE.value
+
+    def calculate_exit_coordinates(self):
+
+        self.exit_top_left = Exit((1, 1), (1, 2), (2, 2))
+        self.exit_bottom_left = Exit((self.size - 2, 1),
+                                     (self.size - 2, 2),
+                                     (self.size - 3, 2))
+        self.exit_top_right = Exit((1, self.size - 2),
+                                   (1, self.size - 3),
+                                   (2, self.size - 2))
+        self.exit_bottom_right = Exit((self.size - 2, self.size - 2),
+                                      (self.size - 2, self.size - 3),
+                                      (self.size - 3, self.size - 2))
+
+    def select_random_exit(self):
+
+        random.shuffle(self.list_selected_exits)
+
+        if not self.list_selected_exits:
+            raise ValueError('All exits have already been selected')
+
+        return self.list_selected_exits.pop(0)
+
+    def __repr__(self):
+
+        full_repr = ""
+
+        for r in range(self.size):
+            if r % 2 == 0:
+                line = ""
+            else:
+                line = "{0:1}".format("")
+
+            for c in range(self.size):
+
+                repr = str(self.grid_env[r, c])
+
+                line += "{0:2}".format(repr)
+
+            full_repr += line + "\n"
+
+        return full_repr
 
     def add_agents(self, agent_1, agent_2):
 

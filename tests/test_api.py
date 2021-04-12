@@ -542,6 +542,8 @@ def test_gameplay_exit():
     assert agent_2.done
     assert done
 
+    # Todo: test different kinds of exits
+
 
 def test_cut_tree():
     # agent takes 3 actions and comes to a tree. once cut , the cell becomes empty
@@ -596,6 +598,8 @@ def test_approach_river_together():
     assert rew[agent_2] == Definitions.REWARD_DROWN.value
 
     # From MG test that agent 2 is dead -- eg maybe no value for agent 2 on grid
+    assert agent_2.done
+    assert not agent_1.done
 
 
 def test_build_bridge():
@@ -681,6 +685,15 @@ def test_climb_action():
 
     assert rew[agent_2] == Definitions.REWARD_CARRYING.value
     assert agent_1.on_shoulders
+
+    # Finally, agent_2 moves, so agent_1 is not on shoulders anymore
+    # Agent 1 reeives a negative reward because it fell.
+
+    actions = {agent_2: {Actions.FORWARD: 1}}
+    _, rew, _ = simple_jungle.step(actions)
+
+    assert rew[agent_1] == Definitions.REWARD_FELL.value
+    assert not agent_1.on_shoulders
 
 
 def test_climb_boulders():

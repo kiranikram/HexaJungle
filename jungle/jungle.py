@@ -2,11 +2,16 @@ import numpy as np
 import random
 import math
 
+from collections import namedtuple
+
 from jungle.utils import ElementsEnv, Actions, Definitions
 from jungle.observations import restrict_observations
 
 
 # DO MENTION AGENTs CAN BE ON SAME CELL
+
+Exit = namedtuple('Exit', ['coordinates', 'surrounding_1', 'surrounding_2'])
+
 
 class EmptyJungle:
 
@@ -18,11 +23,24 @@ class EmptyJungle:
             raise ValueError('size should be an odd number')
 
         # Initialize with empty values
-        self.grid_env = np.ones((self.size, self.size), dtype=int) * ElementsEnv.EMPTY.value
+        self.grid_env = np.ones((self.size, self.size), dtype=int)*ElementsEnv.EMPTY.value
         self.place_obstacles()
 
         self.agent_white = None
         self.agent_black = None
+
+        self.exit_top_left = None
+        self.exit_bottom_left = None
+        self.exit_top_right = None
+        self.exit_bottom_right = None
+        self.calculate_exit_coordinates()
+
+        self.list_selected_exits = [
+            self.exit_top_left,
+            self.exit_bottom_right,
+            self.exit_top_right,
+            self.exit_bottom_left,
+        ]
 
     @property
     def agents(self):
@@ -40,13 +58,57 @@ class EmptyJungle:
         for row in range(2, self.size - 2, 2):
             self.grid_env[row, 1] = ElementsEnv.OBSTACLE.value
 
+    def calculate_exit_coordinates(self):
+
+        self.exit_top_left = Exit((1, 1), (1, 2), (2, 2))
+        self.exit_bottom_left = Exit((self.size - 2, 1),
+                                     (self.size - 2, 2),
+                                     (self.size - 3, 2))
+        self.exit_top_right = Exit((1, self.size - 2),
+                                   (1, self.size - 3),
+                                   (2, self.size - 2))
+        self.exit_bottom_right = Exit((self.size - 2, self.size - 2),
+                                      (self.size - 2, self.size - 3),
+                                      (self.size - 3, self.size - 2))
+
+    def select_random_exit(self):
+
+        """ Picks a random exit. """
+
+        random.shuffle(self.list_selected_exits)
+
+        if not self.list_selected_exits:
+            raise ValueError('All exits have already been selected')
+
+        return self.list_selected_exits.pop(0)
+
+    def __repr__(self):
+
+        full_repr = ""
+
+        for r in range(self.size):
+            if r % 2 == 0:
+                line = ""
+            else:
+                line = "{0:1}".format("")
+
+            for c in range(self.size):
+
+                repr = str(self.grid_env[r, c])
+
+                line += "{0:2}".format(repr)
+
+            full_repr += line + "\n"
+
+        return full_repr
+
     def add_agents(self, agent_1, agent_2):
 
         # Agent 1 always start on the left.
-        agent_1.grid_position = int((self.size - 1) / 2), int((self.size - 1) / 2 - 1)
+        agent_1.grid_position = int( (self.size - 1) / 2), int((self.size - 1) / 2 - 1)
         agent_1.angle = 3
 
-        agent_2.grid_position = int((self.size - 1) / 2), int((self.size - 1) / 2 + 1)
+        agent_2.grid_position = int( (self.size - 1) / 2), int((self.size - 1) / 2 + 1)
         agent_2.angle = 0
 
         # flip a coin to decide who is black or white
@@ -66,8 +128,6 @@ class EmptyJungle:
 
     def step(self, actions):
 
-        print(self.grid_env)
-
         # First Physical move
         if not self.agent_white.done:
             rew_white = self.move(self.agent_white, actions)
@@ -82,6 +142,7 @@ class EmptyJungle:
         else:
             rew_black = 0
             black_climbs = False
+
 
         # Then Test for different cases
 
@@ -143,6 +204,16 @@ class EmptyJungle:
 
         # If not on the same cell
         else:
+
+            # If agent was on shoulders, but other agent moved:
+            if self.agent_black.on_shoulders:
+                self.agent_black.on_shoulders = False
+                rew_black += Definitions.REWARD_FELL.value
+
+            if self.agent_white.on_shoulders:
+                self.agent_white.on_shoulders = False
+                rew_white += Definitions.REWARD_FELL.value
+
             # If try to climb, fails
             if black_climbs:
                 rew_black += Definitions.REWARD_FELL.value
@@ -160,10 +231,11 @@ class EmptyJungle:
             rew, self.agent_white.done = self.apply_rules(self.agent_white)
             rew_white += rew
 
-        # All rewards and terinations are now calculated
+        # All rewards and terminations are now calculated
         rewards = {self.agent_black: rew_black, self.agent_white: rew_white}
 
         done = self.agent_white.done and self.agent_black.done
+
 
         # Now we calculate the observations
         obs = {}
@@ -336,7 +408,7 @@ class EmptyJungle:
         obs_coordinates = []
         obstacles = []
 
-        #cells_to_drop = self.check_cross_obstacles(agent) + self.check_diagonal_obstacles(agent)
+        cells_to_drop = self.check_cross_obstacles(agent) + self.check_diagonal_obstacles(agent)
 
         # iterate over range
         for obs_range in range(1, agent.range_observation + 1):
@@ -357,7 +429,6 @@ class EmptyJungle:
                         #obs.remove(self.grid_env[int(row), int(col)])
 
 
-
             else:
                 obs.append(0)
 
@@ -374,7 +445,6 @@ class EmptyJungle:
                             #obs.remove(self.grid_env[int(row), int(col)])
 
 
-
                 else:
                     obs.append(0)
 
@@ -389,8 +459,6 @@ class EmptyJungle:
                     #if not agent.on_shoulders:
                         #if (row, col) in cells_to_drop:
                             #obs.remove(self.grid_env[int(row), int(col)])
-
-
 
                 else:
                     obs.append(0)

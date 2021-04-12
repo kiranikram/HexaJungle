@@ -188,3 +188,51 @@ class BlackFavoured(EmptyJungle):
         self.add_object(ElementsEnv.RIVER, black_exit.surrounding_2)
 
         self.add_trees()
+
+
+class ConflictingExitsBiased(EmptyJungle):
+
+    def __init__(self, size):
+        super().__init__(size)
+
+        free_exit = self.select_random_exit()
+        self.add_object(ElementsEnv.EXIT_EASY, free_exit.coordinates)
+
+        white_exit = self.select_random_exit()
+        self.add_object(ElementsEnv.EXIT_WHITE, white_exit.coordinates)
+
+        boulder_exit = self.select_random_exit()
+        self.add_object(ElementsEnv.EXIT_DIFFICULT, boulder_exit.coordinates)
+        self.add_object(ElementsEnv.BOULDER, boulder_exit.surrounding_1)
+        self.add_object(ElementsEnv.BOULDER, boulder_exit.surrounding_2)
+
+        black_exit = self.select_random_exit()
+        self.add_object(ElementsEnv.EXIT_BLACK, black_exit.coordinates)
+        self.add_object(ElementsEnv.RIVER, black_exit.surrounding_1)
+        self.add_object(ElementsEnv.RIVER, black_exit.surrounding_2)
+
+        self.add_trees()
+
+
+class ConflictingExits(EmptyJungle):
+
+    def __init__(self, size):
+        super().__init__(size)
+
+        black_exit = self.select_random_exit()
+        self.add_object(ElementsEnv.EXIT_BLACK, black_exit.coordinates)
+
+        white_exit = self.select_random_exit()
+        self.add_object(ElementsEnv.WHITE, white_exit.coordinates)
+
+        boulder_exit = self.select_random_exit()
+        self.add_object(ElementsEnv.EXIT_DIFFICULT, boulder_exit.coordinates)
+        self.add_object(ElementsEnv.BOULDER, boulder_exit.surrounding_1)
+        self.add_object(ElementsEnv.BOULDER, boulder_exit.surrounding_2)
+
+        river_exit = self.select_random_exit()
+        self.add_object(ElementsEnv.EXIT_DIFFICULT, river_exit.coordinates)
+        self.add_object(ElementsEnv.RIVER, river_exit.surrounding_1)
+        self.add_object(ElementsEnv.RIVER, river_exit.surrounding_2)
+
+        self.add_trees()

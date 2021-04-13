@@ -78,12 +78,14 @@ class EmptyJungle:
         # trees must not be on any exit coordinates
         # trees must not be where agents are
         trees = []
-        for row in range(3, self.size - 4):
-            for col in range(3, self.size - 4):
+        for row in range(3, self.size - 3):
+            for col in range(3, self.size - 3):
                 trees.append((row, col))
         agent_1_location = int((self.size - 1) / 2), int((self.size - 1) / 2 - 1)
+
         trees.remove(agent_1_location)
         agent_2_location = int((self.size - 1) / 2), int((self.size - 1) / 2 + 1)
+
         trees.remove(agent_2_location)
 
         no_of_trees = math.floor(self.size / 2)

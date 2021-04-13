@@ -8,7 +8,7 @@ from jungle.jungle import EmptyJungle
 from jungle.utils import Actions, Definitions, ElementsEnv
 from jungle.env_versions import EasyJungle
 from jungle.exp_trainer import run
-from jungle.rl_envs.basic import RiverExit
+from jungle.rl_envs.basic import RiverExit,BoulderExit
 
 from jungle import jungle
 
@@ -56,7 +56,8 @@ def test_instantiation():
     agent_1 = Agent(range_observation=3)
     agent_2 = Agent(range_observation=3)
 
-    new_jungle = RiverExit(size=11)
+    new_jungle = BoulderExit(size=9)
     new_jungle.add_agents(agent_1, agent_2)
 
-    run(200, new_jungle.agents, new_jungle, agent_1, agent_2)
+    # @MG run function can be found in exp_trainer.py
+    run(400, new_jungle.agents, new_jungle, agent_1, agent_2)

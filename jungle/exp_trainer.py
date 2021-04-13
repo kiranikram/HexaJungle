@@ -30,7 +30,8 @@ def run_check():
     return actions
 
 
-def run(max_steps, agents, env, agent_1,agent_2):
+def run_one_episode(max_steps, agents, env, agent_1,agent_2):
+    env.reset()
     for x in range(max_steps):
         print('step', x)
         actions = {}

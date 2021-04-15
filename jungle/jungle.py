@@ -6,16 +6,20 @@ from collections import namedtuple
 
 from jungle.utils import ElementsEnv, Actions, Definitions
 from jungle.observations import restrict_observations
+from ray.rllib.utils.typing import MultiAgentDict, PolicyID, AgentID
+
+from ray.rllib.env import MultiAgentEnv
 
 # DO MENTION AGENTs CAN BE ON SAME CELL
 
 Exit = namedtuple('Exit', ['coordinates', 'surrounding_1', 'surrounding_2'])
 
 
-class EmptyJungle:
+class EmptyJungle():
 
     def __init__(self, size):
 
+        # self.size = config['size']
         self.size = size
 
         if self.size % 2 == 0 or size < Definitions.MIN_SIZE_ENVIR.value:
@@ -151,6 +155,7 @@ class EmptyJungle:
         self.agent_white.done = False
 
     def step(self, actions):
+        print('in step actions are in the format of',type(actions))
 
         # First Physical move
         if not self.agent_white.done:
@@ -529,6 +534,11 @@ class EmptyJungle:
                     r_col = i[1]
 
                     obs.remove(self.grid_env[int(r_row), int(r_col)])
+
+        if len(obs)<15:
+            obs += [0] * (15 - len(obs))
+
+
 
         return np.asarray(obs)
 

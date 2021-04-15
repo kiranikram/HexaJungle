@@ -6,8 +6,8 @@ import random
 from jungle.agent import Agent
 from jungle.jungle import EmptyJungle
 from jungle.utils import Actions, Definitions, ElementsEnv
-from jungle.env_versions import EasyJungle
-from jungle.exp_trainer import run
+
+from jungle.exp_trainer import run_one_episode
 from jungle.rl_envs.basic import RiverExit,BoulderExit
 
 from jungle import jungle
@@ -49,7 +49,7 @@ def test_engine():
     simple_jungle.add_object(ElementsEnv.EXIT_EASY, (0, 4))
     print(agent_1.grid_position, agent_2.grid_position)
 
-    run(100, simple_jungle.agents, simple_jungle, agent_1, agent_2)
+    run_one_episode(100, simple_jungle.agents, simple_jungle, agent_1, agent_2)
 
 
 def test_instantiation():
@@ -60,4 +60,4 @@ def test_instantiation():
     new_jungle.add_agents(agent_1, agent_2)
 
     # @MG run function can be found in exp_trainer.py
-    run(400, new_jungle.agents, new_jungle, agent_1, agent_2)
+    run_one_episode(400, new_jungle.agents, new_jungle, agent_1, agent_2)

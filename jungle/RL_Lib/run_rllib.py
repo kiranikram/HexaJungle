@@ -1,23 +1,34 @@
+"""Example of a custom gym environment and model. Run this for a demo.
+This example shows:
+  - using a custom environment
+  - using a custom model
+  - using Tune for grid search
+You can visualize experiment results in ~/ray_results using TensorBoard.
+"""
 import argparse
+import gym
+from gym.spaces import Discrete, Box
 import numpy as np
 import os
 import random
+
+from jungle.rl_envs.basic import RiverExit
+from jungle.jungle import EmptyJungle
 
 import ray
 from ray import tune
 from ray.tune import grid_search
 from ray.rllib.env.env_context import EnvContext
 from ray.rllib.models import ModelCatalog
-
+from ray.rllib.models.tf.tf_modelv2 import TFModelV2
+from ray.rllib.models.tf.fcnet import FullyConnectedNetwork
 from ray.rllib.models.torch.torch_modelv2 import TorchModelV2
 from ray.rllib.models.torch.fcnet import FullyConnectedNetwork as TorchFC
 from ray.rllib.utils.framework import try_import_tf, try_import_torch
 from ray.rllib.utils.test_utils import check_learning_achieved
+from ray.tune.registry import register_env
 
-from jungle.jungle import EmptyJungle
-from jungle.utils import ElementsEnv, Actions, Definitions
-
-
+tf1, tf, tfv = try_import_tf()
 torch, nn = try_import_torch()
 
 parser = argparse.ArgumentParser()
@@ -27,6 +38,9 @@ parser.add_argument("--as-test", action="store_true")
 parser.add_argument("--stop-iters", type=int, default=50)
 parser.add_argument("--stop-timesteps", type=int, default=100000)
 parser.add_argument("--stop-reward", type=float, default=0.1)
+
+
+
 
 class TorchCustomModel(TorchModelV2, nn.Module):
     """Example of a PyTorch custom model that just delegates to a fc-net."""
@@ -54,12 +68,12 @@ if __name__ == "__main__":
     ray.init()
 
     # Can also register the env creator function explicitly with:
-    # register_env("corridor", lambda config: SimpleCorridor(config))
+    register_env("RiverExit", lambda config: EmptyJungle(config))
     ModelCatalog.register_custom_model(
         "my_model", TorchCustomModel )
 
     config = {
-        "env": EmptyJungle,  # or "corridor" if registered above
+        "env": "RiverExit",  # or "corridor" if registered above
         "env_config": {
             "size": 11,
         },

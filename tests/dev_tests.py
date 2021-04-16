@@ -6,7 +6,7 @@ import random
 from jungle.agent import Agent
 from jungle.jungle import EmptyJungle
 from jungle.utils import Actions, Definitions, ElementsEnv
-from jungle.RL_Lib.jungle_wrapper import Jungle,Jungle2
+from jungle.RL_Lib.jungle_wrapper import Jungle,RLlibWrapper
 
 from jungle.exp_trainer import run_one_episode
 from jungle.rl_envs.basic import RiverExit,BoulderExit

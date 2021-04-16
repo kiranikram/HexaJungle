@@ -15,7 +15,7 @@ from ray.rllib.examples.models.shared_weights_model import \
 from ray.rllib.models import ModelCatalog
 from jungle.jungle import EmptyJungle
 from jungle.rl_envs.basic import RiverExit
-from jungle.RL_Lib.jungle_wrapper import Jungle, Jungle2
+from jungle.RL_Lib.jungle_wrapper import Jungle, RLlibWrapper
 from jungle.utils import ElementsEnv, Actions, Definitions
 
 parser = argparse.ArgumentParser()
@@ -45,7 +45,7 @@ if __name__ == "__main__":
         mod2 = SharedWeightsModel2
     ModelCatalog.register_custom_model("model1", mod1)
     ModelCatalog.register_custom_model("model2", mod2)
-    single_env = Jungle2({"size":11})
+    single_env = RLlibWrapper({"size":11})
     obs_space = single_env.observation_space
     act_space = single_env.action_space
 
@@ -85,7 +85,7 @@ if __name__ == "__main__":
             "policies": policies,
             "policy_mapping_fn": policy_mapping_fn,
         },
-        "env": Jungle2,
+        "env": RLlibWrapper,
         "env_config":{"size": 11}}
 
     stop = {

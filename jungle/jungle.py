@@ -6,11 +6,7 @@ from collections import namedtuple
 
 from jungle.utils import ElementsEnv, Actions, Definitions
 from jungle.observations import restrict_observations
-from ray.rllib.utils.typing import MultiAgentDict, PolicyID, AgentID
 
-from ray.rllib.env import MultiAgentEnv
-
-# DO MENTION AGENTs CAN BE ON SAME CELL
 
 Exit = namedtuple('Exit', ['coordinates', 'surrounding_1', 'surrounding_2'])
 

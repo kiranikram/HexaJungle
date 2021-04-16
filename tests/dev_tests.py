@@ -6,6 +6,7 @@ import random
 from jungle.agent import Agent
 from jungle.jungle import EmptyJungle
 from jungle.utils import Actions, Definitions, ElementsEnv
+from jungle.RL_Lib.jungle_wrapper import Jungle,Jungle2
 
 from jungle.exp_trainer import run_one_episode
 from jungle.rl_envs.basic import RiverExit,BoulderExit
@@ -61,3 +62,7 @@ def test_instantiation():
 
     # @MG run function can be found in exp_trainer.py
     run_one_episode(400, new_jungle.agents, new_jungle, agent_1, agent_2)
+
+def test_wrapper():
+
+    Jungle = EmptyJungle(size=11)

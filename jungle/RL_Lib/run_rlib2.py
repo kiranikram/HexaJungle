@@ -6,6 +6,7 @@ import ray
 from ray import tune
 import tensorflow
 import torch
+from ray.rllib.env.multi_agent_env import MultiAgentEnv
 from ray.rllib.agents import ppo
 from ray.rllib.utils.test_utils import check_learning_achieved
 from ray.rllib.examples.models.shared_weights_model import \
@@ -14,7 +15,7 @@ from ray.rllib.examples.models.shared_weights_model import \
 from ray.rllib.models import ModelCatalog
 from jungle.jungle import EmptyJungle
 from jungle.rl_envs.basic import RiverExit
-from jungle.RL_Lib.jungle_wrapper import JungleWrapper
+from jungle.RL_Lib.jungle_wrapper import Jungle, Jungle2
 from jungle.utils import ElementsEnv, Actions, Definitions
 
 parser = argparse.ArgumentParser()
@@ -30,13 +31,6 @@ parser.add_argument(
     "--framework", choices=["tf2", "tf", "tfe", "torch"], default="tf")
 
 
-def env_creator(_):
-    return JungleWrapper(RiverExit)
-
-
-single_env = JungleWrapper(RiverExit)
-env_name = "Jungle"
-register_env(env_name, env_creator)
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -51,6 +45,7 @@ if __name__ == "__main__":
         mod2 = SharedWeightsModel2
     ModelCatalog.register_custom_model("model1", mod1)
     ModelCatalog.register_custom_model("model2", mod2)
+    single_env = Jungle2({"size":11})
     obs_space = single_env.observation_space
     act_space = single_env.action_space
 
@@ -88,10 +83,10 @@ if __name__ == "__main__":
         "model": {"fcnet_hiddens": [8, 8]},
         "multiagent": {
             "policies": policies,
-            "   policy_mapping_fn": policy_mapping_fn,
+            "policy_mapping_fn": policy_mapping_fn,
         },
-        "env": "Jungle"
-    }
+        "env": Jungle2,
+        "env_config":{"size": 11}}
 
     stop = {
         "episode_reward_mean": args.stop_reward,

@@ -15,7 +15,7 @@ from ray.rllib.env import MultiAgentEnv
 Exit = namedtuple('Exit', ['coordinates', 'surrounding_1', 'surrounding_2'])
 
 
-class EmptyJungle():
+class EmptyJungle:
 
     def __init__(self, size):
 
@@ -462,15 +462,17 @@ class EmptyJungle():
         # cells_to_drop = self.check_cross_obstacles(agent) + self.check_diagonal_obstacles(agent)
 
         # iterate over range
+        if agent.range_observation is None:
+            agent.range_observation= 4
         for obs_range in range(1, agent.range_observation + 1):
 
             row, col = agent.grid_position
-            print('grid pos', agent.grid_position)
+
             angle = agent.angle
 
             # go to start
             for i in range(obs_range):
-                print('row ,col at start', row, col)
+
                 row, col, _ = self.get_next_cell(row, col, (angle - 1) % 6)
 
             if 0 <= row < self.size and 0 <= col < self.size:
@@ -487,7 +489,7 @@ class EmptyJungle():
 
             # move first segment
             for i in range(obs_range):
-                print('row,col in 1st segment', row, col)
+
                 row, col, _ = self.get_next_cell(row, col, (angle + 1) % 6)
 
                 if 0 <= row < self.size and 0 <= col < self.size:
@@ -504,7 +506,7 @@ class EmptyJungle():
 
             # move second segment
             for i in range(obs_range):
-                print('row,col in second segment', row, col)
+
                 row, col, _ = self.get_next_cell(row, col, (angle + 2) % 6)
 
                 if 0 <= row < self.size and 0 <= col < self.size:

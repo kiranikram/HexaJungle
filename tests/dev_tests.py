@@ -10,7 +10,7 @@ from jungle.utils import Actions, Definitions, ElementsEnv
 from jungle.RL_Lib.jungle_wrapper import RLlibWrapper
 
 from jungle.exp_trainer import run_one_episode
-from jungle.rl_envs.basic import RiverExit,BoulderExit
+from jungle.rl_envs.basic import RiverExit, BoulderExit
 
 from jungle import jungle
 
@@ -64,10 +64,8 @@ def test_instantiation():
     # @MG run function can be found in exp_trainer.py
     run_one_episode(400, new_jungle.agents, new_jungle, agent_1, agent_2)
 
-def test_wrapper():
-    #agent_1 = Agent(range_observation=3)
-    #agent_2 = Agent(range_observation=3)
 
+def test_wrapper():
     Jungle = EmptyJungle(size=11)
 
     env = RLlibWrapper(Jungle)
@@ -75,4 +73,3 @@ def test_wrapper():
     actions = (np.array([0, 2, 0]), np.array([1, 2, 1]))
 
     env.step(actions)
-

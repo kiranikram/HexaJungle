@@ -35,33 +35,46 @@ class RLlibWrapper(MultiAgentEnv):
         self.jungle = jungle
 
         sa_action_space = spaces.MultiDiscrete([2, 3, 2])
-        self.action_space = spaces.Tuple(tuple(2 * [sa_action_space]))
-        sa_observation_space = spaces.Box(low=0, high=self.jungle.size,
-                                            shape=(1,))
-        self.observation_space = spaces.Tuple(tuple(2 * [sa_observation_space]))
-        #self.observation_space = spaces.Tuple(tuple(spaces.Box(low=0, high=self.jungle.size, shape=(1,))))
+        self.action_space = spaces.MultiDiscrete([2, 3, 2])
+        # self.action_space = spaces.Tuple(tuple(2 * [sa_action_space]))
+        # sa_observation_space = spaces.Box(low=0, high=10,
+        # shape=(1,))
+        #self._set_obs_space()
+        self.observation_space= spaces.Box(low=0, high=10,
+                   shape=(1,))
+        # self.observation_space = spaces.Tuple(tuple(2 * [sa_observation_space]))
+        # self.observation_space = spaces.Tuple(tuple(spaces.Box(low=0, high=self.jungle.size, shape=(1,))))
 
-        # @KI not sure you need to add agents separately, you can add them when you create the jungle.
-        self.instantiate_agents()
 
-    #
-    def instantiate_agents(self):
-        agent_1 = Agent(range_observation=4)
-        agent_2 = Agent(range_observation=4)
-        #
-        self.jungle.add_agents(agent_1, agent_2)
 
+    def _set_obs_space(self):
+        obs_dict = {self.jungle.agent_white: spaces.Box(low=0, high=10,
+                                                        shape=(1,)), self.jungle.agent_black: spaces.Box(low=0, high=10,
+                                                                                                         shape=(1,))}
+        print(obs_dict)
+        self.observation_space = obs_dict
+
+    ### from docs : # A dict keyed by agent ids, e.g. {"agent-1": value}.
+    # MultiAgentDict = Dict[AgentID, Any]
     def step(self, actions):
-        print('here', actions)
+        agents = [*actions]
+        print('here', agents)
+        if agents[0] == self.jungle.agent_white:
+            actions_white = actions[agents[0]]
+            actions_black = actions[agents[1]]
 
-        actions_black = actions[0]
+        else:
+            actions_white = actions[agents[1]]
+            actions_black = actions[agents[0]]
+
+        # actions_black = actions[0]
         black_fwd = actions_black[0]
         black_rot = actions_black[1]
         black_climb = actions_black[2]
 
         black_dict = {Actions.FORWARD: black_fwd, Actions.ROTATE: black_rot, Actions.CLIMB: black_climb}
 
-        actions_white = actions[1]
+        # actions_white = actions[1]
         white_fwd = actions_white[0]
         white_rot = actions_white[1]
         white_climb = actions_white[2]

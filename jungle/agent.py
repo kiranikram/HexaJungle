@@ -19,6 +19,8 @@ class Agent:
         self.color = None
         self.range_observation = range_observation
         self.grid_position = None
+        self.starting_position = None
+        self.starting_angle = None
 
         # similar to angle, use a property instead to make sure that you don't go beyond max number of logs allowed
         self.wood_logs = 0

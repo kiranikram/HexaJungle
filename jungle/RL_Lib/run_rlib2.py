@@ -17,6 +17,7 @@ from jungle.jungle import EmptyJungle
 from jungle.rl_envs.basic import RiverExit
 from jungle.RL_Lib.jungle_wrapper import RLlibWrapper
 from jungle.utils import ElementsEnv, Actions, Definitions
+from jungle.agent import Agent
 
 parser = argparse.ArgumentParser()
 
@@ -45,7 +46,12 @@ if __name__ == "__main__":
         mod2 = SharedWeightsModel2
     ModelCatalog.register_custom_model("model1", mod1)
     ModelCatalog.register_custom_model("model2", mod2)
-    single_env = RLlibWrapper({"size":11})
+    Jungle = EmptyJungle(size=11)
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=4)
+    Jungle.add_agents(agent_1,agent_2)
+    #single_env = RLlibWrapper({"size":11})
+    single_env = RLlibWrapper(Jungle)
     obs_space = single_env.observation_space
     act_space = single_env.action_space
 

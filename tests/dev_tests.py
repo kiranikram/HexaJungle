@@ -67,9 +67,17 @@ def test_instantiation():
 
 def test_wrapper():
     Jungle = EmptyJungle(size=11)
+    agent_1 = Agent(range_observation=3)
+    agent_2 = Agent(range_observation=3)
+    Jungle.add_agents(agent_1,agent_2)
 
     env = RLlibWrapper(Jungle)
+    print('sample',env.action_space.sample())
+    #print(env.observation_space.sample())
 
-    actions = (np.array([0, 2, 0]), np.array([1, 2, 1]))
+    #actions = (np.array([0, 2, 0]), np.array([1, 2, 1]))
+    actions = env.action_space.sample()
 
-    env.step(actions)
+    #env.step(actions)
+    obs = env.reset()
+    print(obs)

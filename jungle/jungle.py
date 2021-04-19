@@ -7,7 +7,6 @@ from collections import namedtuple
 from jungle.utils import ElementsEnv, Actions, Definitions
 from jungle.observations import restrict_observations
 
-
 Exit = namedtuple('Exit', ['coordinates', 'surrounding_1', 'surrounding_2'])
 
 
@@ -43,6 +42,7 @@ class EmptyJungle:
 
         self.tree_coordinates = None
         self.determine_tree_locations()
+        self.add_trees()
 
     @property
     def agents(self):
@@ -150,8 +150,42 @@ class EmptyJungle:
         self.agent_black.done = False
         self.agent_white.done = False
 
+        self.agent_white.starting_position = self.agent_white.grid_position
+        self.agent_white.starting_angle = self.agent_white.angle
+
+        self.agent_black.starting_position = self.agent_black.grid_position
+        self.agent_black.starting_angle = self.agent_black.angle
+
+    def reset(self):
+        print('in reset')
+
+        # TODO what do we do w exit coords?
+        print(self.grid_env)
+        print('**********')
+        self.reinitialize_grid()
+        print(self.grid_env)
+        self.swap_agent_positions()
+
+        obs = {self.agent_white: self.generate_agent_obs(self.agent_white),
+               self.agent_black: self.generate_agent_obs(self.agent_black)}
+        return obs
+
+    def reinitialize_grid(self):
+        self.grid_env[:] = np.ones((self.size, self.size), dtype=int) * ElementsEnv.EMPTY.value
+        print('in initialize')
+        print(self.grid_env)
+        self.place_obstacles()
+        self.add_trees()
+
+    def swap_agent_positions(self):
+        self.agent_white.grid_position = self.agent_black.starting_position
+        self.agent_white.angle = self.agent_black.starting_angle
+
+        self.agent_black.grid_position = self.agent_white.starting_position
+        self.agent_black.angle = self.agent_white.starting_angle
+
     def step(self, actions):
-        print('in step actions are in the format of',type(actions))
+        print('in step actions are in the format of', type(actions))
 
         # First Physical move
         if not self.agent_white.done:
@@ -281,6 +315,7 @@ class EmptyJungle:
         if not self.agent_black.done:
             obs[self.agent_black] = self.generate_agent_obs(self.agent_black)
 
+        print(type(obs))
         return obs, rewards, done
 
     def apply_rules(self, agent):
@@ -459,7 +494,7 @@ class EmptyJungle:
 
         # iterate over range
         if agent.range_observation is None:
-            agent.range_observation= 4
+            agent.range_observation = 4
         for obs_range in range(1, agent.range_observation + 1):
 
             row, col = agent.grid_position
@@ -468,7 +503,6 @@ class EmptyJungle:
 
             # go to start
             for i in range(obs_range):
-
                 row, col, _ = self.get_next_cell(row, col, (angle - 1) % 6)
 
             if 0 <= row < self.size and 0 <= col < self.size:
@@ -533,10 +567,8 @@ class EmptyJungle:
 
                     obs.remove(self.grid_env[int(r_row), int(r_col)])
 
-        if len(obs)<15:
+        if len(obs) < 15:
             obs += [0] * (15 - len(obs))
-
-
 
         return np.asarray(obs)
 

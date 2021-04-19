@@ -2,11 +2,12 @@ import math
 import pytest
 import nose
 import random
+import numpy as np
 
 from jungle.agent import Agent
 from jungle.jungle import EmptyJungle
 from jungle.utils import Actions, Definitions, ElementsEnv
-from jungle.RL_Lib.jungle_wrapper import Jungle,RLlibWrapper
+from jungle.RL_Lib.jungle_wrapper import RLlibWrapper
 
 from jungle.exp_trainer import run_one_episode
 from jungle.rl_envs.basic import RiverExit,BoulderExit
@@ -64,5 +65,14 @@ def test_instantiation():
     run_one_episode(400, new_jungle.agents, new_jungle, agent_1, agent_2)
 
 def test_wrapper():
+    #agent_1 = Agent(range_observation=3)
+    #agent_2 = Agent(range_observation=3)
 
     Jungle = EmptyJungle(size=11)
+
+    env = RLlibWrapper(Jungle)
+
+    actions = (np.array([0, 2, 0]), np.array([1, 2, 1]))
+
+    env.step(actions)
+

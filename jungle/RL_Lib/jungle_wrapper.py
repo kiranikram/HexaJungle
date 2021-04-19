@@ -34,31 +34,61 @@ class RLlibWrapper(MultiAgentEnv):
     def __init__(self, jungle):
 
         self.jungle = jungle
-        self.action_space = spaces.Dict(
-            {'Forward': spaces.Discrete(2), 'Rotate': spaces.Discrete(3), 'Climb': spaces.Discrete(2)})
-        self.observation_space = spaces.Dict(spaces.Box(low=0, high=15, shape=(2,)))
+        #self.action_space = spaces.Dict(
+            #{'Forward': spaces.Discrete(2), 'Rotate': spaces.Discrete(3), 'Climb': spaces.Discrete(2)})
+        sa_action_space = spaces.MultiDiscrete([2,3,2])
+        self.action_space = spaces.Tuple(tuple(2 * [sa_action_space]))
+        #self.observation_space = spaces.Dict(spaces.Box(low=0, high=15, shape=(2,)))
 
         # @KI not sure you need to add agents separately, you can add them when you create the jungle.
-    #     self.instantiate_agents()
+        self.instantiate_agents()
     #
-    # def instantiate_agents(self):
-    #     agent_1 = Agent(range_observation=4)
-    #     agent_2 = Agent(range_observation=4)
+    def instantiate_agents(self):
+         agent_1 = Agent(range_observation=4)
+         agent_2 = Agent(range_observation=4)
     #
-    #     self.jungle.add_agents(agent_1, agent_2)
+         self.jungle.add_agents(agent_1, agent_2)
+
+    #def set_actions_space(self):
+        #agents = [agent_black, agent_white]
+        #d = {}
+        #for agent in agents:
+
+
 
     def step(self, actions):
+        print('here', actions)
 
-        actions_black = actions['agent_black']
+        actions_black = actions[0]
+        black_fwd = actions_black[0]
+        black_rot = actions_black[1]
+        black_climb = actions_black[2]
+
+        black_dict = {Actions.FORWARD:black_fwd, Actions.ROTATE:black_rot,Actions.CLIMB:black_climb}
+
+        actions_white = actions[1]
+        white_fwd = actions_white[0]
+        white_rot = actions_white[1]
+        white_climb = actions_white[2]
+
+        white_dict = {Actions.FORWARD: white_fwd, Actions.ROTATE: white_rot, Actions.CLIMB: white_climb}
+
+
+        print('here')
+
+        #actions_black = actions['agent_black']
         # here modify actions_black so that the format is understood by jungle.
 
-        actions_white = actions['agent_black']
+        #actions_white = actions['agent_white']
         # here modify actions_white so that the format is understood by jungle.
 
-        actions_dict = {self.jungle.agent_white: actions_white,
-                        self.jungle.agent_black: actions_black}
+        actions_dict = {self.jungle.agent_white: white_dict,
+                        self.jungle.agent_black: black_dict}
 
-        obs, rewards, done = self.Jungle.step(actions)
+        print(actions_dict)
+
+        obs, rewards, done = self.jungle.step(actions_dict)
+        print(obs)
 
         # Here modify obs, rewards and done so that they are understood by rllib
 
@@ -67,7 +97,7 @@ class RLlibWrapper(MultiAgentEnv):
         else:
             done = dict({"__all__": False})
 
-        return obs, rewards, done
+        #return obs, rewards, done
 
     def reset(self):
 

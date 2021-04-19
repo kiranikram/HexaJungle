@@ -15,7 +15,7 @@ from ray.rllib.examples.models.shared_weights_model import \
 from ray.rllib.models import ModelCatalog
 from jungle.jungle import EmptyJungle
 from jungle.rl_envs.basic import RiverExit
-from jungle.RL_Lib.jungle_wrapper import Jungle, RLlibWrapper
+from jungle.RL_Lib.jungle_wrapper import RLlibWrapper
 from jungle.utils import ElementsEnv, Actions, Definitions
 
 parser = argparse.ArgumentParser()

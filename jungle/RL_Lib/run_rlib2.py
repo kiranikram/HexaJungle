@@ -37,6 +37,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     ray.init(num_cpus=args.num_cpus or None)
+    Jungle = EmptyJungle(size=11)
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=4)
+    Jungle.add_agents(agent_1, agent_2)
+    register_env("jungle",
+                 lambda _: RLlibWrapper({"size": 11}))
     if args.framework == "torch":
         mod1 = mod2 = TorchSharedWeightsModel
     elif args.framework in ["tfe", "tf2"]:
@@ -46,10 +52,7 @@ if __name__ == "__main__":
         mod2 = SharedWeightsModel2
     ModelCatalog.register_custom_model("model1", mod1)
     ModelCatalog.register_custom_model("model2", mod2)
-    Jungle = EmptyJungle(size=11)
-    agent_1 = Agent(range_observation=4)
-    agent_2 = Agent(range_observation=4)
-    Jungle.add_agents(agent_1,agent_2)
+
     #single_env = RLlibWrapper({"size":11})
     single_env = RLlibWrapper(Jungle)
     obs_space = single_env.observation_space
@@ -74,6 +77,11 @@ if __name__ == "__main__":
     policy_ids = list(policies.keys())
 
 
+    # 20 /4 centralized training to start off with ; give them the same policy
+
+    # 20 / 4 add a new component to obs ;; color of other agnet - right now just append!
+
+    # 20 /4 ADD IN WRAPPER NOT JUNGLE
     def policy_mapping_fn(agent_id):
         pol_id = random.choice(policy_ids)
         print(f"mapping {agent_id} to {pol_id}")
@@ -91,7 +99,7 @@ if __name__ == "__main__":
             "policies": policies,
             "policy_mapping_fn": policy_mapping_fn,
         },
-        "env": RLlibWrapper,
+        "env": "jungle",
         "env_config":{"size": 11}}
 
     stop = {

@@ -39,13 +39,11 @@ class RLlibWrapper(MultiAgentEnv):
         # self.action_space = spaces.Tuple(tuple(2 * [sa_action_space]))
         # sa_observation_space = spaces.Box(low=0, high=10,
         # shape=(1,))
-        #self._set_obs_space()
-        self.observation_space= spaces.Box(low=0, high=10,
-                   shape=(1,))
+        # self._set_obs_space()
+        self.observation_space = spaces.Box(low=0, high=10,
+                                            shape=(1,))
         # self.observation_space = spaces.Tuple(tuple(2 * [sa_observation_space]))
         # self.observation_space = spaces.Tuple(tuple(spaces.Box(low=0, high=self.jungle.size, shape=(1,))))
-
-
 
     def _set_obs_space(self):
         obs_dict = {self.jungle.agent_white: spaces.Box(low=0, high=10,
@@ -56,9 +54,10 @@ class RLlibWrapper(MultiAgentEnv):
 
     ### from docs : # A dict keyed by agent ids, e.g. {"agent-1": value}.
     # MultiAgentDict = Dict[AgentID, Any]
+
     def step(self, actions):
         agents = [*actions]
-        print('here', agents)
+
         if agents[0] == self.jungle.agent_white:
             actions_white = actions[agents[0]]
             actions_black = actions[agents[1]]
@@ -67,21 +66,22 @@ class RLlibWrapper(MultiAgentEnv):
             actions_white = actions[agents[1]]
             actions_black = actions[agents[0]]
 
+        print('actions_black', actions_black)
+        print('actions_white', actions_white)
+
         # actions_black = actions[0]
         black_fwd = actions_black[0]
-        black_rot = actions_black[1]
+        black_rot = actions_black[1] - 1
         black_climb = actions_black[2]
 
         black_dict = {Actions.FORWARD: black_fwd, Actions.ROTATE: black_rot, Actions.CLIMB: black_climb}
 
         # actions_white = actions[1]
         white_fwd = actions_white[0]
-        white_rot = actions_white[1]
+        white_rot = actions_white[1] - 1
         white_climb = actions_white[2]
 
         white_dict = {Actions.FORWARD: white_fwd, Actions.ROTATE: white_rot, Actions.CLIMB: white_climb}
-
-        print('here')
 
         # actions_black = actions['agent_black']
         # here modify actions_black so that the format is understood by jungle.
@@ -104,7 +104,18 @@ class RLlibWrapper(MultiAgentEnv):
         else:
             done = dict({"__all__": False})
 
-        return obs, rewards, done
+        info = {}
+
+        # 20 / 4 white": ... , "black": ...
+        # assigned_obs = {"white":obs of agent  white, "black": obs of agent }
+        # same w rewards , done , info
+        print('pre',obs, rewards,done)
+
+        obs, rewards = self.convert_to_str(obs, rewards)
+
+        print('post',obs, rewards )
+
+        return obs, rewards, done, info
 
     def reset(self):
 
@@ -115,11 +126,21 @@ class RLlibWrapper(MultiAgentEnv):
 
         # you need to implement reset in jungle
         obs = self.jungle.reset()
+        obs = self._convert_to_str(obs)
 
-        #obs = {self.jungle.agent_white: self.generate_agent_obs(self.agent_white),
-               #self.jungle.agent_black: self.generate_agent_obs(self.agent_black)}
+        # obs = {self.jungle.agent_white: self.generate_agent_obs(self.agent_white),
+        # self.jungle.agent_black: self.generate_agent_obs(self.agent_black)}
         return obs
 
         # modify obs to make it compatible with rllib,
 
+    def convert_to_str(self, obs, rew):
+        new_obs = {'white': obs[self.jungle.agent_white], 'black': obs[self.jungle.agent_black]}
+        new_reward = {'white': rew[self.jungle.agent_white], 'black': rew[self.jungle.agent_black]}
+        #new_done = {'white': done[self.jungle.agent_white], 'black': done[self.jungle.agent_black]}
 
+        return new_obs, new_reward
+
+    def _convert_to_str(self, obs):
+        new_obs = {'white': obs[self.jungle.agent_white], 'black': obs[self.jungle.agent_black]}
+        return new_obs

@@ -91,7 +91,8 @@ def test_riverexit_wrapper():
 
     env = RLlibWrapper(Jungle)
 
-    obs, rew, done = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    print(obs)
     assert isinstance(obs, dict)
     assert isinstance(rew, dict)
     assert isinstance(done, dict)

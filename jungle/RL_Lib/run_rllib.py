@@ -1,100 +1,105 @@
-"""Example of a custom gym environment and model. Run this for a demo.
-This example shows:
-  - using a custom environment
-  - using a custom model
-  - using Tune for grid search
-You can visualize experiment results in ~/ray_results using TensorBoard.
-"""
 import argparse
 import gym
-from gym.spaces import Discrete, Box
-import numpy as np
 import os
 import random
 
-from jungle.rl_envs.basic import RiverExit
-from jungle.jungle import EmptyJungle
-
 import ray
 from ray import tune
-from ray.tune import grid_search
-from ray.rllib.env.env_context import EnvContext
+from ray.rllib.examples.env.multi_agent import MultiAgentCartPole
+from ray.rllib.examples.models.shared_weights_model import \
+    SharedWeightsModel1, SharedWeightsModel2, TF2SharedWeightsModel, \
+    TorchSharedWeightsModel
 from ray.rllib.models import ModelCatalog
-from ray.rllib.models.tf.tf_modelv2 import TFModelV2
-from ray.rllib.models.tf.fcnet import FullyConnectedNetwork
-from ray.rllib.models.torch.torch_modelv2 import TorchModelV2
-from ray.rllib.models.torch.fcnet import FullyConnectedNetwork as TorchFC
-from ray.rllib.utils.framework import try_import_tf, try_import_torch
+from ray.rllib.utils.framework import try_import_tf
 from ray.rllib.utils.test_utils import check_learning_achieved
-from ray.tune.registry import register_env
+from jungle.jungle import EmptyJungle
+from jungle.rl_envs.basic import RiverExit
+from jungle.RL_Lib.jungle_wrapper import RLlibWrapper
+from jungle.utils import ElementsEnv, Actions, Definitions
+from jungle.agent import Agent
 
 tf1, tf, tfv = try_import_tf()
-torch, nn = try_import_torch()
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--run", type=str, default="PPO")
-parser.add_argument("--torch", action="store_true")
-parser.add_argument("--as-test", action="store_true")
-parser.add_argument("--stop-iters", type=int, default=50)
+
+parser.add_argument("--num-agents", type=int, default=4)
+parser.add_argument("--num-policies", type=int, default=2)
+parser.add_argument("--stop-iters", type=int, default=200)
+parser.add_argument("--stop-reward", type=float, default=150)
 parser.add_argument("--stop-timesteps", type=int, default=100000)
-parser.add_argument("--stop-reward", type=float, default=0.1)
+parser.add_argument("--num-cpus", type=int, default=0)
+parser.add_argument("--as-test", action="store_true")
+parser.add_argument(
+    "--framework", choices=["tf2", "tf", "tfe", "torch"], default="tf")
 
-
-
-
-class TorchCustomModel(TorchModelV2, nn.Module):
-    """Example of a PyTorch custom model that just delegates to a fc-net."""
-
-    def __init__(self, obs_space, action_space, num_outputs, model_config,
-                 name):
-        TorchModelV2.__init__(self, obs_space, action_space, num_outputs,
-                              model_config, name)
-        nn.Module.__init__(self)
-
-        self.torch_sub_model = TorchFC(obs_space, action_space, num_outputs,
-                                       model_config, name)
-
-    def forward(self, input_dict, state, seq_lens):
-        input_dict["obs"] = input_dict["obs"].float()
-        fc_out, _ = self.torch_sub_model(input_dict, state, seq_lens)
-        return fc_out, []
-
-    def value_function(self):
-        return torch.reshape(self.torch_sub_model.value_function(), [-1])
-
+Jungle = EmptyJungle(size=11)
+agent_1 = Agent(range_observation=4)
+agent_2 = Agent(range_observation=4)
+Jungle.add_agents(agent_1,agent_2)
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    ray.init()
 
-    # Can also register the env creator function explicitly with:
-    register_env("RiverExit", lambda config: EmptyJungle(config))
-    ModelCatalog.register_custom_model(
-        "my_model", TorchCustomModel )
+    ray.init(num_cpus=args.num_cpus or None)
+
+    # Register the models to use.
+    if args.framework == "torch":
+        mod1 = mod2 = TorchSharedWeightsModel
+    elif args.framework in ["tfe", "tf2"]:
+        mod1 = mod2 = TF2SharedWeightsModel
+    else:
+        mod1 = SharedWeightsModel1
+        mod2 = SharedWeightsModel2
+    ModelCatalog.register_custom_model("model1", mod1)
+    ModelCatalog.register_custom_model("model2", mod2)
+
+    # Get obs- and action Spaces.
+    single_env = RLlibWrapper(Jungle)
+    obs_space = single_env.observation_space
+    act_space = single_env.action_space
+
+    # Each policy can have a different configuration (including custom model).
+    def gen_policy(i):
+        config = {
+            "model": {
+                "custom_model": ["model1", "model2"][i % 2],
+            },
+            "gamma": random.choice([0.95, 0.99]),
+        }
+        return (None, obs_space, act_space, config)
+
+    # Setup PPO with an ensemble of `num_policies` different policies.
+    policies = {
+        "policy_{}".format(i): gen_policy(i)
+        for i in range(args.num_policies)
+    }
+    policy_ids = list(policies.keys())
+
+    def policy_mapping_fn(agent_id):
+        pol_id = random.choice(policy_ids)
+        print(f"mapping {agent_id} to {pol_id}")
+        return pol_id
 
     config = {
-        "env": "RiverExit",  # or "corridor" if registered above
-        "env_config": {
-            "size": 11,
-        },
+        "env": RLlibWrapper,
+        "env_config": {"size": 11},
+
         # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
         "num_gpus": int(os.environ.get("RLLIB_NUM_GPUS", "0")),
-        "model": {
-            "custom_model": "my_model",
-            "vf_share_layers": True,
+        "num_sgd_iter": 10,
+        "multiagent": {
+            "policies": policies,
+            "policy_mapping_fn": policy_mapping_fn,
         },
-        "lr": grid_search([1e-2, 1e-4, 1e-6]),  # try different lrs
-        "num_workers": 1,  # parallelism
-        "framework": "torch" if args.torch else "tf",
+        "framework": args.framework,
     }
-
     stop = {
-        "training_iteration": args.stop_iters,
-        "timesteps_total": args.stop_timesteps,
         "episode_reward_mean": args.stop_reward,
+        "timesteps_total": args.stop_timesteps,
+        "training_iteration": args.stop_iters,
     }
 
-    results = tune.run(args.run, config=config, stop=stop)
+    results = tune.run("PPO", stop=stop, config=config, verbose=1)
 
     if args.as_test:
         check_learning_achieved(results, args.stop_reward)

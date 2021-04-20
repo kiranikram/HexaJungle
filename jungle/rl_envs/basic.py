@@ -7,8 +7,8 @@ class EasyExit(EmptyJungle):
     def __init__(self, size):
         super().__init__(size)
 
-        exit_1 = self.select_random_exit()
-        self.add_object(ElementsEnv.EXIT_EASY, exit_1.coordinates)
+        self.exit_1 = self.select_random_exit()
+        self.add_object(ElementsEnv.EXIT_EASY, self.exit_1.coordinates)
 
 
 class RiverExit(EmptyJungle):
@@ -16,12 +16,27 @@ class RiverExit(EmptyJungle):
     def __init__(self, size):
         super().__init__(size)
 
-        exit_1 = self.select_random_exit()
-        self.add_object(ElementsEnv.EXIT_DIFFICULT, exit_1.coordinates)
-        self.add_object(ElementsEnv.RIVER, exit_1.surrounding_1)
-        self.add_object(ElementsEnv.RIVER, exit_1.surrounding_2)
+        self.exit_1 = self.select_random_exit()
+        self.add_object(ElementsEnv.EXIT_DIFFICULT, self.exit_1.coordinates)
+        self.add_object(ElementsEnv.RIVER, self.exit_1.surrounding_1)
+        self.add_object(ElementsEnv.RIVER, self.exit_1.surrounding_2)
 
         self.add_trees()
+
+    def reset(self):
+        self.reinitialize_grid()
+
+        self.swap_agent_positions()
+        self.calculate_exit_coordinates()
+
+        # exit_1 = self.select_random_exit()
+        self.add_object(ElementsEnv.EXIT_DIFFICULT, self.exit_1.coordinates)
+        self.add_object(ElementsEnv.RIVER, self.exit_1.surrounding_1)
+        self.add_object(ElementsEnv.RIVER, self.exit_1.surrounding_2)
+
+        obs = {self.agent_white: self.generate_agent_obs(self.agent_white),
+               self.agent_black: self.generate_agent_obs(self.agent_black)}
+        return obs
 
 
 class BoulderExit(EmptyJungle):

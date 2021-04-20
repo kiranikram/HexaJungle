@@ -157,14 +157,11 @@ class EmptyJungle:
         self.agent_black.starting_angle = self.agent_black.angle
 
     def reset(self):
-        print('in reset')
 
-        # TODO what do we do w exit coords?
-        print(self.grid_env)
-        print('**********')
         self.reinitialize_grid()
-        print(self.grid_env)
+
         self.swap_agent_positions()
+        self.calculate_exit_coordinates()
 
         obs = {self.agent_white: self.generate_agent_obs(self.agent_white),
                self.agent_black: self.generate_agent_obs(self.agent_black)}
@@ -172,8 +169,7 @@ class EmptyJungle:
 
     def reinitialize_grid(self):
         self.grid_env[:] = np.ones((self.size, self.size), dtype=int) * ElementsEnv.EMPTY.value
-        print('in initialize')
-        print(self.grid_env)
+
         self.place_obstacles()
         self.add_trees()
 

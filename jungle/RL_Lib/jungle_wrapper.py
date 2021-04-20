@@ -116,6 +116,10 @@ class RLlibWrapper(MultiAgentEnv):
         # you need to implement reset in jungle
         obs = self.jungle.reset()
 
+        #obs = {self.jungle.agent_white: self.generate_agent_obs(self.agent_white),
+               #self.jungle.agent_black: self.generate_agent_obs(self.agent_black)}
+        return obs
+
         # modify obs to make it compatible with rllib,
 
-        return obs
+

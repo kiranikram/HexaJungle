@@ -81,3 +81,16 @@ def test_wrapper():
     #env.step(actions)
     obs = env.reset()
     print(obs)
+
+def test_riverexit_wrapper():
+    Jungle = RiverExit(size=11)
+    agent_1 = Agent(range_observation=3)
+    agent_2 = Agent(range_observation=3)
+    Jungle.add_agents(agent_1, agent_2)
+    actions = {"agent_1": [1,1,1], "agent_2":[1,0,0]}
+
+    env = RLlibWrapper(Jungle)
+    env.step((actions))
+
+    env.reset()
+

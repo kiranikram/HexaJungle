@@ -311,7 +311,10 @@ class EmptyJungle:
         if not self.agent_black.done:
             obs[self.agent_black] = self.generate_agent_obs(self.agent_black)
 
-        print(type(obs))
+        print('at end step function')
+        print(obs)
+        print(rewards)
+        print(done)
         return obs, rewards, done
 
     def apply_rules(self, agent):

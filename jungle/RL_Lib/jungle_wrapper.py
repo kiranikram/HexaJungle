@@ -104,7 +104,7 @@ class RLlibWrapper(MultiAgentEnv):
         else:
             done = dict({"__all__": False})
 
-        # return obs, rewards, done
+        return obs, rewards, done
 
     def reset(self):
 

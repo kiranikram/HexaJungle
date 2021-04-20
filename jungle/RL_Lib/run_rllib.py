@@ -32,10 +32,7 @@ parser.add_argument("--as-test", action="store_true")
 parser.add_argument(
     "--framework", choices=["tf2", "tf", "tfe", "torch"], default="tf")
 
-Jungle = EmptyJungle(size=11)
-agent_1 = Agent(range_observation=4)
-agent_2 = Agent(range_observation=4)
-Jungle.add_agents(agent_1,agent_2)
+
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -52,6 +49,11 @@ if __name__ == "__main__":
         mod2 = SharedWeightsModel2
     ModelCatalog.register_custom_model("model1", mod1)
     ModelCatalog.register_custom_model("model2", mod2)
+
+    Jungle = RiverExit(size=11)
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=4)
+    Jungle.add_agents(agent_1, agent_2)
 
     # Get obs- and action Spaces.
     single_env = RLlibWrapper(Jungle)

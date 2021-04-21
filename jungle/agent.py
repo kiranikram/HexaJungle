@@ -85,5 +85,9 @@ class Agent:
         self._angle = angle % 6
 
     def apply_action(self, actions):
+        if self.done:
+            actions = {k: a * 0 for k, a in actions.items()}
         self.current_actions = actions
         print(self.current_actions.items())
+
+

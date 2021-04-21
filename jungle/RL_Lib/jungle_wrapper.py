@@ -13,7 +13,10 @@ from jungle.rl_envs.basic import RiverExit
 from jungle.utils import ElementsEnv, Actions, Definitions
 from jungle.observations import restrict_observations
 from jungle.agent import Agent
-from jungle.jungle import EmptyJungle
+from jungle import jungle
+from jungle.rl_envs import basic
+import numpy as np
+
 
 
 class RLlibWrapper(MultiAgentEnv):
@@ -30,18 +33,28 @@ class RLlibWrapper(MultiAgentEnv):
 
     """
 
-    def __init__(self, jungle):
+    def __init__(self, config):
 
-        self.jungle = jungle
+        #self.jungle = jungle
+        jungle_cls = getattr(basic, config['jungle'])
+        self.jungle = jungle_cls(config['size'])
+
+        agent_1 = Agent(range_observation=3)
+        agent_2 = Agent(range_observation=3)
+        self.jungle.add_agents(agent_1, agent_2)
+
+
 
         sa_action_space = spaces.MultiDiscrete([2, 3, 2])
         self.action_space = spaces.MultiDiscrete([2, 3, 2])
+        self.white = "white"
+        self.black = "black"
         # self.action_space = spaces.Tuple(tuple(2 * [sa_action_space]))
         # sa_observation_space = spaces.Box(low=0, high=10,
         # shape=(1,))
         # self._set_obs_space()
-        self.observation_space = spaces.Box(low=0, high=10,
-                                            shape=(1,))
+        self.observation_space = spaces.Box(low=0, high=9,
+                                            shape=(15,),dtype=np.int)
         # self.observation_space = spaces.Tuple(tuple(2 * [sa_observation_space]))
         # self.observation_space = spaces.Tuple(tuple(spaces.Box(low=0, high=self.jungle.size, shape=(1,))))
 
@@ -65,6 +78,9 @@ class RLlibWrapper(MultiAgentEnv):
         else:
             actions_white = actions[agents[1]]
             actions_black = actions[agents[0]]
+
+        actions_black = actions[self.black]
+        actions_white = actions[self.white]
 
         print('actions_black', actions_black)
         print('actions_white', actions_white)
@@ -92,28 +108,25 @@ class RLlibWrapper(MultiAgentEnv):
         actions_dict = {self.jungle.agent_white: white_dict,
                         self.jungle.agent_black: black_dict}
 
-        print(actions_dict)
-
         obs, rewards, done = self.jungle.step(actions_dict)
-        print(obs)
 
         # Here modify obs, rewards and done so that they are understood by rllib
 
-        if done:
-            done = dict({"__all__": True}, **{agent_id: True for agent_id in self.agents})
-        else:
-            done = dict({"__all__": False})
+        #if done:
+            #done = dict({"__all__": True}, **{agent_id: True for agent_id in self.agents})
+        #else:
+            #done = dict({"__all__": False})
 
         info = {}
 
         # 20 / 4 white": ... , "black": ...
         # assigned_obs = {"white":obs of agent  white, "black": obs of agent }
         # same w rewards , done , info
-        print('pre',obs, rewards,done)
+        print('pre', obs, rewards, done)
 
-        obs, rewards = self.convert_to_str(obs, rewards)
+        obs, rewards = self.convert_to_wrapper_agents(obs, rewards)
 
-        print('post',obs, rewards )
+        print('post', obs, rewards)
 
         return obs, rewards, done, info
 
@@ -126,10 +139,12 @@ class RLlibWrapper(MultiAgentEnv):
 
         # you need to implement reset in jungle
         obs = self.jungle.reset()
-        obs = self._convert_to_str(obs)
+        obs = self._convert_to_wrapper_agents(obs)
 
         # obs = {self.jungle.agent_white: self.generate_agent_obs(self.agent_white),
         # self.jungle.agent_black: self.generate_agent_obs(self.agent_black)}
+        print('IN RESET')
+        print(obs)
         return obs
 
         # modify obs to make it compatible with rllib,
@@ -137,10 +152,29 @@ class RLlibWrapper(MultiAgentEnv):
     def convert_to_str(self, obs, rew):
         new_obs = {'white': obs[self.jungle.agent_white], 'black': obs[self.jungle.agent_black]}
         new_reward = {'white': rew[self.jungle.agent_white], 'black': rew[self.jungle.agent_black]}
-        #new_done = {'white': done[self.jungle.agent_white], 'black': done[self.jungle.agent_black]}
+        # new_done = {'white': done[self.jungle.agent_white], 'black': done[self.jungle.agent_black]}
+
+        return new_obs, new_reward
+
+    def convert_to_wrapper_agents(self, obs, rew):
+        import ipdb
+        #ipdb.set_trace()
+        if 'black' not in obs:
+            ipdb.set_trace()
+
+        if 'white' not in obs:
+            ipdb.set_trace()
+        new_obs = {self.white: obs['white'], self.black: obs['black']}
+        new_reward = {self.white: rew['white'], self.black: rew['black']}
 
         return new_obs, new_reward
 
     def _convert_to_str(self, obs):
         new_obs = {'white': obs[self.jungle.agent_white], 'black': obs[self.jungle.agent_black]}
+        return new_obs
+
+    def _convert_to_wrapper_agents(self, obs):
+        import ipdb
+        #ipdb.set_trace()
+        new_obs = {self.white: obs['white'], self.black: obs['black']}
         return new_obs

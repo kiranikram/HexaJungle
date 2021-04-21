@@ -34,8 +34,9 @@ class RiverExit(EmptyJungle):
         self.add_object(ElementsEnv.RIVER, self.exit_1.surrounding_1)
         self.add_object(ElementsEnv.RIVER, self.exit_1.surrounding_2)
 
-        obs = {self.agent_white: self.generate_agent_obs(self.agent_white),
-               self.agent_black: self.generate_agent_obs(self.agent_black)}
+        obs = {'white': self.generate_agent_obs(self.agent_white),
+               'black': self.generate_agent_obs(self.agent_black)}
+
         return obs
 
 

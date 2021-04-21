@@ -158,13 +158,14 @@ class EmptyJungle:
 
     def reset(self):
 
+
         self.reinitialize_grid()
 
         self.swap_agent_positions()
         self.calculate_exit_coordinates()
 
-        obs = {self.agent_white: self.generate_agent_obs(self.agent_white),
-               self.agent_black: self.generate_agent_obs(self.agent_black)}
+        obs = {'white': self.generate_agent_obs(self.agent_white),
+               'black': self.generate_agent_obs(self.agent_black)}
         return obs
 
     def reinitialize_grid(self):
@@ -293,7 +294,7 @@ class EmptyJungle:
             rew_white += rew
 
         # All rewards and terminations are now calculated
-        rewards = {self.agent_black: rew_black, self.agent_white: rew_white}
+        rewards = {'black': rew_black, 'white': rew_white}
 
         done = self.agent_white.done and self.agent_black.done
         if self.agent_white.done:
@@ -302,14 +303,33 @@ class EmptyJungle:
         if self.agent_black.done:
             print('ag black done')
 
+        if self.agent_white.done and self.agent_black.done:
+            done = dict({"__all__": True})
+        elif self.agent_white.done and not self.agent_black.done:
+            done = dict({"white": True, "__all__": False})
+        elif self.agent_black.done and not self.agent_white.done:
+            done = dict({"black": True, "__all__": False})
+        else:
+            done = dict({"__all__": False})
+
+
+
+
+
         # Now we calculate the observations
         obs = {}
         # obs[self.agent_white] = []#self.generate_agent_obs(self.agent_white)
         # obs[self.agent_black] = []#self.generate_agent_obs(self.agent_black)
+        #if not self.agent_white.done:
+            #obs[self.agent_white] = self.generate_agent_obs(self.agent_white)
+        #if not self.agent_black.done:
+            #obs[self.agent_black] = self.generate_agent_obs(self.agent_black)
+
         if not self.agent_white.done:
-            obs[self.agent_white] = self.generate_agent_obs(self.agent_white)
+            obs['white'] = self.generate_agent_obs(self.agent_white)
+
         if not self.agent_black.done:
-            obs[self.agent_black] = self.generate_agent_obs(self.agent_black)
+            obs['black'] = self.generate_agent_obs(self.agent_black)
 
         return obs, rewards, done
 
@@ -493,6 +513,8 @@ class EmptyJungle:
         for obs_range in range(1, agent.range_observation + 1):
 
             row, col = agent.grid_position
+            print('row', row)
+            print('col', col)
 
             angle = agent.angle
 

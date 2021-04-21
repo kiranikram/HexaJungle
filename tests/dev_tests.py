@@ -83,16 +83,17 @@ def test_wrapper():
 
 
 def test_riverexit_wrapper():
-    Jungle = RiverExit(size=11)
-    agent_1 = Agent(range_observation=3)
-    agent_2 = Agent(range_observation=3)
-    Jungle.add_agents(agent_1, agent_2)
-    actions = {"agent_1": [1, 1, 1], "agent_2": [1, 0, 0]}
+    #Jungle = RiverExit(size=11)
+    #agent_1 = Agent(range_observation=3)
+    #agent_2 = Agent(range_observation=3)
+    #Jungle.add_agents(agent_1, agent_2)
+    actions = {"white": [1, 1, 1], "black": [1, 0, 0]}
 
-    env = RLlibWrapper(Jungle)
+    config = {'jungle':'RiverExit', 'size':11}
+    env = RLlibWrapper(config)
 
     obs, rew, done, info = env.step(actions)
-    print(obs)
+
     assert isinstance(obs, dict)
     assert isinstance(rew, dict)
     assert isinstance(done, dict)

@@ -37,7 +37,7 @@ parser.add_argument(
 if __name__ == "__main__":
     args = parser.parse_args()
 
-    ray.init(num_cpus=args.num_cpus or None)
+    ray.init(num_cpus=args.num_cpus or None,local_mode=True)
 
     # Register the models to use.
     if args.framework == "torch":
@@ -50,13 +50,12 @@ if __name__ == "__main__":
     ModelCatalog.register_custom_model("model1", mod1)
     ModelCatalog.register_custom_model("model2", mod2)
 
-    Jungle = RiverExit(size=11)
-    agent_1 = Agent(range_observation=4)
-    agent_2 = Agent(range_observation=4)
-    Jungle.add_agents(agent_1, agent_2)
+
 
     # Get obs- and action Spaces.
-    single_env = RLlibWrapper(Jungle)
+    config = {'jungle': 'RiverExit', 'size': 11}
+    single_env = RLlibWrapper(config)
+
     obs_space = single_env.observation_space
     act_space = single_env.action_space
 
@@ -68,6 +67,8 @@ if __name__ == "__main__":
             },
             "gamma": random.choice([0.95, 0.99]),
         }
+        print('in gen policy')
+        print(obs_space)
         return (None, obs_space, act_space, config)
 
     # Setup PPO with an ensemble of `num_policies` different policies.
@@ -78,13 +79,14 @@ if __name__ == "__main__":
     policy_ids = list(policies.keys())
 
     def policy_mapping_fn(agent_id):
+        print('POLICY MAPPING FUNC CALLED')
         pol_id = random.choice(policy_ids)
         print(f"mapping {agent_id} to {pol_id}")
         return pol_id
 
     config = {
         "env": RLlibWrapper,
-        "env_config": {"size": 11},
+        "env_config": {'jungle':'RiverExit',"size": 11},
 
         # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
         "num_gpus": int(os.environ.get("RLLIB_NUM_GPUS", "0")),

@@ -89,7 +89,7 @@ class Agent:
     def apply_action(self, actions):
         if self.done:
             actions = {k: a * 0 for k, a in actions.items()}
-            print('this')
+
         self.current_actions = actions
         print(self.current_actions.items())
 

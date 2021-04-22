@@ -158,7 +158,6 @@ class EmptyJungle:
 
     def reset(self):
 
-
         self.reinitialize_grid()
 
         self.swap_agent_positions()
@@ -182,7 +181,9 @@ class EmptyJungle:
         self.agent_black.angle = self.agent_white.starting_angle
 
     def step(self, actions):
-        print('in step actions are in the format of', actions)
+        print('ACTIONS')
+        print(actions)
+        # if self.agent_white.done:
 
         # First Physical move
         if not self.agent_white.done:
@@ -312,24 +313,26 @@ class EmptyJungle:
         else:
             done = dict({"__all__": False})
 
-
-
-
-
         # Now we calculate the observations
         obs = {}
         # obs[self.agent_white] = []#self.generate_agent_obs(self.agent_white)
         # obs[self.agent_black] = []#self.generate_agent_obs(self.agent_black)
-        #if not self.agent_white.done:
-            #obs[self.agent_white] = self.generate_agent_obs(self.agent_white)
-        #if not self.agent_black.done:
-            #obs[self.agent_black] = self.generate_agent_obs(self.agent_black)
+        # if not self.agent_white.done:
+        # obs[self.agent_white] = self.generate_agent_obs(self.agent_white)
+        # if not self.agent_black.done:
+        # obs[self.agent_black] = self.generate_agent_obs(self.agent_black)
 
         if not self.agent_white.done:
             obs['white'] = self.generate_agent_obs(self.agent_white)
+            self.agent_white.last_obs = self.generate_agent_obs(self.agent_white)
+        else:
+            obs['white'] = self.agent_white.last_obs
 
         if not self.agent_black.done:
             obs['black'] = self.generate_agent_obs(self.agent_black)
+            self.agent_black.last_obs = self.generate_agent_obs(self.agent_white)
+        else:
+            obs['black'] = self.agent_black.last_obs
 
         return obs, rewards, done
 
@@ -518,54 +521,56 @@ class EmptyJungle:
 
             angle = agent.angle
 
-            # go to start
-            for i in range(obs_range):
-                row, col, _ = self.get_next_cell(row, col, (angle - 1) % 6)
+            if row not in range(1, self.size - 2) or col not in range(1, self.size - 2):
+                obs.append(0)
+            else:
 
-            if 0 <= row < self.size and 0 <= col < self.size:
-                obs.append(self.grid_env[int(row), int(col)])
-                obs_coordinates.append((row, col))
+                # go to start
+                for i in range(obs_range):
+                    row, col, _ = self.get_next_cell(row, col, (angle - 1) % 6)
+
+                if 0 <= row < self.size and 0 <= col < self.size:
+                    obs.append(self.grid_env[int(row), int(col)])
+                    obs_coordinates.append((row, col))
 
                 # if not agent.on_shoulders:
                 # if (row, col) in cells_to_drop:
                 # obs.remove(self.grid_env[int(row), int(col)])
-
-
-            else:
-                obs.append(0)
+                else:
+                    obs.append(0)
 
             # move first segment
-            for i in range(obs_range):
+                for i in range(obs_range):
 
-                row, col, _ = self.get_next_cell(row, col, (angle + 1) % 6)
+                    row, col, _ = self.get_next_cell(row, col, (angle + 1) % 6)
 
-                if 0 <= row < self.size and 0 <= col < self.size:
-                    obs.append(self.grid_env[int(row), int(col)])
-                    obs_coordinates.append((row, col))
+                    if 0 <= row < self.size and 0 <= col < self.size:
+                        obs.append(self.grid_env[int(row), int(col)])
+                        obs_coordinates.append((row, col))
 
                     # if not agent.on_shoulders:
                     # if (row, col) in cells_to_drop:
                     # obs.remove(self.grid_env[int(row), int(col)])
 
 
-                else:
-                    obs.append(0)
+                    else:
+                        obs.append(0)
 
             # move second segment
-            for i in range(obs_range):
+                for i in range(obs_range):
 
-                row, col, _ = self.get_next_cell(row, col, (angle + 2) % 6)
+                    row, col, _ = self.get_next_cell(row, col, (angle + 2) % 6)
 
-                if 0 <= row < self.size and 0 <= col < self.size:
-                    obs.append(self.grid_env[int(row), int(col)])
-                    obs_coordinates.append((row, col))
+                    if 0 <= row < self.size and 0 <= col < self.size:
+                        obs.append(self.grid_env[int(row), int(col)])
+                        obs_coordinates.append((row, col))
 
                     # if not agent.on_shoulders:
                     # if (row, col) in cells_to_drop:
                     # obs.remove(self.grid_env[int(row), int(col)])
 
-                else:
-                    obs.append(0)
+                    else:
+                        obs.append(0)
 
         for i in obs_coordinates:
 

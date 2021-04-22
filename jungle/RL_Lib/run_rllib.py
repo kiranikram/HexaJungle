@@ -87,6 +87,7 @@ if __name__ == "__main__":
     config = {
         "env": RLlibWrapper,
         "env_config": {'jungle':'RiverExit',"size": 11},
+        "no_done_at_end": True,
 
         # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
         "num_gpus": int(os.environ.get("RLLIB_NUM_GPUS", "0")),

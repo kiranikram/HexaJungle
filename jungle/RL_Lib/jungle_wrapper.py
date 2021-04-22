@@ -16,6 +16,7 @@ from jungle.agent import Agent
 from jungle import jungle
 from jungle.rl_envs import basic
 import numpy as np
+import ipdb
 
 
 
@@ -71,16 +72,26 @@ class RLlibWrapper(MultiAgentEnv):
     def step(self, actions):
         agents = [*actions]
 
-        if agents[0] == self.jungle.agent_white:
-            actions_white = actions[agents[0]]
-            actions_black = actions[agents[1]]
+        #if agents[0] == self.jungle.agent_white:
+            #actions_white = actions[agents[0]]
+            #actions_black = actions[agents[1]]
 
+        #else:
+            #actions_white = actions[agents[1]]
+            #actions_black = actions[agents[0]]
+
+        print('actions from rl lib')
+        print(actions)
+        #ipdb.set_trace()
+        if 'black' not in actions:
+            actions_black = [0,0,0]
         else:
-            actions_white = actions[agents[1]]
-            actions_black = actions[agents[0]]
+            actions_black = actions[self.black]
 
-        actions_black = actions[self.black]
-        actions_white = actions[self.white]
+        if 'white' not in actions:
+            actions_white = [0,0,0]
+        else:
+            actions_white = actions[self.white]
 
         print('actions_black', actions_black)
         print('actions_white', actions_white)
@@ -124,6 +135,7 @@ class RLlibWrapper(MultiAgentEnv):
         # same w rewards , done , info
         print('pre', obs, rewards, done)
 
+
         obs, rewards = self.convert_to_wrapper_agents(obs, rewards)
 
         print('post', obs, rewards)
@@ -159,11 +171,11 @@ class RLlibWrapper(MultiAgentEnv):
     def convert_to_wrapper_agents(self, obs, rew):
         import ipdb
         #ipdb.set_trace()
-        if 'black' not in obs:
-            ipdb.set_trace()
+        #if 'black' not in obs:
+            #ipdb.set_trace()
 
-        if 'white' not in obs:
-            ipdb.set_trace()
+        #if 'white' not in obs:
+            #ipdb.set_trace()
         new_obs = {self.white: obs['white'], self.black: obs['black']}
         new_reward = {self.white: rew['white'], self.black: rew['black']}
 

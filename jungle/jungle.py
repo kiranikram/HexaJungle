@@ -181,8 +181,7 @@ class EmptyJungle:
         self.agent_black.angle = self.agent_white.starting_angle
 
     def step(self, actions):
-        print('ACTIONS')
-        print(actions)
+
         # if self.agent_white.done:
 
         # First Physical move
@@ -516,8 +515,6 @@ class EmptyJungle:
         for obs_range in range(1, agent.range_observation + 1):
 
             row, col = agent.grid_position
-            print('row', row)
-            print('col', col)
 
             angle = agent.angle
 
@@ -539,7 +536,7 @@ class EmptyJungle:
                 else:
                     obs.append(0)
 
-            # move first segment
+                # move first segment
                 for i in range(obs_range):
 
                     row, col, _ = self.get_next_cell(row, col, (angle + 1) % 6)
@@ -552,11 +549,10 @@ class EmptyJungle:
                     # if (row, col) in cells_to_drop:
                     # obs.remove(self.grid_env[int(row), int(col)])
 
-
                     else:
                         obs.append(0)
 
-            # move second segment
+                # move second segment
                 for i in range(obs_range):
 
                     row, col, _ = self.get_next_cell(row, col, (angle + 2) % 6)
@@ -591,6 +587,8 @@ class EmptyJungle:
 
         if len(obs) < 15:
             obs += [0] * (15 - len(obs))
+
+        #TODO add other agent 
 
         return np.asarray(obs)
 

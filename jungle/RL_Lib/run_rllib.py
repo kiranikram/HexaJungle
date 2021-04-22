@@ -24,9 +24,9 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("--num-agents", type=int, default=4)
 parser.add_argument("--num-policies", type=int, default=2)
-parser.add_argument("--stop-iters", type=int, default=200)
-parser.add_argument("--stop-reward", type=float, default=150)
-parser.add_argument("--stop-timesteps", type=int, default=100000)
+parser.add_argument("--stop-iters", type=int, default=100)
+parser.add_argument("--stop-reward", type=float, default=30)
+parser.add_argument("--stop-timesteps", type=int, default=100)
 parser.add_argument("--num-cpus", type=int, default=0)
 parser.add_argument("--as-test", action="store_true")
 parser.add_argument(
@@ -88,7 +88,7 @@ if __name__ == "__main__":
         "env": RLlibWrapper,
         "env_config": {'jungle':'RiverExit',"size": 11},
         "no_done_at_end": True,
-
+        "lr": tune.grid_search([1e-4, 1e-5, 1e-6]),
         # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
         "num_gpus": int(os.environ.get("RLLIB_NUM_GPUS", "0")),
         "num_sgd_iter": 10,
@@ -105,6 +105,7 @@ if __name__ == "__main__":
     }
 
     results = tune.run("PPO", stop=stop, config=config, verbose=1)
+    print(results)
 
     if args.as_test:
         check_learning_achieved(results, args.stop_reward)

@@ -5,7 +5,6 @@ import random
 
 import ray
 from ray import tune
-from ray.rllib.examples.env.multi_agent import MultiAgentCartPole
 from ray.rllib.examples.models.shared_weights_model import \
     SharedWeightsModel1, SharedWeightsModel2, TF2SharedWeightsModel, \
     TorchSharedWeightsModel
@@ -13,7 +12,7 @@ from ray.rllib.models import ModelCatalog
 from ray.rllib.utils.framework import try_import_tf
 from ray.rllib.utils.test_utils import check_learning_achieved
 from jungle.jungle import EmptyJungle
-from jungle.rl_envs.basic import RiverExit
+from jungle.rl_envs.basic import RiverExit, BoulderExit
 from jungle.RL_Lib.jungle_wrapper import RLlibWrapper
 from jungle.utils import ElementsEnv, Actions, Definitions
 from jungle.agent import Agent
@@ -53,7 +52,8 @@ if __name__ == "__main__":
 
 
     # Get obs- and action Spaces.
-    config = {'jungle': 'RiverExit', 'size': 11}
+    #config = {'jungle': 'RiverExit', 'size': 11}
+    config = {'jungle': 'DoubleExitsBoulder', 'size': 13}
     single_env = RLlibWrapper(config)
 
     obs_space = single_env.observation_space
@@ -88,7 +88,7 @@ if __name__ == "__main__":
         "env": RLlibWrapper,
         "env_config": {'jungle':'RiverExit',"size": 11},
         "no_done_at_end": True,
-        "lr": tune.grid_search([1e-4, 1e-5, 1e-6]),
+        "lr": tune.grid_search([1e-4, 1e-6]),
         # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
         "num_gpus": int(os.environ.get("RLLIB_NUM_GPUS", "0")),
         "num_sgd_iter": 10,

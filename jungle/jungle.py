@@ -588,7 +588,7 @@ class EmptyJungle:
         if len(obs) < 15:
             obs += [0] * (15 - len(obs))
 
-        #TODO add other agent 
+        #TODO add other agent
 
         return np.asarray(obs)
 

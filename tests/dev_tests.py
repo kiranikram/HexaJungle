@@ -10,7 +10,7 @@ from jungle.utils import Actions, Definitions, ElementsEnv
 from jungle.RL_Lib.jungle_wrapper import RLlibWrapper
 
 from jungle.exp_trainer import run_one_episode
-from jungle.rl_envs.basic import RiverExit, BoulderExit
+from jungle.rl_envs.basic import RiverExit, BoulderExit, EasyExit
 
 from jungle import jungle
 
@@ -83,15 +83,17 @@ def test_wrapper():
 
 
 def test_riverexit_wrapper():
-    #Jungle = RiverExit(size=11)
-    #agent_1 = Agent(range_observation=3)
-    #agent_2 = Agent(range_observation=3)
-    #Jungle.add_agents(agent_1, agent_2)
+    # Jungle = RiverExit(size=11)
+    # agent_1 = Agent(range_observation=3)
+    # agent_2 = Agent(range_observation=3)
+    # Jungle.add_agents(agent_1, agent_2)
     actions = {"white": [1, 1, 1], "black": [1, 0, 0]}
 
-    config = {'jungle':'RiverExit', 'size':11}
+    config = {'jungle': 'RiverExit', 'size': 9}
     env = RLlibWrapper(config)
 
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
     obs, rew, done, info = env.step(actions)
 
     assert isinstance(obs, dict)

@@ -8,8 +8,9 @@ class EasyExit(EmptyJungle):
         super().__init__(size)
 
         self.exit_1 = self.select_random_exit()
-        self.add_trees()
+        self.exit_2 = self.select_random_exit()
         self.add_objects()
+        print('we here ')
 
     def reset(self):
         self.reinitialize_grid()
@@ -27,6 +28,8 @@ class EasyExit(EmptyJungle):
 
     def add_objects(self):
         self.add_object(ElementsEnv.EXIT_EASY, self.exit_1.coordinates)
+        self.add_object(ElementsEnv.RIVER, self.exit_2.surrounding_1)
+        self.add_object(ElementsEnv.RIVER, self.exit_2.surrounding_2)
 
 
 

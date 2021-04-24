@@ -60,13 +60,14 @@ class RLlibWrapper(MultiAgentEnv):
         obs_dict = {self.jungle.agent_white: spaces.Box(low=0, high=10,
                                                         shape=(1,)), self.jungle.agent_black: spaces.Box(low=0, high=10,
                                                                                                          shape=(1,))}
-        print(obs_dict)
+
         self.observation_space = obs_dict
 
     ### from docs : # A dict keyed by agent ids, e.g. {"agent-1": value}.
     # MultiAgentDict = Dict[AgentID, Any]
 
     def step(self, actions):
+        print('step is being called')
         agents = [*actions]
 
         # if agents[0] == self.jungle.agent_white:
@@ -127,6 +128,7 @@ class RLlibWrapper(MultiAgentEnv):
         return obs, rewards, done, info
 
     def reset(self):
+        print('reset is  being called')
 
         obs = self.jungle.reset()
         obs = self._convert_to_wrapper_agents(obs)

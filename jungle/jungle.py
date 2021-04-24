@@ -182,6 +182,8 @@ class EmptyJungle:
 
     def step(self, actions):
 
+        print(self.grid_env)
+
         # if self.agent_white.done:
 
         # First Physical move
@@ -297,11 +299,11 @@ class EmptyJungle:
         rewards = {'black': rew_black, 'white': rew_white}
 
         done = self.agent_white.done and self.agent_black.done
-        if self.agent_white.done:
-            print('ag white done')
+        # if self.agent_white.done:
+        # print('ag white done')
 
-        if self.agent_black.done:
-            print('ag black done')
+        # if self.agent_black.done:
+        # print('ag black done')
 
         if self.agent_white.done and self.agent_black.done:
             done = dict({"__all__": True})
@@ -333,6 +335,10 @@ class EmptyJungle:
         else:
             obs['black'] = self.agent_black.last_obs
 
+        print('at this step agent white :')
+        print(self.agent_white.grid_position ,'and reward:', rew_white)
+        print('at this step agent black :')
+        print(self.agent_black.grid_position, 'and reward:', rew_black)
         return obs, rewards, done
 
     def apply_rules(self, agent):
@@ -588,7 +594,7 @@ class EmptyJungle:
         if len(obs) < 15:
             obs += [0] * (15 - len(obs))
 
-        #TODO add other agent
+        # TODO add other agent
 
         return np.asarray(obs)
 

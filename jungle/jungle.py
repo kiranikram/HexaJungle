@@ -165,13 +165,14 @@ class EmptyJungle:
 
         obs = {'white': self.generate_agent_obs(self.agent_white),
                'black': self.generate_agent_obs(self.agent_black)}
+
         return obs
 
     def reinitialize_grid(self):
         self.grid_env[:] = np.ones((self.size, self.size), dtype=int) * ElementsEnv.EMPTY.value
 
         self.place_obstacles()
-        self.add_trees()
+        # self.add_trees()
 
     def swap_agent_positions(self):
         self.agent_white.grid_position = self.agent_black.starting_position
@@ -181,10 +182,7 @@ class EmptyJungle:
         self.agent_black.angle = self.agent_white.starting_angle
 
     def step(self, actions):
-
-        print(self.grid_env)
-
-        # if self.agent_white.done:
+        print(actions)
 
         # First Physical move
         if not self.agent_white.done:
@@ -243,6 +241,7 @@ class EmptyJungle:
                     self.agent_black.done = True
                     rew_white += Definitions.REWARD_DROWN.value
                     rew_black += Definitions.REWARD_DROWN.value
+                    print('agents drowned')
 
             # BOULDER
 
@@ -257,14 +256,17 @@ class EmptyJungle:
             if white_climbs and not black_climbs:
                 self.agent_white.on_shoulders = True
                 rew_black += Definitions.REWARD_CARRYING.value
+                print('ag white carrying')
 
             elif black_climbs and not white_climbs:
                 self.agent_black.on_shoulders = True
                 rew_white += Definitions.REWARD_CARRYING.value
+                print('ag black carrying')
 
             elif black_climbs and white_climbs:
                 rew_white += Definitions.REWARD_FELL.value
                 rew_black += Definitions.REWARD_FELL.value
+                print('agents fell')
 
         # If not on the same cell
         else:
@@ -273,17 +275,21 @@ class EmptyJungle:
             if self.agent_black.on_shoulders:
                 self.agent_black.on_shoulders = False
                 rew_black += Definitions.REWARD_FELL.value
+                print('black fell')
 
             if self.agent_white.on_shoulders:
                 self.agent_white.on_shoulders = False
                 rew_white += Definitions.REWARD_FELL.value
+                print('white fell')
 
             # If try to climb, fails
             if black_climbs:
                 rew_black += Definitions.REWARD_FELL.value
+                print('black fell')
 
             if white_climbs:
                 rew_white += Definitions.REWARD_FELL.value
+                print('white fell')
 
         # Apply environment rules
 
@@ -298,12 +304,11 @@ class EmptyJungle:
         # All rewards and terminations are now calculated
         rewards = {'black': rew_black, 'white': rew_white}
 
-        done = self.agent_white.done and self.agent_black.done
-        # if self.agent_white.done:
-        # print('ag white done')
+        if self.agent_white.done:
+            print('ag white done')
 
-        # if self.agent_black.done:
-        # print('ag black done')
+        if self.agent_black.done:
+            print('ag black done')
 
         if self.agent_white.done and self.agent_black.done:
             done = dict({"__all__": True})
@@ -335,6 +340,7 @@ class EmptyJungle:
         else:
             obs['black'] = self.agent_black.last_obs
 
+        print('*************')
         print('at this step agent white :')
         print(self.agent_white.grid_position, 'and reward:', rew_white)
         print('at this step agent black :')
@@ -355,6 +361,7 @@ class EmptyJungle:
         agent_drowns = self.on_a_river(agent)
         if agent_drowns:
             rew += Definitions.REWARD_DROWN.value
+            print('agent drowns')
 
         # If comes to boulder and not on shoulders, bumps into boulder
         bumps_boulder = self.hits_boulder(agent)
@@ -411,6 +418,7 @@ class EmptyJungle:
 
         elif current_cell == ElementsEnv.EXIT_EASY.value:
             reward = Definitions.REWARD_EXIT_AVERAGE.value
+            print('easy exit reward')
 
         elif current_cell == ElementsEnv.EXIT_DIFFICULT.value:
             reward = Definitions.REWARD_EXIT_HIGH.value
@@ -594,15 +602,17 @@ class EmptyJungle:
         if len(obs) < 15:
             obs += [0] * (15 - len(obs))
 
-        # TODO add other agent
+        if agent == self.agent_white:
+            obs.append(ElementsEnv.AGENT_WHITE.value)
+        else:
+            obs.append(ElementsEnv.AGENT_BLACK.value)
 
         obs = np.asarray(obs)
 
-        env_elements = len(ElementsEnv)
+        env_elements = len(ElementsEnv) + 1
 
         one_hot_obs = np.eye(env_elements)[obs]
         one_hot_obs = list(one_hot_obs.flat)
-        print(len(one_hot_obs))
 
         return one_hot_obs
 

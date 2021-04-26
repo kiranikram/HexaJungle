@@ -87,14 +87,75 @@ def test_riverexit_wrapper():
     # agent_1 = Agent(range_observation=3)
     # agent_2 = Agent(range_observation=3)
     # Jungle.add_agents(agent_1, agent_2)
-    actions = {"white": [1, 1, 1], "black": [1, 0, 0]}
-
-    config = {'jungle': 'RiverExit', 'size': 9}
+    actions = {"white": [1, 1, 1], "black": [1, 1, 1]}
+    config = {'jungle': 'EasyExit', 'size': 15}
     env = RLlibWrapper(config)
 
+
     obs, rew, done, info = env.step(actions)
     obs, rew, done, info = env.step(actions)
     obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+    obs, rew, done, info = env.step(actions)
+
+
+
+
+
+
+
+
+
+
 
     assert isinstance(obs, dict)
     assert isinstance(rew, dict)

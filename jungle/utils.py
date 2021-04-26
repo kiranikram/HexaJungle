@@ -21,7 +21,8 @@ class ElementsEnv(Enum):
     TREE = auto()
     OBSTACLE = auto()  # non traversable, can't climb it
     BRIDGE = auto()
-
+    AGENT_BLACK = auto()
+    AGENT_WHITE = auto()
 
 
 class Definitions(Enum):

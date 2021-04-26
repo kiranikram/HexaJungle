@@ -23,9 +23,9 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("--num-agents", type=int, default=2)
 parser.add_argument("--num-policies", type=int, default=2)
-parser.add_argument("--stop-iters", type=int, default=100)
+parser.add_argument("--stop-iters", type=int, default=200)
 parser.add_argument("--stop-reward", type=float, default=15)
-parser.add_argument("--stop-timesteps", type=int, default=100)
+parser.add_argument("--stop-timesteps", type=int, default=10000)
 parser.add_argument("--num-cpus", type=int, default=0)
 parser.add_argument("--as-test", action="store_true")
 parser.add_argument(
@@ -78,7 +78,8 @@ if __name__ == "__main__":
     policy_ids = list(policies.keys())
 
 
-    def policy_mapping_fn2(agent_id):
+    # not using this mapping func
+    def policy_mapping_fn(agent_id):
         print('AGENT ID in policy mapping function')
         print(agent_id)
 
@@ -90,16 +91,18 @@ if __name__ == "__main__":
         return pol_id
 
 
-    def policy_mapping_fn(agent_id):
+    def policy_mapping_fn2(agent_id):
         if agent_id == 'white':
             return policy_ids[0]
         elif agent_id == 'black':
             return policy_ids[1]
 
 
+
+
     config = {
         "env": RLlibWrapper,
-        "env_config": {'jungle': 'RiverExit', "size": 11},
+        "env_config": {'jungle': 'EasyExit', "size": 11},
         "no_done_at_end": True,
         "lr": tune.grid_search([1e-4, 1e-6]),
         # "lr":0.0001,
@@ -120,6 +123,7 @@ if __name__ == "__main__":
 
     results = tune.run("PPO", stop=stop, config=config, verbose=1)
     print(results)
+    print(single_env)
 
     if args.as_test:
         check_learning_achieved(results, args.stop_reward)

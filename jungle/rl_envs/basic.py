@@ -20,6 +20,17 @@ class EasyExit(EmptyJungle):
 
         # exit_1 = self.select_random_exit()
         self.add_objects()
+        self.agent_white.done = False
+        self.agent_black.done = False
+
+        print('IN RESET FUNC OF EASY EXIT')
+        if self.agent_white.done:
+            print('ag white done')
+
+        if self.agent_black.done:
+            print('ag black done')
+
+        print('*************')
 
         obs = {'white': self.generate_agent_obs(self.agent_white),
                'black': self.generate_agent_obs(self.agent_black)}

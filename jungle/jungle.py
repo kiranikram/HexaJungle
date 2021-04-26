@@ -418,7 +418,11 @@ class EmptyJungle:
 
         elif current_cell == ElementsEnv.EXIT_EASY.value:
             reward = Definitions.REWARD_EXIT_AVERAGE.value
+            print('££££££££££££££££££££')
+            print('££££££££££££££££££££')
             print('easy exit reward')
+            print('££££££££££££££££££££')
+            print('££££££££££££££££££££')
 
         elif current_cell == ElementsEnv.EXIT_DIFFICULT.value:
             reward = Definitions.REWARD_EXIT_HIGH.value

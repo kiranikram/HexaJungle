@@ -25,7 +25,7 @@ parser.add_argument("--num-agents", type=int, default=2)
 parser.add_argument("--num-policies", type=int, default=2)
 parser.add_argument("--stop-iters", type=int, default=200)
 parser.add_argument("--stop-reward", type=float, default=15)
-parser.add_argument("--stop-timesteps", type=int, default=10000)
+parser.add_argument("--stop-timesteps", type=int, default=100000)
 parser.add_argument("--num-cpus", type=int, default=0)
 parser.add_argument("--as-test", action="store_true")
 parser.add_argument(
@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     # Get obs- and action Spaces.
     # config = {'jungle': 'RiverExit', 'size': 11}
-    config = {'jungle': 'EasyExit', 'size': 11}
+    config = {'jungle': 'RiverExit', 'size': 11}
     single_env = RLlibWrapper(config)
 
     obs_space = single_env.observation_space
@@ -108,7 +108,7 @@ if __name__ == "__main__":
         # "lr":0.0001,
         # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
         "num_gpus": int(os.environ.get("RLLIB_NUM_GPUS", "0")),
-        "num_sgd_iter": 10,
+        "num_sgd_iter": 20,
         "multiagent": {
             "policies": policies,
             "policy_mapping_fn": policy_mapping_fn,

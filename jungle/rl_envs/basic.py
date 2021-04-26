@@ -61,6 +61,8 @@ class RiverExit(EmptyJungle):
         self.calculate_exit_coordinates()
 
         # exit_1 = self.select_random_exit()
+        self.agent_white.done = False
+        self.agent_black.done = False
         self.add_objects()
 
         obs = {'white': self.generate_agent_obs(self.agent_white),
@@ -91,6 +93,8 @@ class BoulderExit(EmptyJungle):
         self.calculate_exit_coordinates()
 
         # exit_1 = self.select_random_exit()
+        self.agent_white.done = False
+        self.agent_black.done = False
         self.add_objects()
 
         obs = {'white': self.generate_agent_obs(self.agent_white),
@@ -123,6 +127,8 @@ class DoubleExitsBoulder(EmptyJungle):
         self.calculate_exit_coordinates()
 
         # exit_1 = self.select_random_exit()
+        self.agent_white.done = False
+        self.agent_black.done = False
         self.add_objects()
 
         obs = {'white': self.generate_agent_obs(self.agent_white),
@@ -156,6 +162,8 @@ class DoubleExitsRiver(EmptyJungle):
         self.calculate_exit_coordinates()
 
         # exit_1 = self.select_random_exit()
+        self.agent_white.done = False
+        self.agent_black.done = False
         self.add_objects()
 
         obs = {'white': self.generate_agent_obs(self.agent_white),
@@ -192,6 +200,8 @@ class RiverBoulderExits(EmptyJungle):
         self.calculate_exit_coordinates()
 
         # exit_1 = self.select_random_exit()
+        self.agent_white.done = False
+        self.agent_black.done = False
         self.add_objects()
 
         obs = {'white': self.generate_agent_obs(self.agent_white),
@@ -237,6 +247,8 @@ class WhiteFavouredSimple(EmptyJungle):
         self.calculate_exit_coordinates()
 
         # exit_1 = self.select_random_exit()
+        self.agent_white.done = False
+        self.agent_black.done = False
         self.add_objects()
 
         obs = {'white': self.generate_agent_obs(self.agent_white),
@@ -280,6 +292,8 @@ class BlackFavouredSimple(EmptyJungle):
         self.calculate_exit_coordinates()
 
         # exit_1 = self.select_random_exit()
+        self.agent_white.done = False
+        self.agent_black.done = False
         self.add_objects()
 
         obs = {'white': self.generate_agent_obs(self.agent_white),
@@ -319,6 +333,8 @@ class WhiteFavoured(EmptyJungle):
         self.calculate_exit_coordinates()
 
         # exit_1 = self.select_random_exit()
+        self.agent_white.done = False
+        self.agent_black.done = False
         self.add_objects()
 
         obs = {'white': self.generate_agent_obs(self.agent_white),
@@ -360,6 +376,8 @@ class BlackFavoured(EmptyJungle):
         self.calculate_exit_coordinates()
 
         # exit_1 = self.select_random_exit()
+        self.agent_white.done = False
+        self.agent_black.done = False
         self.add_objects()
 
         obs = {'white': self.generate_agent_obs(self.agent_white),
@@ -400,6 +418,8 @@ class ConflictingExitsBiased(EmptyJungle):
         self.calculate_exit_coordinates()
 
         # exit_1 = self.select_random_exit()
+        self.agent_white.done = False
+        self.agent_black.done = False
         self.add_objects()
 
         obs = {'white': self.generate_agent_obs(self.agent_white),
@@ -441,6 +461,8 @@ class ConflictingExits(EmptyJungle):
         self.calculate_exit_coordinates()
 
         # exit_1 = self.select_random_exit()
+        self.agent_white.done = False
+        self.agent_black.done = False
         self.add_objects()
 
         obs = {'white': self.generate_agent_obs(self.agent_white),

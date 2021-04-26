@@ -336,7 +336,7 @@ class EmptyJungle:
             obs['black'] = self.agent_black.last_obs
 
         print('at this step agent white :')
-        print(self.agent_white.grid_position ,'and reward:', rew_white)
+        print(self.agent_white.grid_position, 'and reward:', rew_white)
         print('at this step agent black :')
         print(self.agent_black.grid_position, 'and reward:', rew_black)
         return obs, rewards, done
@@ -596,7 +596,15 @@ class EmptyJungle:
 
         # TODO add other agent
 
-        return np.asarray(obs)
+        obs = np.asarray(obs)
+
+        env_elements = len(ElementsEnv)
+
+        one_hot_obs = np.eye(env_elements)[obs]
+        one_hot_obs = list(one_hot_obs.flat)
+        print(len(one_hot_obs))
+
+        return one_hot_obs
 
     def cell_type(self, x, y):
         return self.grid_env[x, y]

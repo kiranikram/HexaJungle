@@ -52,14 +52,14 @@ class RLlibWrapper(MultiAgentEnv):
         # shape=(1,))
         # self._set_obs_space()
         self.observation_space = spaces.Box(low=0, high=9,
-                                            shape=(15,), dtype=np.int)
+                                            shape=(150,), dtype=np.float64)
         # self.observation_space = spaces.Tuple(tuple(2 * [sa_observation_space]))
         # self.observation_space = spaces.Tuple(tuple(spaces.Box(low=0, high=self.jungle.size, shape=(1,))))
 
     def _set_obs_space(self):
         obs_dict = {self.jungle.agent_white: spaces.Box(low=0, high=10,
-                                                        shape=(1,)), self.jungle.agent_black: spaces.Box(low=0, high=10,
-                                                                                                         shape=(1,))}
+                                                        shape=(150,)), self.jungle.agent_black: spaces.Box(low=0, high=10,
+                                                                                                         shape=(150,))}
 
         self.observation_space = obs_dict
 

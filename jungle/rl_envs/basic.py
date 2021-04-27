@@ -43,7 +43,6 @@ class EasyExit(EmptyJungle):
         self.add_object(ElementsEnv.RIVER, self.exit_2.surrounding_2)
 
 
-
 class RiverExit(EmptyJungle):
 
     def __init__(self, size):
@@ -64,6 +63,7 @@ class RiverExit(EmptyJungle):
         self.agent_white.done = False
         self.agent_black.done = False
         self.add_objects()
+        self.add_trees()
 
         obs = {'white': self.generate_agent_obs(self.agent_white),
                'black': self.generate_agent_obs(self.agent_black)}

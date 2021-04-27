@@ -73,8 +73,7 @@ if __name__ == "__main__":
         "policy_{}".format(i): gen_policy(i)
         for i in range(args.num_policies)
     }
-    print('policies DICT')
-    print(policies)
+
     policy_ids = list(policies.keys())
 
 
@@ -100,7 +99,7 @@ if __name__ == "__main__":
 
     config = {
         "env": RLlibWrapper,
-        "env_config": {'jungle': 'EasyExit', "size": 11},
+        "env_config": {'jungle': 'RiverExit', "size": 11},
         "no_done_at_end": True,
         "lr": tune.grid_search([1e-4, 1e-6]),
         # "lr":0.0001,
@@ -120,8 +119,6 @@ if __name__ == "__main__":
     }
 
     results = tune.run("PPO", stop=stop, config=config, verbose=1)
-    print(results)
-    print(single_env)
 
     if args.as_test:
         check_learning_achieved(results, args.stop_reward)

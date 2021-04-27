@@ -98,8 +98,6 @@ if __name__ == "__main__":
             return policy_ids[1]
 
 
-
-
     config = {
         "env": RLlibWrapper,
         "env_config": {'jungle': 'EasyExit', "size": 11},

@@ -91,71 +91,7 @@ def test_riverexit_wrapper():
     config = {'jungle': 'EasyExit', 'size': 15}
     env = RLlibWrapper(config)
 
-
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-    obs, rew, done, info = env.step(actions)
-
-
-
-
-
-
-
-
-
-
+    obs, rew, done, _ = env.step(actions)
 
     assert isinstance(obs, dict)
     assert isinstance(rew, dict)
@@ -163,3 +99,5 @@ def test_riverexit_wrapper():
 
     new_obs = env.reset()
     assert isinstance(new_obs, dict)
+
+

@@ -74,6 +74,7 @@ class RiverExit(EmptyJungle):
         self.add_object(ElementsEnv.EXIT_DIFFICULT, self.exit_1.coordinates)
         self.add_object(ElementsEnv.RIVER, self.exit_1.surrounding_1)
         self.add_object(ElementsEnv.RIVER, self.exit_1.surrounding_2)
+        self.add_trees()
 
 
 class BoulderExit(EmptyJungle):
@@ -106,6 +107,7 @@ class BoulderExit(EmptyJungle):
         self.add_object(ElementsEnv.EXIT_DIFFICULT, self.exit_1.coordinates)
         self.add_object(ElementsEnv.BOULDER, self.exit_1.surrounding_1)
         self.add_object(ElementsEnv.BOULDER, self.exit_1.surrounding_2)
+        self.add_trees()
 
 
 class DoubleExitsBoulder(EmptyJungle):
@@ -141,6 +143,7 @@ class DoubleExitsBoulder(EmptyJungle):
         self.add_object(ElementsEnv.EXIT_DIFFICULT, self.boulder_exit.coordinates)
         self.add_object(ElementsEnv.BOULDER, self.boulder_exit.surrounding_1)
         self.add_object(ElementsEnv.BOULDER, self.boulder_exit.surrounding_2)
+        self.add_trees()
 
 
 class DoubleExitsRiver(EmptyJungle):
@@ -176,6 +179,7 @@ class DoubleExitsRiver(EmptyJungle):
         self.add_object(ElementsEnv.EXIT_DIFFICULT, self.river_exit.coordinates)
         self.add_object(ElementsEnv.RIVER, self.river_exit.surrounding_1)
         self.add_object(ElementsEnv.RIVER, self.river_exit.surrounding_2)
+        self.add_trees()
 
 
 class RiverBoulderExits(EmptyJungle):
@@ -217,6 +221,7 @@ class RiverBoulderExits(EmptyJungle):
         self.add_object(ElementsEnv.EXIT_DIFFICULT, self.river_exit.coordinates)
         self.add_object(ElementsEnv.RIVER, self.river_exit.surrounding_1)
         self.add_object(ElementsEnv.RIVER, self.river_exit.surrounding_2)
+        self.add_trees()
 
 
 """Three exits. RIVER is good for both.
@@ -262,6 +267,7 @@ class WhiteFavouredSimple(EmptyJungle):
         self.add_object(ElementsEnv.EXIT_DIFFICULT, self.river_exit.coordinates)
         self.add_object(ElementsEnv.RIVER, self.river_exit.surrounding_1)
         self.add_object(ElementsEnv.RIVER, self.river_exit.surrounding_2)
+        self.add_trees()
 
 
 """Three exits. BOULDER is good for both.
@@ -307,6 +313,7 @@ class BlackFavouredSimple(EmptyJungle):
         self.add_object(ElementsEnv.EXIT_DIFFICULT, self.boulder_exit.coordinates)
         self.add_object(ElementsEnv.BOULDER, self.boulder_exit.surrounding_1)
         self.add_object(ElementsEnv.RIVER, self.boulder_exit.surrounding_2)
+        self.add_trees()
 
 
 """Three exits, only BOULDER exit is advantageous to one agent(WHITE) over another"""
@@ -350,6 +357,7 @@ class WhiteFavoured(EmptyJungle):
         self.add_object(ElementsEnv.EXIT_DIFFICULT, self.river_exit.coordinates)
         self.add_object(ElementsEnv.RIVER, self.river_exit.surrounding_1)
         self.add_object(ElementsEnv.RIVER, self.river_exit.surrounding_2)
+        self.add_trees()
 
 
 """Three exits, only RIVER exit is advantageous to one agent(BLACK) over another"""
@@ -393,6 +401,7 @@ class BlackFavoured(EmptyJungle):
         self.add_object(ElementsEnv.EXIT_BLACK, self.black_exit.coordinates)
         self.add_object(ElementsEnv.RIVER, self.black_exit.surrounding_1)
         self.add_object(ElementsEnv.RIVER, self.black_exit.surrounding_2)
+        self.add_trees()
 
 
 class ConflictingExitsBiased(EmptyJungle):

@@ -101,3 +101,29 @@ def test_riverexit_wrapper():
     assert isinstance(new_obs, dict)
 
 
+def test_RiverExit():
+    agent_1 = Agent(range_observation=4)
+    agent_2 = Agent(range_observation=4)
+    env = RiverExit(size=11)
+    env.add_agents(agent_1, agent_2)
+    size = 11
+    print(env)
+    exits = [(1, 1), (size - 2, 1), (1, size - 2), (size - 2, size - 2)]
+
+    potential_exits = env.cell_type(exits[0][0], exits[0][1]) == ElementsEnv.EXIT_DIFFICULT.value or \
+                      env.cell_type(exits[1][0], exits[1][1]) == ElementsEnv.EXIT_DIFFICULT.value or \
+                      env.cell_type(exits[2][0], exits[2][1]) == ElementsEnv.EXIT_DIFFICULT.value or \
+                      env.cell_type(exits[3][0], exits[3][1]) == ElementsEnv.EXIT_DIFFICULT.value
+
+    assert potential_exits
+
+    env.reset()
+
+    potential_exits = env.cell_type(exits[0][0], exits[0][1]) == ElementsEnv.EXIT_DIFFICULT.value or \
+                      env.cell_type(exits[1][0], exits[1][1]) == ElementsEnv.EXIT_DIFFICULT.value or \
+                      env.cell_type(exits[2][0], exits[2][1]) == ElementsEnv.EXIT_DIFFICULT.value or \
+                      env.cell_type(exits[3][0], exits[3][1]) == ElementsEnv.EXIT_DIFFICULT.value
+
+    assert potential_exits
+
+

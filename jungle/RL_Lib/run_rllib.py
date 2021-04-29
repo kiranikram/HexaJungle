@@ -17,15 +17,18 @@ from jungle.RL_Lib.jungle_wrapper import RLlibWrapper
 from jungle.utils import ElementsEnv, Actions, Definitions
 from jungle.agent import Agent
 
+"""In simplified version, setting number of policies to 1 instead of 2, which is the number of agents at the moment
+, and using easy exit """
+
 tf1, tf, tfv = try_import_tf()
 
 parser = argparse.ArgumentParser()
 
 parser.add_argument("--num-agents", type=int, default=2)
-parser.add_argument("--num-policies", type=int, default=2)
+parser.add_argument("--num-policies", type=int, default=1)
 parser.add_argument("--stop-iters", type=int, default=200)
 parser.add_argument("--stop-reward", type=float, default=15)
-parser.add_argument("--stop-timesteps", type=int, default=100000)
+parser.add_argument("--stop-timesteps", type=int, default=10000)
 parser.add_argument("--num-cpus", type=int, default=0)
 parser.add_argument("--as-test", action="store_true")
 parser.add_argument(
@@ -49,7 +52,7 @@ if __name__ == "__main__":
 
     # Get obs- and action Spaces.
     # config = {'jungle': 'RiverExit', 'size': 11}
-    config = {'jungle': 'RiverExit', 'size': 11}
+    config = {'jungle': 'EasyExit', 'size': 11}
     single_env = RLlibWrapper(config)
 
     obs_space = single_env.observation_space
@@ -73,6 +76,7 @@ if __name__ == "__main__":
         "policy_{}".format(i): gen_policy(i)
         for i in range(args.num_policies)
     }
+    print(policies)
 
     policy_ids = list(policies.keys())
 
@@ -99,9 +103,10 @@ if __name__ == "__main__":
 
     config = {
         "env": RLlibWrapper,
-        "env_config": {'jungle': 'RiverExit', "size": 11},
+        "env_config": {'jungle': 'EasyExit', "size": 11},
         "no_done_at_end": True,
         "lr": tune.grid_search([1e-4, 1e-6]),
+
         # "lr":0.0001,
         # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
         "num_gpus": int(os.environ.get("RLLIB_NUM_GPUS", "0")),
@@ -110,6 +115,12 @@ if __name__ == "__main__":
             "policies": policies,
             "policy_mapping_fn": policy_mapping_fn,
         },
+        #"model":{
+            #'fcnet_hiddens':[256,256],
+             #'vf_share_layers': True,
+             #'use_lstm': True,
+             #"lstm_cell_size": 256
+        #},
         "framework": args.framework,
     }
     stop = {

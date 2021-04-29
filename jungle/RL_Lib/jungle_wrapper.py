@@ -51,7 +51,7 @@ class RLlibWrapper(MultiAgentEnv):
         # sa_observation_space = spaces.Box(low=0, high=10,
         # shape=(1,))
         # self._set_obs_space()
-        self.observation_space = spaces.Box(low=0, high=9,
+        self.observation_space = spaces.Box(low=0, high=1,
                                             shape=(208,), dtype=np.float64)
         # self.observation_space = spaces.Tuple(tuple(2 * [sa_observation_space]))
         # self.observation_space = spaces.Tuple(tuple(spaces.Box(low=0, high=self.jungle.size, shape=(1,))))

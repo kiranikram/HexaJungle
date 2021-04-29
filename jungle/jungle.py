@@ -78,8 +78,8 @@ class EmptyJungle:
         # trees must not be on any exit coordinates
         # trees must not be where agents are
         trees = []
-        for row in range(2, self.size - 2):
-            for col in range(2, self.size - 2):
+        for row in range(3, self.size - 3):
+            for col in range(3, self.size - 3):
                 trees.append((row, col))
         agent_1_location = int((self.size - 1) / 2), int((self.size - 1) / 2 - 1)
 
@@ -217,8 +217,10 @@ class EmptyJungle:
                 # one of them only gets the log
                 if random.random() > 0.5:
                     self.agent_black.wood_logs += 1
+                    print('black got logs')
                 else:
                     self.agent_white.wood_logs += 1
+                    print('white got logs')
 
                 # But both have neg reward from the effort
                 rew_white += Definitions.REWARD_CUT_TREE.value

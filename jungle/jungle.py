@@ -6,6 +6,7 @@ from collections import namedtuple
 
 from jungle.utils import ElementsEnv, Actions, Definitions
 from jungle.observations import restrict_observations
+from jungle.helpers.helper_functions import normalize
 
 Exit = namedtuple('Exit', ['coordinates', 'surrounding_1', 'surrounding_2'])
 
@@ -620,13 +621,23 @@ class EmptyJungle:
             obs.append(ElementsEnv.AGENT_BLACK.value)
 
         obs = np.asarray(obs)
+        if agent.color == Definitions.BLACK:
+            print('AGENT BLACK:')
+            print(self.agent_black.grid_position, '***', obs)
+        elif agent.color == Definitions.WHITE:
+            print('AGENT WHITE:')
+            print(self.agent_white.grid_position, '***', obs)
+        obs = normalize(obs,0,1)
 
-        env_elements = len(ElementsEnv) + 1
 
-        one_hot_obs = np.eye(env_elements)[obs]
-        one_hot_obs = list(one_hot_obs.flat)
 
-        return one_hot_obs
+        # if we want to convert to one-hot, array size becomes 208 for Box
+        # env_elements = len(ElementsEnv) + 1
+        # one_hot_obs = np.eye(env_elements)[obs]
+        # one_hot_obs = list(one_hot_obs.flat)
+        # return one_hot_obs
+
+        return obs
 
     def cell_type(self, x, y):
         return self.grid_env[x, y]

@@ -126,4 +126,7 @@ def test_RiverExit():
 
     assert potential_exits
 
+def test_agent_sees_exit():
+    pass
+
 

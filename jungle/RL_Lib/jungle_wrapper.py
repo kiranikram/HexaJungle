@@ -68,7 +68,7 @@ class RLlibWrapper(MultiAgentEnv):
 
     def step(self, actions):
         print('step is being called')
-        print(self.jungle)
+
         agents = [*actions]
 
         # if agents[0] == self.jungle.agent_white:

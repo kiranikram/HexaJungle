@@ -184,7 +184,7 @@ class EmptyJungle:
         self.agent_black.angle = self.agent_white.starting_angle
 
     def step(self, actions):
-        print(actions)
+
 
         # First Physical move
         if not self.agent_white.done:
@@ -340,15 +340,15 @@ class EmptyJungle:
 
         if not self.agent_black.done:
             obs['black'] = self.generate_agent_obs(self.agent_black)
-            self.agent_black.last_obs = self.generate_agent_obs(self.agent_white)
+            self.agent_black.last_obs = self.generate_agent_obs(self.agent_black)
         else:
             obs['black'] = self.agent_black.last_obs
 
         print('*************')
-        print('at this step agent white :')
-        print(self.agent_white.grid_position, 'and reward:', rew_white)
-        print('at this step agent black :')
-        print(self.agent_black.grid_position, 'and reward:', rew_black)
+        print('at this step agent whites reward is:', rew_white)
+
+        print('at this step agent blacks reward is:', rew_black)
+
         return obs, rewards, done
 
     def apply_rules(self, agent):
@@ -623,10 +623,10 @@ class EmptyJungle:
         obs = np.asarray(obs)
         if agent.color == Definitions.BLACK:
             print('AGENT BLACK:')
-            print(self.agent_black.grid_position, '***', obs)
+            print(self.agent_black.grid_position,'angle:', self.agent_black.angle, '***', obs)
         elif agent.color == Definitions.WHITE:
             print('AGENT WHITE:')
-            print(self.agent_white.grid_position, '***', obs)
+            print(self.agent_white.grid_position, 'angle:', self.agent_white.angle, '***', obs)
         obs = normalize(obs,0,1)
 
 

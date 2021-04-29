@@ -28,9 +28,9 @@ parser.add_argument("--num-agents", type=int, default=2)
 parser.add_argument("--num-policies", type=int, default=1)
 parser.add_argument("--use-prev-action", action="store_true")
 parser.add_argument("--use-prev-reward", action="store_true")
-parser.add_argument("--stop-iters", type=int, default=200)
+parser.add_argument("--stop-iters", type=int, default=400)
 parser.add_argument("--stop-reward", type=float, default=15)
-parser.add_argument("--stop-timesteps", type=int, default=100000)
+parser.add_argument("--stop-timesteps", type=int, default=500000)
 parser.add_argument("--num-cpus", type=int, default=0)
 parser.add_argument("--as-test", action="store_true")
 parser.add_argument(
@@ -63,6 +63,7 @@ if __name__ == "__main__":
         elif agent_id == 'black':
             return policies["centralized_ppo"]
 
+
     def policy_mapping_fn(agent_id):
         print('AGENT ID in policy mapping function')
         print(agent_id)
@@ -74,31 +75,35 @@ if __name__ == "__main__":
         print(pol_id)
         return pol_id
 
+
     config = {
-            "env": RLlibWrapper,
-            "env_config": {'jungle': 'EasyExit', "size": 11},
-            "no_done_at_end": True,
-            "gamma": 0.9,
-            # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
-            "num_gpus": int(os.environ.get("RLLIB_NUM_GPUS", "0")),
-            "num_workers": 0,
+        "env": RLlibWrapper,
+        "env_config": {'jungle': 'EasyExit', "size": 11},
+        "no_done_at_end": True,
+        "gamma": 0.9,
+        # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
+        "num_gpus": int(os.environ.get("RLLIB_NUM_GPUS", "0")),
+        "num_workers": 0,
+        "train_batch_size": 200,
+        "multiagent": {
 
-            "multiagent": {
-
-                "policies": {
-                    "centralized_ppo": (None, obs_space, act_space, {})
-                },
-                "policy_mapping_fn": policy_mapping_fn,
+            "policies": {
+                "centralized_ppo": (None, obs_space, act_space, {})
             },
-            "model": {
-                # 'fcnet_hiddens':[256,256],
-                # 'vf_share_layers': True,
-                'use_lstm': True,
-                "lstm_cell_size": 256
-            },
-            "framework": args.framework,
-        }
+            "policy_mapping_fn": policy_mapping_fn,
+        },
+        "model": {
+            'fcnet_hiddens': [256, 384, 576, 384, 256],
+            # 'vf_share_layers': True,
+            'use_lstm': True,
+            "lstm_cell_size": 256,
+            "lstm_use_prev_action": True,
+            "lstm_use_prev_reward": True,
+            # "use_attention": True,
 
+        },
+        "framework": args.framework,
+    }
 
     stop = {
         "episode_reward_mean": args.stop_reward,

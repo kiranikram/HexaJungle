@@ -91,6 +91,6 @@ class Agent:
             actions = {k: a * 0 for k, a in actions.items()}
 
         self.current_actions = actions
-        print(self.current_actions.items())
+
 
 

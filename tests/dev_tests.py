@@ -75,7 +75,7 @@ def test_wrapper():
     print('sample', env.action_space.sample())
 
     actions = {"agent_1": [1, 1, 1], "agent_2": [1, 0, 0]}
-    # obs, rew, done = env.step(actions)
+    obs, rew, done = env.step(actions)
     # print(obs)
 
     obs = env.reset()
@@ -87,18 +87,20 @@ def test_riverexit_wrapper():
     # agent_1 = Agent(range_observation=3)
     # agent_2 = Agent(range_observation=3)
     # Jungle.add_agents(agent_1, agent_2)
-    actions = {"white": [1, 1, 1], "black": [1, 1, 1]}
-    config = {'jungle': 'EasyExit', 'size': 15}
+    actions = {"white": [1, -1, 1], "black": [1, 1, 1]}
+    config = {'jungle': 'EasyExit', 'size': 11}
     env = RLlibWrapper(config)
+    print(env)
 
+    obs, rew, done, _ = env.step(actions)
     obs, rew, done, _ = env.step(actions)
 
     assert isinstance(obs, dict)
     assert isinstance(rew, dict)
     assert isinstance(done, dict)
 
-    new_obs = env.reset()
-    assert isinstance(new_obs, dict)
+    #new_obs = env.reset()
+    #assert isinstance(new_obs, dict)
 
 
 def test_RiverExit():

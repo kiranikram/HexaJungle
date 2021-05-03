@@ -10,7 +10,7 @@ class EasyExit(EmptyJungle):
         self.exit_1 = self.select_random_exit()
         self.exit_2 = self.select_random_exit()
         self.add_objects()
-        print('we here ')
+
 
     def reset(self):
         self.reinitialize_grid()
@@ -23,14 +23,14 @@ class EasyExit(EmptyJungle):
         self.agent_white.done = False
         self.agent_black.done = False
 
-        print('IN RESET FUNC OF EASY EXIT')
-        if self.agent_white.done:
-            print('ag white done')
+        #print('IN RESET FUNC OF EASY EXIT')
+        #if self.agent_white.done:
+            #print('ag white done')
 
-        if self.agent_black.done:
-            print('ag black done')
+        #if self.agent_black.done:
+            #print('ag black done')
 
-        print('*************')
+
 
         obs = {'white': self.generate_agent_obs(self.agent_white),
                'black': self.generate_agent_obs(self.agent_black)}
@@ -39,6 +39,8 @@ class EasyExit(EmptyJungle):
 
     def add_objects(self):
         self.add_object(ElementsEnv.EXIT_EASY, self.exit_1.coordinates)
+        self.add_object(ElementsEnv.EXIT_EASY, self.exit_1.surrounding_1)
+        self.add_object(ElementsEnv.EXIT_EASY, self.exit_1.surrounding_2)
         self.add_object(ElementsEnv.RIVER, self.exit_2.surrounding_1)
         self.add_object(ElementsEnv.RIVER, self.exit_2.surrounding_2)
 

@@ -39,8 +39,8 @@ class RLlibWrapper(MultiAgentEnv):
         jungle_cls = getattr(basic, config['jungle'])
         self.jungle = jungle_cls(config['size'])
 
-        agent_1 = Agent(range_observation=3)
-        agent_2 = Agent(range_observation=3)
+        agent_1 = Agent(range_observation=4)
+        agent_2 = Agent(range_observation=4)
         self.jungle.add_agents(agent_1, agent_2)
 
         sa_action_space = spaces.MultiDiscrete([2, 3, 2])
@@ -52,7 +52,7 @@ class RLlibWrapper(MultiAgentEnv):
         # shape=(1,))
         # self._set_obs_space()
         self.observation_space = spaces.Box(low=0, high=1,
-                                            shape=(16,), dtype=np.float64)
+                                            shape=(25,), dtype=np.float64)
         # self.observation_space = spaces.Tuple(tuple(2 * [sa_observation_space]))
         # self.observation_space = spaces.Tuple(tuple(spaces.Box(low=0, high=self.jungle.size, shape=(1,))))
 
@@ -67,7 +67,7 @@ class RLlibWrapper(MultiAgentEnv):
     # MultiAgentDict = Dict[AgentID, Any]
 
     def step(self, actions):
-        print('step is being called')
+        #print('step is being called')
 
         agents = [*actions]
 
@@ -95,14 +95,14 @@ class RLlibWrapper(MultiAgentEnv):
         black_rot = actions_black[1] - 1
         black_climb = actions_black[2]
 
-        if black_fwd == 1:
-            print('black moved fwd')
-        if black_rot == -1:
-            print ('black turned left')
-        elif black_rot == 1:
-            print ('black turned right')
-        if black_climb == 1:
-            print ('black tried to climb ')
+        #if black_fwd == 1:
+            #print('black moved fwd')
+        #if black_rot == -1:
+            #print ('black turned left')
+        #elif black_rot == 1:
+            #print ('black turned right')
+        #if black_climb == 1:
+            #print ('black tried to climb ')
 
         black_dict = {Actions.FORWARD: black_fwd, Actions.ROTATE: black_rot, Actions.CLIMB: black_climb}
 
@@ -111,14 +111,14 @@ class RLlibWrapper(MultiAgentEnv):
         white_rot = actions_white[1] - 1
         white_climb = actions_white[2]
 
-        if white_fwd == 1:
-            print('white moved fwd')
-        if white_rot == -1:
-            print ('white turned left')
-        elif white_rot == 1:
-            print ('white turned right')
-        if white_climb == 1:
-            print ('white tried to climb ')
+        #if white_fwd == 1:
+            #print('white moved fwd')
+        #if white_rot == -1:
+            #print ('white turned left')
+        #elif white_rot == 1:
+            #print ('white turned right')
+        #if white_climb == 1:
+            #print ('white tried to climb ')
 
         white_dict = {Actions.FORWARD: white_fwd, Actions.ROTATE: white_rot, Actions.CLIMB: white_climb}
 
@@ -133,9 +133,9 @@ class RLlibWrapper(MultiAgentEnv):
 
         obs, rewards, done = self.jungle.step(actions_dict)
 
-        print('in wrapper, done is ')
-        print(done)
-        print('**************')
+        #print('in wrapper, done is ')
+        #print(done)
+        #print('**************')
 
         # Here modify obs, rewards and done so that they are understood by rllib
 
@@ -151,7 +151,7 @@ class RLlibWrapper(MultiAgentEnv):
         return obs, rewards, done, info
 
     def reset(self):
-        print('reset is  being called')
+        #print('reset is  being called')
 
         obs = self.jungle.reset()
         obs = self._convert_to_wrapper_agents(obs)

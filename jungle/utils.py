@@ -26,22 +26,28 @@ class ElementsEnv(Enum):
 
 
 class Definitions(Enum):
+    # bring all in range of (-10,10)
     BLACK = 0
     WHITE = 1
     MIN_SIZE_ENVIR = 5
+    # kill this
     LOG_RATE = 3
+    # kill this as well
     RANGE_INCREASE = 2
-    REWARD_COLLISION = 0
+    REWARD_COLLISION = -1
     REWARD_CUT_TREE = -2
     REWARD_EXIT_AVERAGE = 100
     REWARD_EXIT_HIGH = 50
     REWARD_EXIT_VERY_HIGH = 100
     REWARD_EXIT_LOW = 5
-    REWARD_DROWN = -50
+    REWARD_DROWN = -100
+    # probably should not have this
     REWARD_BUILT_BRIDGE = 35
+    # or this actually
     REWARD_CROSS_BOULDER = 35
-    REWARD_FELL = -5
+    REWARD_FELL = -2
     REWARD_CARRYING = -5
+    # remove: replace with reward fell!
     REWARD_BOTH_CLIMBED = -20
     REWARD_INVIABLE_CLIMB = -100
 

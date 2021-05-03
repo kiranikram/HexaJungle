@@ -28,9 +28,9 @@ parser.add_argument("--num-agents", type=int, default=2)
 parser.add_argument("--num-policies", type=int, default=1)
 parser.add_argument("--use-prev-action", action="store_true")
 parser.add_argument("--use-prev-reward", action="store_true")
-parser.add_argument("--stop-iters", type=int, default=400)
-parser.add_argument("--stop-reward", type=float, default=15)
-parser.add_argument("--stop-timesteps", type=int, default=500000)
+parser.add_argument("--stop-iters", type=int, default = 9999)
+parser.add_argument("--stop-reward", type=float, default  = 9999)
+parser.add_argument("--stop-timesteps", type=int, default=200000)
 parser.add_argument("--num-cpus", type=int, default=0)
 parser.add_argument("--as-test", action="store_true")
 parser.add_argument(
@@ -65,26 +65,25 @@ if __name__ == "__main__":
 
 
     def policy_mapping_fn(agent_id):
-        print('AGENT ID in policy mapping function')
-        print(agent_id)
+
 
         pol_id = random.choice(policy_ids)
-        print(f"mapping {agent_id} to {pol_id}")
+        #print(f"mapping {agent_id} to {pol_id}")
 
-        print('RETURNS pol_id')
-        print(pol_id)
+
         return pol_id
 
 
     config = {
         "env": RLlibWrapper,
         "env_config": {'jungle': 'EasyExit', "size": 11},
-        "no_done_at_end": True,
+        "no_done_at_end": False,
         "gamma": 0.9,
         # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
         "num_gpus": int(os.environ.get("RLLIB_NUM_GPUS", "0")),
-        "num_workers": 0,
+        "num_workers": 1,
         "train_batch_size": 200,
+        "horizon": 300,
         "multiagent": {
 
             "policies": {
@@ -93,7 +92,8 @@ if __name__ == "__main__":
             "policy_mapping_fn": policy_mapping_fn,
         },
         "model": {
-            'fcnet_hiddens': [256, 384, 576, 384, 256],
+
+            'fcnet_hiddens': [256, 256],
             # 'vf_share_layers': True,
             'use_lstm': True,
             "lstm_cell_size": 256,
@@ -112,6 +112,7 @@ if __name__ == "__main__":
     }
 
     results = tune.run("PPO", stop=stop, config=config, verbose=1)
+    #results = tune.run("PPO", stop={"episode_reward_mean": 100}, config=config, verbose=1)
 
     if args.as_test:
         check_learning_achieved(results, args.stop_reward)

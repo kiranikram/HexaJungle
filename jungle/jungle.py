@@ -625,14 +625,11 @@ class EmptyJungle:
         if len(obs) < 24:
             obs += [0] * (24 - len(obs))
 
-        print("£££££££")
-        print(obs)
-
         # option: simply appending agent
         if agent == self.agent_white:
-            obs.append(ElementsEnv.AGENT_WHITE.value)
-        else:
             obs.append(ElementsEnv.AGENT_BLACK.value)
+        elif agent == self.agent_black:
+            obs.append(ElementsEnv.AGENT_WHITE.value)
 
         obs = np.asarray(obs)
 

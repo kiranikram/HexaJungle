@@ -30,11 +30,12 @@ parser.add_argument("--use-prev-action", action="store_true")
 parser.add_argument("--use-prev-reward", action="store_true")
 parser.add_argument("--stop-iters", type=int, default = 9999)
 parser.add_argument("--stop-reward", type=float, default  = 9999)
-parser.add_argument("--stop-timesteps", type=int, default=200000)
+parser.add_argument("--stop-timesteps", type=int, default=400000)
 parser.add_argument("--num-cpus", type=int, default=0)
 parser.add_argument("--as-test", action="store_true")
 parser.add_argument(
     "--framework", choices=["tf2", "tf", "tfe", "torch"], default="tf")
+parser.add_argument("--logdir", type=str, default="logs")
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -81,9 +82,10 @@ if __name__ == "__main__":
         "gamma": 0.9,
         # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
         "num_gpus": int(os.environ.get("RLLIB_NUM_GPUS", "0")),
+        "output": "logdir",
         "num_workers": 1,
         "train_batch_size": 200,
-        "horizon": 300,
+        "horizon": 400,
         "multiagent": {
 
             "policies": {
@@ -111,7 +113,7 @@ if __name__ == "__main__":
         "training_iteration": args.stop_iters,
     }
 
-    results = tune.run("PPO", stop=stop, config=config, verbose=1)
+    results = tune.run("PPO", stop=stop, config=config,local_dir=args.logdir, verbose=1)
     #results = tune.run("PPO", stop={"episode_reward_mean": 100}, config=config, verbose=1)
 
     if args.as_test:

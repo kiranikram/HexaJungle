@@ -5,7 +5,7 @@ from enum import Enum, IntEnum
 import itertools
 from collections import defaultdict
 from jungle.agent import Agent
-from jungle.utils import ElementsEnv, Actions, Definitions
+from jungle.utils import ElementsEnv, Actions, Rewards
 
 
 def generate_actions():
@@ -43,9 +43,9 @@ def run_one_episode(max_steps, agents, env, agent_1,agent_2):
             if agent_1.done and agent_2.done:
                 break
             if not agent_1.done:
-                print(agent_1.grid_position,reward[agent_1],obs[agent_1])
+                print(agent_1.position, reward[agent_1], obs[agent_1])
             if not agent_2.done:
-                print(agent_2.grid_position, reward[agent_2], obs[agent_2])
+                print(agent_2.position, reward[agent_2], obs[agent_2])
 
 
 

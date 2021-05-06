@@ -10,7 +10,7 @@ from ray.rllib.env.multi_agent_env import MultiAgentEnv
 from ray.rllib.utils.annotations import override
 from ray.rllib.utils.typing import MultiAgentDict, PolicyID, AgentID
 from jungle.rl_envs.basic import RiverExit
-from jungle.utils import ElementsEnv, Actions, Definitions
+from jungle.utils import ElementsEnv, Actions, Rewards
 from jungle.observations import restrict_observations
 from jungle.agent import Agent
 from jungle import jungle

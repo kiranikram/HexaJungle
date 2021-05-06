@@ -1,18 +1,12 @@
-import math
-import pytest
-import nose
 import random
-import numpy as np
 
 from jungle.agent import Agent
 from jungle.jungle import EmptyJungle
-from jungle.utils import Actions, Definitions, ElementsEnv
-from jungle.RL_Lib.jungle_wrapper import RLlibWrapper
+from jungle.utils import Actions, ElementsEnv
+from RL_Lib.jungle_wrapper import RLlibWrapper
 
 from jungle.exp_trainer import run_one_episode
-from jungle.rl_envs.basic import RiverExit, BoulderExit, EasyExit
-
-from jungle import jungle
+from jungle.rl_envs.basic import RiverExit, BoulderExit
 
 
 def generate_actions():

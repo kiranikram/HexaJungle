@@ -1,15 +1,12 @@
 from enum import IntEnum, Enum, auto
 
+MIN_SIZE_ENVIR = 5
+MAX_WOOD_LOGS = 2
+BLACK = 0
+WHITE = 1
+
 
 class ElementsEnv(Enum):
-    # by using auto you are not assigning any pr-determined value for these.
-    # this becomes more flexible as you can just add any and not worry if the number is already taken.
-
-    # you should give more meaningful names to exits.
-    # e.g EXIT_HIGH_REWARD, EXIT_MIDDLE_REWARD, EXIT_LOW_REWARD, EXIT_WHITE, EXIT_BLACK
-
-    # each exit has a specific type of reward property, based on exit type eg rivers requires
-    # cooperation as they both need to have picked up logs
 
     EMPTY = auto()
     EXIT_EASY = auto()
@@ -21,37 +18,31 @@ class ElementsEnv(Enum):
     TREE = auto()
     OBSTACLE = auto()  # non traversable, can't climb it
     BRIDGE = auto()
-    AGENT_BLACK = auto()
-    AGENT_WHITE = auto()
+    AGENT = auto()
 
+display_dict = {
+    ElementsEnv.EMPTY.value:  '.',
+    ElementsEnv.EXIT_EASY.value: 'e',
+    ElementsEnv.EXIT_DIFFICULT.value: 'E',
+    ElementsEnv.EXIT_WHITE.value: 'E',
+    ElementsEnv.EXIT_BLACK.value: 'E',
+    ElementsEnv.RIVER.value : 'R',
+    ElementsEnv.BOULDER.value : 'B',
+    ElementsEnv.TREE.value : 'T',
+    ElementsEnv.OBSTACLE.value : 'X'
+}
 
-class Definitions(Enum):
+class Rewards(Enum):
     # bring all in range of (-10,10)
-    BLACK = 0
-    WHITE = 1
-    MIN_SIZE_ENVIR = 5
-    # kill this
-    LOG_RATE = 3
-    # kill this as well
-    RANGE_INCREASE = 2
     REWARD_COLLISION = -1
     REWARD_CUT_TREE = -2
-    REWARD_EXIT_AVERAGE = 100
-    REWARD_EXIT_HIGH = 50
+    REWARD_EXIT_LOW = 25
+    REWARD_EXIT_AVERAGE = 50
+    REWARD_EXIT_HIGH = 75
     REWARD_EXIT_VERY_HIGH = 100
-    REWARD_EXIT_LOW = 5
     REWARD_DROWN = -100
-    # probably should not have this
-    REWARD_BUILT_BRIDGE = 35
-    # or this actually
-    REWARD_CROSS_BOULDER = 35
     REWARD_FELL = -2
-    REWARD_CARRYING = -5
-    # remove: replace with reward fell!
-    REWARD_BOTH_CLIMBED = -20
-    REWARD_INVIABLE_CLIMB = -100
-
-
+    REWARD_CARRYING = -3
 
 # Just an Actions definition with enum is sufficient.
 # Their effect will be decided in the code

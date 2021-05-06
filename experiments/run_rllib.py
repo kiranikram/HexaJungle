@@ -1,5 +1,4 @@
 import argparse
-import gym
 import os
 import random
 
@@ -11,11 +10,7 @@ from ray.rllib.examples.models.shared_weights_model import \
 from ray.rllib.models import ModelCatalog
 from ray.rllib.utils.framework import try_import_tf
 from ray.rllib.utils.test_utils import check_learning_achieved
-from jungle.jungle import EmptyJungle
-from jungle.rl_envs.basic import RiverExit, BoulderExit
-from jungle.RL_Lib.jungle_wrapper import RLlibWrapper
-from jungle.utils import ElementsEnv, Actions, Definitions
-from jungle.agent import Agent
+from RL_Lib.jungle_wrapper import RLlibWrapper
 
 """In simplified version, setting number of policies to 1 instead of 2, which is the number of agents at the moment
 , and using easy exit """

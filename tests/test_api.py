@@ -3,9 +3,9 @@ import pytest
 import random
 
 from jungle.agent import Agent
-from jungle.utils import Actions, Definitions, ElementsEnv
+from jungle.utils import Actions, Rewards, ElementsEnv, MIN_SIZE_ENVIR, BLACK, WHITE
 
-from jungle.jungle import EmptyJungle
+from jungle.jungles.basic import EmptyJungle
 
 
 def test_rl_loop():
@@ -22,8 +22,8 @@ def test_rl_loop():
     simple_jungle.add_agents(agent_1, agent_2)
 
     # Once added, each agent randomly takes a color for the game
-    assert (agent_1.color is Definitions.BLACK and agent_2.color is Definitions.WHITE) \
-           or (agent_1.color is Definitions.WHITE and agent_2.color is Definitions.BLACK)
+    assert (agent_1.color is BLACK and agent_2.color is WHITE) \
+           or (agent_1.color is WHITE and agent_2.color is BLACK)
 
     actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1},
                agent_2: {Actions.FORWARD: 1}
@@ -32,13 +32,13 @@ def test_rl_loop():
     obs, rew, done = simple_jungle.step(actions)
 
     # Because observations are not set, it should return none:
-    assert isinstance(obs[agent_1], (list, tuple))
-    assert isinstance(obs[agent_2], (list, tuple))
+    assert isinstance(obs[agent_1], dict)
+    assert isinstance(obs[agent_2], dict)
 
     assert isinstance(rew[agent_1], (float, int))
     assert isinstance(rew[agent_2], (float, int))
 
-    assert not done
+    assert not done[agent_1] and not done[agent_2]
 
     # should work with some actions not set (default to 0
 
@@ -50,7 +50,7 @@ def test_rl_loop():
 
     # should work without agent in the dict. (default to 0)
 
-    pos_before = agent_1.grid_position
+    pos_before = agent_1.position
 
     # agent_2 rotates -1
     actions = {agent_2: {Actions.ROTATE: -1}
@@ -58,7 +58,7 @@ def test_rl_loop():
     simple_jungle.step(actions)
 
     # make sure that position doesn't change when action is empty
-    assert pos_before == agent_1.grid_position
+    assert pos_before == agent_1.position
 
 
 def test_agents_on_same_cell():
@@ -68,7 +68,7 @@ def test_agents_on_same_cell():
     simple_jungle = EmptyJungle(size=11)
 
     simple_jungle.add_agents(agent_1, agent_2)
-    print(agent_1.grid_position, agent_2.grid_position)
+    print(agent_1.position, agent_2.position)
 
     # Move agent 2 on cell of agent 1
 
@@ -88,7 +88,7 @@ def test_agents_on_same_cell():
     obs, rew, done = simple_jungle.step(actions)
 
     # should be on the same cell, no collision
-    assert agent_1.grid_position == agent_2.grid_position
+    assert agent_1.position == agent_2.position
     assert rew[agent_1] == rew[agent_2] == 0
 
 
@@ -178,7 +178,7 @@ def test_environment_building():
         # Check that pair size_envir raise error
         # or that too small environment raise error
 
-        if size_envir % 2 == 0 or size_envir < Definitions.MIN_SIZE_ENVIR.value:
+        if size_envir % 2 == 0 or size_envir < MIN_SIZE_ENVIR:
 
             with pytest.raises(Exception):
                 EmptyJungle(size=size_envir)
@@ -197,9 +197,9 @@ def test_initialization():
         simple_jungle = EmptyJungle(size=size_envir)
         simple_jungle.add_agents(agent_1, agent_2)
 
-        # grid_position should be in np coordinates (row, col)
-        assert agent_1.grid_position == ((size_envir - 1) / 2, (size_envir - 1) / 2 - 1)
-        assert agent_2.grid_position == ((size_envir - 1) / 2, (size_envir - 1) / 2 + 1)
+        # position should be in np coordinates (row, col)
+        assert agent_1.position == ((size_envir - 1) / 2, (size_envir - 1) / 2 - 1)
+        assert agent_2.position == ((size_envir - 1) / 2, (size_envir - 1) / 2 + 1)
 
         # angle is index of trigonometric angle (0, 1, ... to 5)
         assert agent_1.angle == 3
@@ -213,10 +213,10 @@ def test_movements():
     simple_jungle = EmptyJungle(size=11)
     simple_jungle.add_agents(agent_1, agent_2)
 
-    assert agent_1.grid_position == (5, 4)
+    assert agent_1.position == (5, 4)
     assert agent_1.angle == 3
 
-    assert agent_2.grid_position == (5, 6)
+    assert agent_2.position == (5, 6)
     assert agent_2.angle == 0
 
     # First rotation, then forward, but the order in the actions dict doesn't matter.
@@ -226,10 +226,10 @@ def test_movements():
     simple_jungle.step(actions)
 
     # Check new positions on grid
-    assert agent_1.grid_position == (6, 4)
+    assert agent_1.position == (6, 4)
     assert agent_1.angle == 4
 
-    assert agent_2.grid_position == (6, 7)
+    assert agent_2.position == (6, 7)
     assert agent_2.angle == 5
 
     # Perform the same action 5 more times and it should go back to original position
@@ -238,10 +238,10 @@ def test_movements():
     for i in range(5):
         simple_jungle.step(actions)
 
-    assert agent_1.grid_position == (5, 4)
+    assert agent_1.position == (5, 4)
     assert agent_1.angle == 3
 
-    assert agent_2.grid_position == (5, 6)
+    assert agent_2.position == (5, 6)
     assert agent_2.angle == 0
 
 
@@ -268,11 +268,11 @@ def test_collisions_with_obstacles():
     obs, rew, done = simple_jungle.step(actions)
 
     # agent keeps position and angle
-    assert agent_1.grid_position == (5, 4)
+    assert agent_1.position == (5, 4)
     assert agent_1.angle == 3
 
     # agent receives reward for collision
-    assert rew[agent_1] == Definitions.REWARD_COLLISION.value
+    assert rew[agent_1] == Rewards.REWARD_COLLISION.value
 
     # agent_1 now rotates, then moves forward towards another object.
     actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1, Actions.CLIMB: 0},
@@ -282,7 +282,7 @@ def test_collisions_with_obstacles():
     obs, rew, done = simple_jungle.step(actions)
 
     # first movement occurs without collision
-    assert agent_1.grid_position == (4, 4)
+    assert agent_1.position == (4, 4)
     assert rew[agent_1] == 0.0
     assert agent_1.angle == 2
 
@@ -293,8 +293,8 @@ def test_collisions_with_obstacles():
 
     obs, rew, done = simple_jungle.step(actions)
 
-    assert agent_1.grid_position == (4, 4)
-    assert rew[agent_1] == Definitions.REWARD_COLLISION.value
+    assert agent_1.position == (4, 4)
+    assert rew[agent_1] == Rewards.REWARD_COLLISION.value
     assert agent_1.angle == 2
 
 
@@ -324,9 +324,9 @@ def test_collision_with_tree():
 
     obs, rew, done = simple_jungle.step(actions)
 
-    assert agent_1.grid_position == (4, 4)
+    assert agent_1.position == (4, 4)
     assert agent_1.angle == 2
-    assert rew[agent_1] == Definitions.REWARD_CUT_TREE.value
+    assert rew[agent_1] == Rewards.REWARD_CUT_TREE.value
     assert agent_1.wood_logs == 1
 
     # move to second tree
@@ -337,9 +337,9 @@ def test_collision_with_tree():
 
     obs, rew, done = simple_jungle.step(actions)
 
-    assert agent_1.grid_position == (4, 3)
+    assert agent_1.position == (4, 3)
     assert agent_1.angle == 3
-    assert rew[agent_1] == Definitions.REWARD_CUT_TREE.value
+    assert rew[agent_1] == Rewards.REWARD_CUT_TREE.value
     assert agent_1.wood_logs == 2
 
     # move to third tree
@@ -350,9 +350,9 @@ def test_collision_with_tree():
 
     obs, rew, done = simple_jungle.step(actions)
 
-    assert agent_1.grid_position == (4, 2)
+    assert agent_1.position == (4, 2)
     assert agent_1.angle == 3
-    assert rew[agent_1] == Definitions.REWARD_CUT_TREE.value
+    assert rew[agent_1] == Rewards.REWARD_CUT_TREE.value
     assert agent_1.wood_logs == 2
 
     # we are limiting the number of tree logs to 2.
@@ -441,7 +441,7 @@ def test_exits():
 
     _, rew, done = simple_jungle.step(actions)
 
-    assert rew[agent_1] == Definitions.REWARD_EXIT_AVERAGE.value
+    assert rew[agent_1] == Rewards.REWARD_EXIT_AVERAGE.value
 
     # agent 1 takes hard exit.
 
@@ -455,7 +455,7 @@ def test_exits():
     assert agent_2.done is False
 
     _, rew, done = simple_jungle.step(actions)
-    assert rew[agent_1] == Definitions.REWARD_EXIT_HIGH.value
+    assert rew[agent_1] == Rewards.REWARD_EXIT_HIGH.value
 
     # If an agent takes the exit of its color, it receives a very high reward
     actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0},
@@ -464,7 +464,7 @@ def test_exits():
     simple_jungle = EmptyJungle(size=11)
     simple_jungle.add_agents(agent_1, agent_2)
 
-    if agent_1.color is Definitions.WHITE:
+    if agent_1.color is Rewards.WHITE:
         simple_jungle.add_object(ElementsEnv.EXIT_WHITE, (5, 3))
         simple_jungle.add_object(ElementsEnv.EXIT_BLACK, (5, 7))
     else:
@@ -472,8 +472,8 @@ def test_exits():
         simple_jungle.add_object(ElementsEnv.EXIT_WHITE, (5, 7))
 
     _, rew, done = simple_jungle.step(actions)
-    assert rew[agent_1] == Definitions.REWARD_EXIT_VERY_HIGH.value
-    assert rew[agent_1] == Definitions.REWARD_EXIT_VERY_HIGH.value
+    assert rew[agent_1] == Rewards.REWARD_EXIT_VERY_HIGH.value
+    assert rew[agent_1] == Rewards.REWARD_EXIT_VERY_HIGH.value
 
     assert agent_1.done
     assert agent_2.done
@@ -484,7 +484,7 @@ def test_exits():
     simple_jungle = EmptyJungle(size=11)
     simple_jungle.add_agents(agent_1, agent_2)
 
-    if agent_1.color is Definitions.BLACK:
+    if agent_1.color is Rewards.BLACK:
         simple_jungle.add_object(ElementsEnv.EXIT_WHITE, (5, 3))
         simple_jungle.add_object(ElementsEnv.EXIT_BLACK, (5, 7))
     else:
@@ -492,8 +492,8 @@ def test_exits():
         simple_jungle.add_object(ElementsEnv.EXIT_WHITE, (5, 7))
 
     _, rew, done = simple_jungle.step(actions)
-    assert rew[agent_1] == Definitions.REWARD_EXIT_LOW.value
-    assert rew[agent_1] == Definitions.REWARD_EXIT_LOW.value
+    assert rew[agent_1] == Rewards.REWARD_EXIT_LOW.value
+    assert rew[agent_1] == Rewards.REWARD_EXIT_LOW.value
 
 
 def test_gameplay_exit():
@@ -595,7 +595,7 @@ def test_approach_river_together():
     _, rew, done = simple_jungle.step(actions)
 
     # both agents need to be at River, otherwise lone agent at river dies
-    assert rew[agent_2] == Definitions.REWARD_DROWN.value
+    assert rew[agent_2] == Rewards.REWARD_DROWN.value
 
     # From MG test that agent 2 is dead -- eg maybe no value for agent 2 on grid
     assert agent_2.done
@@ -645,8 +645,8 @@ def test_build_bridge():
     assert simple_jungle.cell_type(5, 5) == ElementsEnv.EMPTY.value
 
     # assert they both get reward for building bridge (both need to be at river)
-    assert rew[agent_1] == Definitions.REWARD_BUILT_BRIDGE.value
-    assert rew[agent_2] == Definitions.REWARD_BUILT_BRIDGE.value
+    assert rew[agent_1] == Rewards.REWARD_BUILT_BRIDGE.value
+    assert rew[agent_2] == Rewards.REWARD_BUILT_BRIDGE.value
 
     # assert they both are not done
     assert not agent_1.done
@@ -673,7 +673,7 @@ def test_climb_action():
     simple_jungle.step(actions)
 
     # They are now on the same cell
-    assert agent_1.grid_position == agent_2.grid_position
+    assert agent_1.position == agent_2.position
 
     actions = {agent_1: {Actions.CLIMB: 1}}
 
@@ -683,7 +683,7 @@ def test_climb_action():
     # now, lets say orientation is the direction white is facing ; so black, in climbing, changes its orientation to
     # that of white
 
-    assert rew[agent_2] == Definitions.REWARD_CARRYING.value
+    assert rew[agent_2] == Rewards.REWARD_CARRYING.value
     assert agent_1.on_shoulders
 
     # Finally, agent_2 moves, so agent_1 is not on shoulders anymore
@@ -692,7 +692,7 @@ def test_climb_action():
     actions = {agent_2: {Actions.FORWARD: 1}}
     _, rew, _ = simple_jungle.step(actions)
 
-    assert rew[agent_1] == Definitions.REWARD_FELL.value
+    assert rew[agent_1] == Rewards.REWARD_FELL.value
     assert not agent_1.on_shoulders
 
 
@@ -714,7 +714,7 @@ def test_climb_boulders():
     simple_jungle.step(actions)
 
     # They are now on the same cell
-    assert agent_1.grid_position == agent_2.grid_position
+    assert agent_1.position == agent_2.position
     assert agent_1.angle == agent_2.angle
 
     # We place a boulder in front of agents
@@ -723,8 +723,8 @@ def test_climb_boulders():
     # Agent 1 tries to go to the boulder but fails
     actions = {agent_1: {Actions.FORWARD: 1}}
     _, rew, done = simple_jungle.step(actions)
-    assert agent_1.grid_position == agent_2.grid_position
-    assert rew[agent_1] == Definitions.REWARD_COLLISION.value
+    assert agent_1.position == agent_2.position
+    assert rew[agent_1] == Rewards.REWARD_COLLISION.value
 
     # Now, agent 1 tries to climb first and then move forward
     actions = {agent_1: {Actions.CLIMB: 1}}
@@ -735,7 +735,7 @@ def test_climb_boulders():
     simple_jungle.step(actions)
 
     # Now, should be on same position as boulder
-    assert agent_1.grid_position == (5, 3)
+    assert agent_1.position == (5, 3)
     assert agent_1.on_shoulders is False
 
     # After that, the agent can move forward on the next empty cell
@@ -743,7 +743,7 @@ def test_climb_boulders():
     actions = {agent_1: {Actions.FORWARD: 1}}
     _, rew, _ = simple_jungle.step(actions)
 
-    assert agent_1.grid_position == (5, 2)
+    assert agent_1.position == (5, 2)
     assert rew[agent_1] == 0
 
 
@@ -959,8 +959,8 @@ def test_obs_cooperation_sequence():
     simple_jungle = EmptyJungle(size=11)
     simple_jungle.add_agents(agent_1, agent_2)
 
-    print(agent_1.grid_position, agent_1.angle)
-    print(agent_2.grid_position, agent_2.angle)
+    print(agent_1.position, agent_1.angle)
+    print(agent_2.position, agent_2.angle)
 
     simple_jungle.add_object(ElementsEnv.TREE, (5, 3))
     actions = {}
@@ -996,8 +996,8 @@ def test_obs_cooperation_sequence():
     obs, rew, done = simple_jungle.step(actions)
     obs, rew, done = simple_jungle.step(actions)
 
-    assert agent_1.grid_position == (5, 6)
-    assert agent_2.grid_position == (5, 6)
+    assert agent_1.position == (5, 6)
+    assert agent_2.position == (5, 6)
 
     # agent 2 climbs on the shoulders of agent 1
 

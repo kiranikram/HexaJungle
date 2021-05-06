@@ -1,21 +1,13 @@
 import argparse
-import gym
 import os
 import random
 
 import ray
 from ray import tune
-from ray.rllib.examples.models.shared_weights_model import \
-    SharedWeightsModel1, SharedWeightsModel2, TF2SharedWeightsModel, \
-    TorchSharedWeightsModel
 from ray.rllib.models import ModelCatalog
 from ray.rllib.utils.framework import try_import_tf
 from ray.rllib.utils.test_utils import check_learning_achieved
-from jungle.jungle import EmptyJungle
-from jungle.rl_envs.basic import RiverExit, BoulderExit
-from jungle.RL_Lib.jungle_wrapper import RLlibWrapper
-from jungle.utils import ElementsEnv, Actions, Definitions
-from jungle.agent import Agent
+from RL_Lib.jungle_wrapper import RLlibWrapper
 
 """In simplified version, setting number of policies to 1 instead of 2, which is the number of agents at the moment
 , and using easy exit """
@@ -36,6 +28,17 @@ parser.add_argument("--as-test", action="store_true")
 parser.add_argument(
     "--framework", choices=["tf2", "tf", "tfe", "torch"], default="tf")
 parser.add_argument("--logdir", type=str, default="logs")
+
+# if self.agents[0].done and self.agents[1].done:
+#     done = dict({"__all__": True})
+# elif self.agents[0].done and not self.agents[1].done:
+#     # done = dict({"white": True, "__all__": False})
+#     done = dict({"__all__": False})
+# elif self.agents[1].done and not self.agents[0].done:
+#     # done = dict({"black": True, "__all__": False})
+#     done = dict({"__all__": False})
+# else:
+#     done = dict({"__all__": False})
 
 if __name__ == "__main__":
     args = parser.parse_args()

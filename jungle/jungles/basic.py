@@ -2,7 +2,15 @@ from jungle.jungle import Jungle
 from jungle.utils import ElementsEnv
 
 
-class TreeJungle(Jungle):
+class EmptyJungle(Jungle):
+
+    def _set_exits(self):
+        pass
+
+    def _set_elements(self):
+        pass
+
+class TreeEmptyJungle(Jungle):
     """
     Empty Jungle with half the empty cells with trees.
     No Exit.

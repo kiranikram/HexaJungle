@@ -1,4 +1,4 @@
-from jungle.jungles.basic import TreeJungle, TreeBoulders, Rivers
+from jungle.jungles.basic import TreeEmptyJungle, TreeBoulders, Rivers
 from jungle.agent import Agent
 from jungle.utils import Actions
 

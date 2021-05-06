@@ -5,7 +5,7 @@ from enum import Enum, IntEnum
 import itertools
 from collections import defaultdict
 from jungle.agent import Agent
-from jungle.utils import ElementsEnv, Actions, Definitions
+from jungle.utils import ElementsEnv, Actions, Rewards
 
 
 def generate_actions():

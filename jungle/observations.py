@@ -2,7 +2,7 @@ import math
 import pytest
 
 from jungle.agent import Agent
-from jungle.utils import Actions, Definitions, ElementsEnv
+from jungle.utils import Actions, Rewards, ElementsEnv
 
 
 def restrict_observations(agent, obstacles):

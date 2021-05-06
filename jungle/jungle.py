@@ -8,7 +8,7 @@ from copy import deepcopy
 
 from collections import namedtuple
 
-from jungle.utils import ElementsEnv, Actions, Definitions, display_dict, MIN_SIZE_ENVIR, MAX_WOOD_LOGS
+from jungle.utils import ElementsEnv, Actions, Rewards, display_dict, MIN_SIZE_ENVIR, MAX_WOOD_LOGS, BLACK, WHITE
 from jungle.observations import restrict_observations
 from jungle.helpers.helper_functions import normalize
 
@@ -180,12 +180,12 @@ class Jungle(ABC):
     def _assign_colors(self):
 
         if random.random() > 0.5:
-            self.agents[0].color = Definitions.BLACK
-            self.agents[1].color = Definitions.WHITE
+            self.agents[0].color = BLACK
+            self.agents[1].color = WHITE
 
         else:
-            self.agents[0].color = Definitions.WHITE
-            self.agents[1].color = Definitions.BLACK
+            self.agents[0].color = WHITE
+            self.agents[1].color = BLACK
 
     def reset(self):
 
@@ -239,8 +239,8 @@ class Jungle(ABC):
                     self.agents[0].wood_logs += 1
 
                 # But both have neg reward from the effort
-                rew_0 += Definitions.REWARD_CUT_TREE.value
-                rew_1 += Definitions.REWARD_CUT_TREE.value
+                rew_0 += Rewards.REWARD_CUT_TREE.value
+                rew_1 += Rewards.REWARD_CUT_TREE.value
 
             # RIVER
             if self.grid_env[r, c] == ElementsEnv.RIVER.value:
@@ -254,15 +254,15 @@ class Jungle(ABC):
             # CLIMB Behavior if they are on the same cell
             if agent_0_climbs and not agent_1_climbs:
                 self.agents[0].on_shoulders = True
-                rew_1 += Definitions.REWARD_CARRYING.value
+                rew_1 += Rewards.REWARD_CARRYING.value
 
             elif agent_1_climbs and not agent_0_climbs:
                 self.agents[1].on_shoulders = True
-                rew_0 += Definitions.REWARD_CARRYING.value
+                rew_0 += Rewards.REWARD_CARRYING.value
 
             elif agent_1_climbs and agent_0_climbs:
-                rew_0 += Definitions.REWARD_FELL.value
-                rew_1 += Definitions.REWARD_FELL.value
+                rew_0 += Rewards.REWARD_FELL.value
+                rew_1 += Rewards.REWARD_FELL.value
 
         # If not on the same cell
         else:
@@ -270,11 +270,11 @@ class Jungle(ABC):
             # If agent was on shoulders, but other agent moved:
             if self.agents[1].on_shoulders:
                 self.agents[1].on_shoulders = False
-                rew_1 += Definitions.REWARD_FELL.value
+                rew_1 += Rewards.REWARD_FELL.value
 
             if self.agents[0].on_shoulders:
                 self.agents[0].on_shoulders = False
-                rew_0 += Definitions.REWARD_FELL.value
+                rew_0 += Rewards.REWARD_FELL.value
 
         # Apply environment rules
         done_1 = self.agents[1].done
@@ -322,17 +322,17 @@ class Jungle(ABC):
         agent_cuts = self.cutting_tree(agent)
         if agent_cuts:
             agent.wood_logs += 1
-            rew += Definitions.REWARD_CUT_TREE.value
+            rew += Rewards.REWARD_CUT_TREE.value
 
         # If on a river, drown
         agent_drowns = self.on_a_river(agent)
         if agent_drowns:
-            rew += Definitions.REWARD_DROWN.value
+            rew += Rewards.REWARD_DROWN.value
 
         # If comes to boulder and not on shoulders, bumps into boulder
         bumps_boulder = self.hits_boulder(agent)
         if bumps_boulder:
-            rew += Definitions.REWARD_COLLISION.value
+            rew += Rewards.REWARD_COLLISION.value
 
         # If on an exit, receive reward and is done
         r, agent_exits = self.exits(agent)
@@ -369,23 +369,23 @@ class Jungle(ABC):
 
         done = True
 
-        if current_cell == ElementsEnv.EXIT_BLACK.value and agent.color == Definitions.BLACK:
-            reward = Definitions.REWARD_EXIT_VERY_HIGH.value
+        if current_cell == ElementsEnv.EXIT_BLACK.value and agent.color == BLACK:
+            reward = Rewards.REWARD_EXIT_VERY_HIGH.value
 
-        elif current_cell == ElementsEnv.EXIT_BLACK.value and agent.color == Definitions.WHITE:
-            reward = Definitions.REWARD_EXIT_LOW.value
+        elif current_cell == ElementsEnv.EXIT_BLACK.value and agent.color == WHITE:
+            reward = Rewards.REWARD_EXIT_LOW.value
 
-        elif current_cell == ElementsEnv.EXIT_WHITE.value and agent.color == Definitions.WHITE:
-            reward = Definitions.REWARD_EXIT_VERY_HIGH.value
+        elif current_cell == ElementsEnv.EXIT_WHITE.value and agent.color == WHITE:
+            reward = Rewards.REWARD_EXIT_VERY_HIGH.value
 
-        elif current_cell == ElementsEnv.EXIT_WHITE.value and agent.color == Definitions.BLACK:
-            reward = Definitions.REWARD_EXIT_LOW.value
+        elif current_cell == ElementsEnv.EXIT_WHITE.value and agent.color == BLACK:
+            reward = Rewards.REWARD_EXIT_LOW.value
 
         elif current_cell == ElementsEnv.EXIT_EASY.value:
-            reward = Definitions.REWARD_EXIT_AVERAGE.value
+            reward = Rewards.REWARD_EXIT_AVERAGE.value
 
         elif current_cell == ElementsEnv.EXIT_DIFFICULT.value:
-            reward = Definitions.REWARD_EXIT_HIGH.value
+            reward = Rewards.REWARD_EXIT_HIGH.value
 
         # if we are not on an exit
         else:
@@ -421,7 +421,7 @@ class Jungle(ABC):
         if current_cell == ElementsEnv.BOULDER.value:
 
             if next_cell == ElementsEnv.OBSTACLE.value:
-                reward = Definitions.REWARD_COLLISION.value
+                reward = Rewards.REWARD_COLLISION.value
                 row_new, col_new = row, col
 
         # If we were on the ground, we move unless we face a boulder or obstacle
@@ -429,7 +429,7 @@ class Jungle(ABC):
 
             # Check if next cell is an obstacle, we don't move
             if next_cell == ElementsEnv.OBSTACLE.value:
-                reward = Definitions.REWARD_COLLISION.value
+                reward = Rewards.REWARD_COLLISION.value
                 row_new, col_new = row, col
 
             # Check if next cell is a boulder
@@ -437,7 +437,7 @@ class Jungle(ABC):
 
                 # If not on shoulders, we collide
                 if not agent.on_shoulders:
-                    reward = Definitions.REWARD_COLLISION.value
+                    reward = Rewards.REWARD_COLLISION.value
                     row_new, col_new = row, col
 
                 # Else we move to boulders, and starting then we can go from boulder to boulder
@@ -488,16 +488,18 @@ class Jungle(ABC):
             other_agent = self.agents[0]
 
         relative_angle = (other_agent.angle - agent.angle) % 6
-        if ElementsEnv.AGENT.value not in visual_obs:
-            relative_angle = -1
-
 
         flat_visual_obs = []
         for v in visual_obs: flat_visual_obs += v
 
+        if ElementsEnv.AGENT.value not in flat_visual_obs:
+            relative_angle = -1
+
+
+
         obs_dict = {'visual': flat_visual_obs,
                     'other_agent_angle': relative_angle,
-                    'color': agent.color.value}
+                    'color': agent.color}
 
 
         return obs_dict

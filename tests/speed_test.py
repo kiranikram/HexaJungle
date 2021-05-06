@@ -8,7 +8,7 @@ import time
 agent_1 = Agent(range_observation=5)
 agent_2 = Agent(range_observation=5)
 
-env = Rivers(size=15)
+env = TreeBoulders(size=15)
 env.add_agents(agent_1, agent_2)
 
 t0 = time.time()
@@ -36,12 +36,15 @@ print(dones)
 print(env)
 
 obs = env.reset()
-actions = {agent_1: {Actions.ROTATE:1, Actions.FORWARD:1}}
-           # } agent_2: agent_2.get_random_actions()}
+actions = {agent_1: {Actions.ROTATE:1, Actions.FORWARD:0},
+           agent_2: {Actions.ROTATE:1, Actions.FORWARD:0}}
 
 
 obs, _, _ = env.step(actions)
+obs, _, _ = env.step(actions)
+obs, _, dones = env.step(actions)
 #
+print(dones)
 print(env)
 #
 for o in obs:

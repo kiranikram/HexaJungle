@@ -1,4 +1,4 @@
-from jungle.utils import MAX_WOOD_LOGS, Actions, Definitions
+from jungle.utils import MAX_WOOD_LOGS, Actions, BLACK, WHITE
 import random
 
 """For Rotation angles reference:
@@ -40,9 +40,9 @@ class Agent:
 
     def __repr__(self):
 
-        if self.color is Definitions.BLACK:
+        if self.color is BLACK:
             return chr(arrows_white[self.angle])
-        elif self.color is Definitions.WHITE:
+        elif self.color is WHITE:
             return chr(arrows_black[self.angle])
 
     @property

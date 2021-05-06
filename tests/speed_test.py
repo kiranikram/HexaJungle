@@ -1,4 +1,4 @@
-from jungle.jungles.basic import TreeJungle, TreeBoulders
+from jungle.jungles.basic import TreeJungle, TreeBoulders, Rivers
 from jungle.agent import Agent
 from jungle.utils import Actions
 
@@ -8,11 +8,12 @@ import time
 agent_1 = Agent(range_observation=5)
 agent_2 = Agent(range_observation=5)
 
-env = TreeBoulders(size=15)
+env = Rivers(size=15)
 env.add_agents(agent_1, agent_2)
 
 t0 = time.time()
 n_steps = 10000
+
 for ts in range(n_steps):
 
     # print(ts)
@@ -21,9 +22,15 @@ for ts in range(n_steps):
     actions = {agent_1: agent_1.get_random_actions(),
                agent_2: agent_2.get_random_actions()}
 
-    env.step(actions)
+    obs, rew, dones = env.step(actions)
+
+
 
 print( n_steps/(time.time() - t0))
+print(obs)
+print(rew)
+print(dones)
+
 #
 #
 print(env)

@@ -207,8 +207,6 @@ class Jungle(ABC):
 
         # First Physical move
 
-
-
         if not self.agents[0].done:
             rew_0 = self.move(self.agents[0], actions)
             agent_0_climbs = actions.get(self.agents[0], {}).get(Actions.CLIMB, 0)
@@ -223,10 +221,8 @@ class Jungle(ABC):
             rew_1 = 0
             agent_1_climbs = False
 
-        # Then Test for different cases
-
-        # If both on same position:
-        if self.agents[0].position == self.agents[1].position:
+        # If None are done, check interactions btween agents
+        if self.agents[0].position == self.agents[1].position and self.agents[0].position:
 
             r, c = self.agents[0].position
 
@@ -268,7 +264,6 @@ class Jungle(ABC):
                 rew_0 += Definitions.REWARD_FELL.value
                 rew_1 += Definitions.REWARD_FELL.value
 
-
         # If not on the same cell
         else:
 
@@ -282,30 +277,39 @@ class Jungle(ABC):
                 rew_0 += Definitions.REWARD_FELL.value
 
         # Apply environment rules
-
-        if not self.agents[1].done:
+        done_1 = self.agents[1].done
+        if not done_1:
             rew, done_1 = self.apply_rules(self.agents[1])
             rew_1 += rew
 
-        if not self.agents[0].done:
-            rew, self.agents[0].done = self.apply_rules(self.agents[0])
+        done_0 = self.agents[0].done
+        if not done_0:
+            rew, done_0 = self.apply_rules(self.agents[0])
             rew_0 += rew
 
         # All rewards and terminations are now calculated
-        rewards = {'black': rew_1, 'white': rew_0}
+        rewards = {self.agents[1]: rew_1, self.agents[0]: rew_0}
 
-        dones = {self.agents[0]: self.agents[0].done,
-                self.agents[1]: self.agents[1].done
-                }
 
         # Now we calculate the observations
         obs = {}
 
         if not self.agents[0].done:
             obs[self.agents[0]] = self.generate_agent_obs(self.agents[0])
+        else:
+            obs[self.agents[0]] = None
 
         if not self.agents[1].done:
             obs[self.agents[1]] = self.generate_agent_obs(self.agents[1])
+        else:
+            obs[self.agents[1]] = None
+
+        dones = {self.agents[0]: done_0,
+                self.agents[1]: done_1
+                }
+
+        self.agents[0].done = done_0
+        self.agents[1].done = done_1
 
 
         return obs, rewards, dones
@@ -493,15 +497,13 @@ class Jungle(ABC):
 
         grid_copy = deepcopy(self.grid_env)
 
-        if agent == self.agents[0]:
+        if agent == self.agents[0] and not self.agents[1].done:
             r, c = self.agents[1].position
-            if r and c:
-                grid_copy[r, c] = ElementsEnv.AGENT.value
+            grid_copy[r, c] = ElementsEnv.AGENT.value
 
-        elif agent == self.agents[1]:
+        elif agent == self.agents[1] and not self.agents[0].done:
             r, c = self.agents[0].position
-            if r and c:
-                grid_copy[r, c] = ElementsEnv.AGENT.value
+            grid_copy[r, c] = ElementsEnv.AGENT.value
 
         obs = [ [grid_copy[agent.position]] ]
 

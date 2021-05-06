@@ -21,7 +21,6 @@ class TreeJungle(Jungle):
             self.grid_env[r, c] = ElementsEnv.TREE.value
 
 
-
 class TreeBoulders(Jungle):
     """
     Empty Jungle with half the empty cells with trees and boulders.
@@ -41,6 +40,24 @@ class TreeBoulders(Jungle):
 
             r, c = self.get_random_empty_location()
             self.grid_env[r, c] = ElementsEnv.BOULDER.value
+
+
+
+class Rivers(Jungle):
+    """
+    Empty Jungle with half the empty cells with trees and boulders.
+    No Exit.
+    """
+
+    def _set_exits(self):
+        pass
+
+    def _set_elements(self):
+
+        for i in range(10):
+            r, c = self.get_random_empty_location()
+            self.grid_env[r, c] = ElementsEnv.RIVER.value
+
 
 
 

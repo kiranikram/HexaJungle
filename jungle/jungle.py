@@ -491,7 +491,16 @@ class Jungle(ABC):
         if ElementsEnv.AGENT.value not in visual_obs:
             relative_angle = -1
 
-        return visual_obs + [relative_angle] + [agent.color.value]
+
+        flat_visual_obs = []
+        for v in visual_obs: flat_visual_obs += v
+
+        obs_dict = {'visual': flat_visual_obs,
+                    'other_agent_angle': relative_angle,
+                    'color': agent.color.value}
+
+
+        return obs_dict
 
     def _generate_full_observation(self, agent):
 

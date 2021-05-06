@@ -32,8 +32,8 @@ def test_rl_loop():
     obs, rew, done = simple_jungle.step(actions)
 
     # Because observations are not set, it should return none:
-    assert isinstance(obs[agent_1], (list, tuple))
-    assert isinstance(obs[agent_2], (list, tuple))
+    assert isinstance(obs[agent_1], dict)
+    assert isinstance(obs[agent_2], dict)
 
     assert isinstance(rew[agent_1], (float, int))
     assert isinstance(rew[agent_2], (float, int))

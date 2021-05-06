@@ -6,7 +6,7 @@ from jungle.utils import Actions, Definitions, ElementsEnv
 
 
 def restrict_observations(agent, obstacles):
-    agent_row, agent_col = agent.grid_position
+    agent_row, agent_col = agent.position
     all_ctd = []
     ctd = []
     for i in obstacles:

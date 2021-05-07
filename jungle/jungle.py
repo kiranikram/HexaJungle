@@ -15,6 +15,8 @@ from jungle.helpers.helper_functions import normalize
 Exit = namedtuple('Exit', ['coordinates', 'surrounding_1', 'surrounding_2'])
 
 
+
+
 class Jungle(ABC):
 
     def __init__(self, size):

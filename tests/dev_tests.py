@@ -1,12 +1,20 @@
+import math
+import pytest
+import nose
 import random
+import numpy as np
 
 from jungle.agent import Agent
-from jungle.jungle import EmptyJungle
+from jungle.jungle import Jungle
 from jungle.utils import Actions, ElementsEnv
-from RL_Lib.jungle_wrapper import RLlibWrapper
+from experiments.jungle_wrapper import RLlibWrapper
 
 from jungle.exp_trainer import run_one_episode
-from jungle.rl_envs.basic import RiverExit, BoulderExit
+from jungle.jungles.rl import RiverExit, BoulderExit, EasyExit
+from jungle.jungles.basic import EasyExitJungle
+from jungle.jungles.basic import TreeEmptyJungle, TreeBoulders
+
+from jungle import jungle
 
 
 def generate_actions():
@@ -39,11 +47,10 @@ def test_engine():
     agent_1 = Agent(range_observation=3)
     agent_2 = Agent(range_observation=3)
 
-    simple_jungle = EmptyJungle(size=5)
+    simple_jungle = EasyExit(size=11)
 
     simple_jungle.add_agents(agent_1, agent_2)
-    simple_jungle.add_object(ElementsEnv.EXIT_EASY, (0, 4))
-    print(agent_1.grid_position, agent_2.grid_position)
+    # simple_jungle.add_object(ElementsEnv.EXIT_EASY, (0, 4))
 
     run_one_episode(100, simple_jungle.agents, simple_jungle, agent_1, agent_2)
 
@@ -82,19 +89,21 @@ def test_riverexit_wrapper():
     # agent_2 = Agent(range_observation=3)
     # Jungle.add_agents(agent_1, agent_2)
     actions = {"white": [1, -1, 1], "black": [1, 1, 1]}
-    config = {'jungle': 'EasyExit', 'size': 11}
+    config = {'jungle': 'TreeBoulders', 'size': 11}
     env = RLlibWrapper(config)
     print(env)
 
     obs, rew, done, _ = env.step(actions)
-    obs, rew, done, _ = env.step(actions)
+    print(obs)
+    print(rew)
+    print(done)
 
     assert isinstance(obs, dict)
     assert isinstance(rew, dict)
     assert isinstance(done, dict)
 
-    #new_obs = env.reset()
-    #assert isinstance(new_obs, dict)
+    new_obs = env.reset()
+    assert isinstance(new_obs, dict)
 
 
 def test_RiverExit():
@@ -122,7 +131,22 @@ def test_RiverExit():
 
     assert potential_exits
 
-def test_agent_sees_exit():
-    pass
 
+def test_EasyExit():
+    actions = {"white": [1, -1, 1], "black": [1, 1, 1]}
+    config = {'jungle': 'EasyExit', 'size': 11}
+    env = RLlibWrapper(config)
+    print(env)
 
+    obs, rew, done, _ = env.step(actions)
+    print(obs)
+    print(rew)
+    print(done)
+
+    assert isinstance(obs, dict)
+    assert isinstance(rew, dict)
+    assert isinstance(done, dict)
+
+    new_obs = env.reset()
+    print(env)
+    assert isinstance(new_obs, dict)

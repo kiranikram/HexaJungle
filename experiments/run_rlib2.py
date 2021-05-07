@@ -7,7 +7,7 @@ from ray import tune
 from ray.rllib.models import ModelCatalog
 from ray.rllib.utils.framework import try_import_tf
 from ray.rllib.utils.test_utils import check_learning_achieved
-from RL_Lib.jungle_wrapper import RLlibWrapper
+from experiments.jungle_wrapper import RLlibWrapper
 
 """In simplified version, setting number of policies to 1 instead of 2, which is the number of agents at the moment
 , and using easy exit """
@@ -20,25 +20,14 @@ parser.add_argument("--num-agents", type=int, default=2)
 parser.add_argument("--num-policies", type=int, default=1)
 parser.add_argument("--use-prev-action", action="store_true")
 parser.add_argument("--use-prev-reward", action="store_true")
-parser.add_argument("--stop-iters", type=int, default = 9999)
-parser.add_argument("--stop-reward", type=float, default  = 9999)
+parser.add_argument("--stop-iters", type=int, default=9999)
+parser.add_argument("--stop-reward", type=float, default=9999)
 parser.add_argument("--stop-timesteps", type=int, default=400000)
 parser.add_argument("--num-cpus", type=int, default=0)
 parser.add_argument("--as-test", action="store_true")
 parser.add_argument(
     "--framework", choices=["tf2", "tf", "tfe", "torch"], default="tf")
 parser.add_argument("--logdir", type=str, default="logs")
-
-# if self.agents[0].done and self.agents[1].done:
-#     done = dict({"__all__": True})
-# elif self.agents[0].done and not self.agents[1].done:
-#     # done = dict({"white": True, "__all__": False})
-#     done = dict({"__all__": False})
-# elif self.agents[1].done and not self.agents[0].done:
-#     # done = dict({"black": True, "__all__": False})
-#     done = dict({"__all__": False})
-# else:
-#     done = dict({"__all__": False})
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -49,7 +38,7 @@ if __name__ == "__main__":
 
     # Get obs- and action Spaces.
     # config = {'jungle': 'RiverExit', 'size': 11}
-    config = {'jungle': 'EasyExit', 'size': 11}
+    config = {'jungle': 'TreeBoulders', 'size': 11}
     single_env = RLlibWrapper(config)
 
     obs_space = single_env.observation_space
@@ -70,17 +59,15 @@ if __name__ == "__main__":
 
     def policy_mapping_fn(agent_id):
 
-
         pol_id = random.choice(policy_ids)
-        #print(f"mapping {agent_id} to {pol_id}")
-
+        # print(f"mapping {agent_id} to {pol_id}")
 
         return pol_id
 
 
     config = {
         "env": RLlibWrapper,
-        "env_config": {'jungle': 'EasyExit', "size": 11},
+        "env_config": {'jungle': 'TreeBoulders', "size": 11},
         "no_done_at_end": False,
         "gamma": 0.9,
         # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
@@ -116,8 +103,8 @@ if __name__ == "__main__":
         "training_iteration": args.stop_iters,
     }
 
-    results = tune.run("PPO", stop=stop, config=config,local_dir=args.logdir, verbose=1)
-    #results = tune.run("PPO", stop={"episode_reward_mean": 100}, config=config, verbose=1)
+    results = tune.run("PPO", stop=stop, config=config, local_dir=args.logdir, verbose=1)
+    # results = tune.run("PPO", stop={"episode_reward_mean": 100}, config=config, verbose=1)
 
     if args.as_test:
         check_learning_achieved(results, args.stop_reward)

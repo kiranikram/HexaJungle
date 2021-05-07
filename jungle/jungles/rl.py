@@ -1,8 +1,42 @@
-from jungle.jungle import EmptyJungle
+from jungle.jungle import Jungle
 from jungle.utils import ElementsEnv
+from copy import deepcopy
 
 
-class EasyExit(EmptyJungle):
+class EasyExit(Jungle):
+
+    def _set_exits(self):
+        self.exit_1 = self.select_random_exit()
+        self.exit_2 = self.select_random_exit()
+        self.add_objects()
+
+    def _set_elements(self):
+        pass
+
+    def reset(self):
+        self.grid_env[:] = deepcopy(self._initial_grid)
+
+        self._place_agents()
+        self._assign_colors()
+        self.add_objects()
+
+        self.agents[0].reset()
+        self.agents[1].reset()
+
+        obs = {self.agents[0]: self.generate_agent_obs(self.agents[0]),
+               self.agents[1]: self.generate_agent_obs(self.agents[1])}
+
+        return obs
+
+    def add_objects(self):
+        self.add_object(ElementsEnv.EXIT_EASY, self.exit_1.coordinates)
+        self.add_object(ElementsEnv.EXIT_EASY, self.exit_1.surrounding_1)
+        self.add_object(ElementsEnv.EXIT_EASY, self.exit_1.surrounding_2)
+        self.add_object(ElementsEnv.RIVER, self.exit_2.surrounding_1)
+        self.add_object(ElementsEnv.RIVER, self.exit_2.surrounding_2)
+
+
+class NotEasyExit(Jungle):
 
     def __init__(self, size):
         super().__init__(size)
@@ -10,7 +44,6 @@ class EasyExit(EmptyJungle):
         self.exit_1 = self.select_random_exit()
         self.exit_2 = self.select_random_exit()
         self.add_objects()
-
 
     def reset(self):
         self.reinitialize_grid()
@@ -23,14 +56,12 @@ class EasyExit(EmptyJungle):
         self.agent_white.done = False
         self.agent_black.done = False
 
-        #print('IN RESET FUNC OF EASY EXIT')
-        #if self.agent_white.done:
-            #print('ag white done')
+        # print('IN RESET FUNC OF EASY EXIT')
+        # if self.agent_white.done:
+        # print('ag white done')
 
-        #if self.agent_black.done:
-            #print('ag black done')
-
-
+        # if self.agent_black.done:
+        # print('ag black done')
 
         obs = {'white': self.generate_agent_obs(self.agent_white),
                'black': self.generate_agent_obs(self.agent_black)}
@@ -45,7 +76,7 @@ class EasyExit(EmptyJungle):
         self.add_object(ElementsEnv.RIVER, self.exit_2.surrounding_2)
 
 
-class RiverExit(EmptyJungle):
+class RiverExit(Jungle):
 
     def __init__(self, size):
         super().__init__(size)
@@ -79,7 +110,7 @@ class RiverExit(EmptyJungle):
         self.add_trees()
 
 
-class BoulderExit(EmptyJungle):
+class BoulderExit(Jungle):
 
     def __init__(self, size):
         super().__init__(size)
@@ -112,7 +143,7 @@ class BoulderExit(EmptyJungle):
         self.add_trees()
 
 
-class DoubleExitsBoulder(EmptyJungle):
+class DoubleExitsBoulder(Jungle):
 
     def __init__(self, size):
         super().__init__(size)
@@ -148,7 +179,7 @@ class DoubleExitsBoulder(EmptyJungle):
         self.add_trees()
 
 
-class DoubleExitsRiver(EmptyJungle):
+class DoubleExitsRiver(Jungle):
 
     def __init__(self, size):
         super().__init__(size)
@@ -184,7 +215,7 @@ class DoubleExitsRiver(EmptyJungle):
         self.add_trees()
 
 
-class RiverBoulderExits(EmptyJungle):
+class RiverBoulderExits(Jungle):
 
     def __init__(self, size):
         super().__init__(size)
@@ -231,7 +262,7 @@ One unobstructed exit is better for White.
 The other unobstructed exit has low reward for both"""
 
 
-class WhiteFavouredSimple(EmptyJungle):
+class WhiteFavouredSimple(Jungle):
 
     def __init__(self, size):
         super().__init__(size)
@@ -277,7 +308,7 @@ One unobstructed exit is better for Black.
 The other unobstructed exit has low reward for both"""
 
 
-class BlackFavouredSimple(EmptyJungle):
+class BlackFavouredSimple(Jungle):
 
     def __init__(self, size):
         super().__init__(size)
@@ -321,7 +352,7 @@ class BlackFavouredSimple(EmptyJungle):
 """Three exits, only BOULDER exit is advantageous to one agent(WHITE) over another"""
 
 
-class WhiteFavoured(EmptyJungle):
+class WhiteFavoured(Jungle):
 
     def __init__(self, size):
         super().__init__(size)
@@ -365,7 +396,7 @@ class WhiteFavoured(EmptyJungle):
 """Three exits, only RIVER exit is advantageous to one agent(BLACK) over another"""
 
 
-class BlackFavoured(EmptyJungle):
+class BlackFavoured(Jungle):
 
     def __init__(self, size):
         super().__init__(size)
@@ -406,7 +437,7 @@ class BlackFavoured(EmptyJungle):
         self.add_trees()
 
 
-class ConflictingExitsBiased(EmptyJungle):
+class ConflictingExitsBiased(Jungle):
 
     def __init__(self, size):
         super().__init__(size)
@@ -449,7 +480,7 @@ class ConflictingExitsBiased(EmptyJungle):
         self.add_object(ElementsEnv.RIVER, self.black_exit.surrounding_2)
 
 
-class ConflictingExits(EmptyJungle):
+class ConflictingExits(Jungle):
 
     def __init__(self, size):
         super().__init__(size)

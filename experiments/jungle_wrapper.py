@@ -17,6 +17,7 @@ from jungle import jungle
 from jungle.jungles import basic, rl
 import numpy as np
 import ipdb
+from jungle.helpers.helper_functions import normalize
 
 
 class RLlibWrapper(MultiAgentEnv):
@@ -124,6 +125,8 @@ class RLlibWrapper(MultiAgentEnv):
         return obs, rewards, done, info
 
     def reset(self):
+        
+
         # print('reset is  being called')
 
         obs = self.jungle.reset()
@@ -151,27 +154,49 @@ class RLlibWrapper(MultiAgentEnv):
         # ipdb.set_trace()
 
         # new_obs = {self.white: obs['white'], self.black: obs['black']}
-        white = obs[self.jungle.agents[0]]
-        white_obs = white['visual'] + [white['other_agent_angle']] + [white['color']]
-        black = obs[self.jungle.agents[1]]
-        black_obs = black['visual'] + [black['other_agent_angle']] + [black['color']]
+        if not obs[self.jungle.agents[0]] is None:
+            white = obs[self.jungle.agents[0]]
+            white_obs = white['visual'] + [white['other_agent_angle']] + [white['color']]
+            white_obs = self.normalize_obs(white_obs)
+        else:
+            white_obs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+        if not obs[self.jungle.agents[1]] is None:
+            black = obs[self.jungle.agents[1]]
+            black_obs = black['visual'] + [black['other_agent_angle']] + [black['color']]
+            black_obs = self.normalize_obs(black_obs)
+        else:
+            black_obs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         new_obs = {self.white: white_obs, self.black: black_obs}
 
         white_done = done[self.jungle.agents[0]]
         black_done = done[self.jungle.agents[1]]
 
         if white_done and black_done:
+
             new_done = dict({"__all__": True})
         elif white_done and not black_done:
-            new_done = dict({"__all__": False})
+
+            new_done = dict({ "__all__": False})
         elif black_done and not white_done:
-            new_done = dict({"__all__": False})
+
+            new_done = dict({ "__all__": False})
         else:
             new_done = dict({"__all__": False})
 
         new_reward = {self.white: rew[self.jungle.agents[0]], self.black: rew[self.jungle.agents[1]]}
 
         return new_obs, new_reward, new_done
+
+    def normalize_obs(self, obs):
+        obs = normalize(obs, 0, 1)
+        return obs
+
+    def one_hot_obs(self, obs):
+        env_elements = len(ElementsEnv) + 1
+        one_hot_obs = np.eye(env_elements)[obs]
+        one_hot_obs = list(one_hot_obs.flat)
+        return one_hot_obs
 
     def _convert_to_str(self, obs):
         new_obs = {'white': obs[self.jungle.agent_white], 'black': obs[self.jungle.agent_black]}

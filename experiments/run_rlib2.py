@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     # Get obs- and action Spaces.
     # config = {'jungle': 'RiverExit', 'size': 11}
-    config = {'jungle': 'TreeBoulders', 'size': 11}
+    config = {'jungle': 'EasyExit', 'size': 11}
     single_env = RLlibWrapper(config)
 
     obs_space = single_env.observation_space
@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
     config = {
         "env": RLlibWrapper,
-        "env_config": {'jungle': 'TreeBoulders', "size": 11},
+        "env_config": {'jungle': 'EasyExit', "size": 11},
         "no_done_at_end": False,
         "gamma": 0.9,
         # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
@@ -75,7 +75,7 @@ if __name__ == "__main__":
         "output": "logdir",
         "num_workers": 1,
         "train_batch_size": 200,
-        "horizon": 400,
+        "horizon": 1200,
         "multiagent": {
 
             "policies": {

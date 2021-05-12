@@ -16,7 +16,8 @@ class Agent:
 
     def __init__(self, range_observation=2):
 
-        self.color = None
+
+        self._color = None
 
         assert range_observation > 0
         self.range_observation = range_observation
@@ -26,8 +27,18 @@ class Agent:
         self.wood_logs = 0
         self.on_shoulders = False
 
-        self.done = False
+        self._done = False
 
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, col):
+        self._color = col
+
+
+    
     @staticmethod
     def get_random_actions():
 

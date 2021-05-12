@@ -1,9 +1,12 @@
-import math
-import pytest
+"""
+Test module for Jungle
+"""
 import random
+import pytest
 
 from jungle.agent import Agent
-from jungle.utils import Actions, Rewards, ElementsEnv, MIN_SIZE_ENVIR, BLACK, WHITE
+from jungle.utils import (Actions, Rewards, ElementsEnv, MIN_SIZE_ENVIR, BLACK,
+                          WHITE)
 
 from jungle.jungles.basic import EmptyJungle
 
@@ -25,9 +28,15 @@ def test_rl_loop():
     assert (agent_1.color is BLACK and agent_2.color is WHITE) \
            or (agent_1.color is WHITE and agent_2.color is BLACK)
 
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1},
-               agent_2: {Actions.FORWARD: 1}
-               }
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: -1
+        },
+        agent_2: {
+            Actions.FORWARD: 1
+        }
+    }
 
     obs, rew, done = simple_jungle.step(actions)
 
@@ -43,9 +52,7 @@ def test_rl_loop():
     # should work with some actions not set (default to 0
 
     # agent_1 moves fwd ; agent_2 rotates -1
-    actions = {agent_1: {Actions.FORWARD: 1},
-               agent_2: {Actions.ROTATE: -1}
-               }
+    actions = {agent_1: {Actions.FORWARD: 1}, agent_2: {Actions.ROTATE: -1}}
     simple_jungle.step(actions)
 
     # should work without agent in the dict. (default to 0)
@@ -53,8 +60,7 @@ def test_rl_loop():
     pos_before = agent_1.position
 
     # agent_2 rotates -1
-    actions = {agent_2: {Actions.ROTATE: -1}
-               }
+    actions = {agent_2: {Actions.ROTATE: -1}}
     simple_jungle.step(actions)
 
     # make sure that position doesn't change when action is empty
@@ -68,24 +74,21 @@ def test_agents_on_same_cell():
     simple_jungle = EmptyJungle(size=11)
 
     simple_jungle.add_agents(agent_1, agent_2)
-    print(agent_1.position, agent_2.position)
 
     # Move agent 2 on cell of agent 1
 
     # First rotate
     # agent_2 rotates
-    actions = {agent_2: {Actions.ROTATE: 1}
-               }
+    actions = {agent_2: {Actions.ROTATE: 1}}
     simple_jungle.step(actions)
     simple_jungle.step(actions)
     simple_jungle.step(actions)
 
     # then move forward twice
     # agent_2 moves fwd
-    actions = {agent_2: {Actions.FORWARD: 1}
-               }
+    actions = {agent_2: {Actions.FORWARD: 1}}
     simple_jungle.step(actions)
-    obs, rew, done = simple_jungle.step(actions)
+    _, rew, _ = simple_jungle.step(actions)
 
     # should be on the same cell, no collision
     assert agent_1.position == agent_2.position
@@ -93,13 +96,8 @@ def test_agents_on_same_cell():
 
 
 def test_visualize_env():
-    agent_1 = Agent()
-    agent_2 = Agent()
 
     simple_jungle = EmptyJungle(size=11)
-
-    simple_jungle.add_agents(agent_1, agent_2)
-
     check_corners(simple_jungle)
 
 
@@ -145,16 +143,25 @@ def check_corners(envir):
     #    . . x
     #   x x x
 
-    assert envir.cell_type(envir.size - 1, envir.size - 1) == ElementsEnv.OBSTACLE.value
-    assert envir.cell_type(envir.size - 1, envir.size - 2) == ElementsEnv.OBSTACLE.value
-    assert envir.cell_type(envir.size - 2, envir.size - 1) == ElementsEnv.OBSTACLE.value
-    assert envir.cell_type(envir.size - 3, envir.size - 1) == ElementsEnv.OBSTACLE.value
-    assert envir.cell_type(envir.size - 1, envir.size - 3) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 1,
+                           envir.size - 1) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 1,
+                           envir.size - 2) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 2,
+                           envir.size - 1) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 3,
+                           envir.size - 1) == ElementsEnv.OBSTACLE.value
+    assert envir.cell_type(envir.size - 1,
+                           envir.size - 3) == ElementsEnv.OBSTACLE.value
 
-    assert envir.cell_type(envir.size - 3, envir.size - 2) == ElementsEnv.EMPTY.value
-    assert envir.cell_type(envir.size - 3, envir.size - 3) == ElementsEnv.EMPTY.value
-    assert envir.cell_type(envir.size - 2, envir.size - 3) == ElementsEnv.EMPTY.value
-    assert envir.cell_type(envir.size - 2, envir.size - 2) == ElementsEnv.EMPTY.value
+    assert envir.cell_type(envir.size - 3,
+                           envir.size - 2) == ElementsEnv.EMPTY.value
+    assert envir.cell_type(envir.size - 3,
+                           envir.size - 3) == ElementsEnv.EMPTY.value
+    assert envir.cell_type(envir.size - 2,
+                           envir.size - 3) == ElementsEnv.EMPTY.value
+    assert envir.cell_type(envir.size - 2,
+                           envir.size - 2) == ElementsEnv.EMPTY.value
 
     # Bottom-left corner
     #   x x . .
@@ -198,12 +205,16 @@ def test_initialization():
         simple_jungle.add_agents(agent_1, agent_2)
 
         # position should be in np coordinates (row, col)
-        assert agent_1.position == ((size_envir - 1) / 2, (size_envir - 1) / 2 - 1)
-        assert agent_2.position == ((size_envir - 1) / 2, (size_envir - 1) / 2 + 1)
+        possible_positions = (((size_envir - 1) / 2, (size_envir - 1) / 2 - 1),
+                              ((size_envir - 1) / 2, (size_envir - 1) / 2 + 1))
+
+        assert agent_1.position in possible_positions
+        assert agent_2.position in possible_positions
+        assert agent_1.position != agent_2.position
 
         # angle is index of trigonometric angle (0, 1, ... to 5)
-        assert agent_1.angle == 3
-        assert agent_2.angle == 0
+        assert agent_1.angle in [3, 0]
+        assert agent_2.angle in [3, 0]
 
 
 def test_movements():
@@ -213,36 +224,36 @@ def test_movements():
     simple_jungle = EmptyJungle(size=11)
     simple_jungle.add_agents(agent_1, agent_2)
 
-    assert agent_1.position == (5, 4)
-    assert agent_1.angle == 3
-
-    assert agent_2.position == (5, 6)
-    assert agent_2.angle == 0
-
     # First rotation, then forward, but the order in the actions dict doesn't matter.
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 1},
-               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: -1}
-               }
-    simple_jungle.step(actions)
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: 1
+        },
+        agent_2: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: -1
+        }
+    }
 
-    # Check new positions on grid
-    assert agent_1.position == (6, 4)
-    assert agent_1.angle == 4
+    # Check positions on grid
+    pos_1 = agent_1.position
+    pos_2 = agent_2.position
+    angle_1 = agent_1.angle
+    angle_2 = agent_2.angle
 
-    assert agent_2.position == (6, 7)
-    assert agent_2.angle == 5
-
-    # Perform the same action 5 more times and it should go back to original position
+    # Perform the same action 6 times
+    # and it should go back to original position
     # Basically, it is doing a circle
 
-    for i in range(5):
+    for _ in range(6):
         simple_jungle.step(actions)
 
-    assert agent_1.position == (5, 4)
-    assert agent_1.angle == 3
+    assert agent_1.position == pos_1
+    assert agent_1.angle == angle_1
 
-    assert agent_2.position == (5, 6)
-    assert agent_2.angle == 0
+    assert agent_2.position == pos_2
+    assert agent_2.angle == angle_2
 
 
 def test_collisions_with_obstacles():
@@ -257,7 +268,7 @@ def test_collisions_with_obstacles():
 
     simple_jungle = EmptyJungle(size=11)
 
-    simple_jungle.add_agents(agent_1, agent_2)
+    simple_jungle.add_agents(agent_1, agent_2, random_position=False)
 
     simple_jungle.add_object(ElementsEnv.OBSTACLE, (5, 3))
     simple_jungle.add_object(ElementsEnv.OBSTACLE, (3, 3))
@@ -265,7 +276,7 @@ def test_collisions_with_obstacles():
     # agent_1 moves forward, towards the object.
     actions = {agent_1: {Actions.FORWARD: 1}}
 
-    obs, rew, done = simple_jungle.step(actions)
+    _, rew, _ = simple_jungle.step(actions)
 
     # agent keeps position and angle
     assert agent_1.position == (5, 4)
@@ -275,11 +286,20 @@ def test_collisions_with_obstacles():
     assert rew[agent_1] == Rewards.REWARD_COLLISION.value
 
     # agent_1 now rotates, then moves forward towards another object.
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}
-               }
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: -1,
+            Actions.CLIMB: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        }
+    }
 
-    obs, rew, done = simple_jungle.step(actions)
+    _, rew, _ = simple_jungle.step(actions)
 
     # first movement occurs without collision
     assert agent_1.position == (4, 4)
@@ -287,11 +307,20 @@ def test_collisions_with_obstacles():
     assert agent_1.angle == 2
 
     # agent_1 moves forward, now it should bump
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}
-               }
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        }
+    }
 
-    obs, rew, done = simple_jungle.step(actions)
+    _, rew, _ = simple_jungle.step(actions)
 
     assert agent_1.position == (4, 4)
     assert rew[agent_1] == Rewards.REWARD_COLLISION.value
@@ -310,7 +339,7 @@ def test_collision_with_tree():
 
     simple_jungle = EmptyJungle(size=11)
 
-    simple_jungle.add_agents(agent_1, agent_2)
+    simple_jungle.add_agents(agent_1, agent_2, random_position=False)
 
     simple_jungle.add_object(ElementsEnv.TREE, (4, 4))
     simple_jungle.add_object(ElementsEnv.TREE, (4, 3))
@@ -318,9 +347,18 @@ def test_collision_with_tree():
 
     # move to first tree
     # agent_1 forward +1 and rotates -1
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}
-               }
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: -1,
+            Actions.CLIMB: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        }
+    }
 
     obs, rew, done = simple_jungle.step(actions)
 
@@ -331,9 +369,18 @@ def test_collision_with_tree():
 
     # move to second tree
     # agent_1 forward +1 and rotates 1
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 1, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}
-               }
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: 1,
+            Actions.CLIMB: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        }
+    }
 
     obs, rew, done = simple_jungle.step(actions)
 
@@ -344,9 +391,18 @@ def test_collision_with_tree():
 
     # move to third tree
     # agent_1 forward +1
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}
-               }
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        }
+    }
 
     obs, rew, done = simple_jungle.step(actions)
 
@@ -370,15 +426,24 @@ def run_tree_experiment():
     agent_2 = Agent()
 
     simple_jungle = EmptyJungle(size=11)
-    simple_jungle.add_agents(agent_1, agent_2)
+    simple_jungle.add_agents(agent_1, agent_2, random_position=False)
 
     simple_jungle.add_object(ElementsEnv.TREE, (5, 5))
 
     # face the tree
     # agent_1 and agent_2 rotate -1
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0}
-               }
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: -1,
+            Actions.CLIMB: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: -1,
+            Actions.CLIMB: 0
+        }
+    }
 
     simple_jungle.step(actions)
     simple_jungle.step(actions)
@@ -387,9 +452,18 @@ def run_tree_experiment():
 
     # move towards the tree
     # agent_1 fwd 1 , agent_2 fwd -1
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: -1, Actions.ROTATE: 0, Actions.CLIMB: 0}
-               }
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        },
+        agent_2: {
+            Actions.FORWARD: -1,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        }
+    }
 
     simple_jungle.step(actions)
 
@@ -423,8 +497,16 @@ def test_exits():
     assert agent_2.done is False
 
     # we put exit towards an agent and move through it
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0
+        }
+    }
 
     # exits provide 4 different rewards: LOW, AVERAGE, HIGH, VERY_HIGH
     # There are 4 different kinds of exits:
@@ -436,7 +518,7 @@ def test_exits():
     # agent 1 takes easy exit.
 
     simple_jungle = EmptyJungle(size=11)
-    simple_jungle.add_agents(agent_1, agent_2)
+    simple_jungle.add_agents(agent_1, agent_2, random_position=False)
     simple_jungle.add_object(ElementsEnv.EXIT_EASY, (5, 3))
 
     _, rew, done = simple_jungle.step(actions)
@@ -446,7 +528,7 @@ def test_exits():
     # agent 1 takes hard exit.
 
     simple_jungle = EmptyJungle(size=11)
-    simple_jungle.add_agents(agent_1, agent_2)
+    simple_jungle.add_agents(agent_1, agent_2, random_position=False)
     simple_jungle.add_object(ElementsEnv.EXIT_DIFFICULT, (5, 3))
 
     # when entering a new environment, agents done is reset.
@@ -458,13 +540,21 @@ def test_exits():
     assert rew[agent_1] == Rewards.REWARD_EXIT_HIGH.value
 
     # If an agent takes the exit of its color, it receives a very high reward
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0},
-               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: 0
+        }
+    }
 
     simple_jungle = EmptyJungle(size=11)
-    simple_jungle.add_agents(agent_1, agent_2)
+    simple_jungle.add_agents(agent_1, agent_2, random_position=False)
 
-    if agent_1.color is Rewards.WHITE:
+    if agent_1.color is WHITE:
         simple_jungle.add_object(ElementsEnv.EXIT_WHITE, (5, 3))
         simple_jungle.add_object(ElementsEnv.EXIT_BLACK, (5, 7))
     else:
@@ -482,9 +572,9 @@ def test_exits():
     # If an agent takes the exit of the opposite color, it receives a low reward
 
     simple_jungle = EmptyJungle(size=11)
-    simple_jungle.add_agents(agent_1, agent_2)
+    simple_jungle.add_agents(agent_1, agent_2, random_position=False)
 
-    if agent_1.color is Rewards.BLACK:
+    if agent_1.color is BLACK:
         simple_jungle.add_object(ElementsEnv.EXIT_WHITE, (5, 3))
         simple_jungle.add_object(ElementsEnv.EXIT_BLACK, (5, 7))
     else:
@@ -506,21 +596,38 @@ def test_gameplay_exit():
     # agent 1 takes easy exit.
 
     simple_jungle = EmptyJungle(size=11)
-    simple_jungle.add_agents(agent_1, agent_2)
+    simple_jungle.add_agents(agent_1, agent_2, random_position=False)
     simple_jungle.add_object(ElementsEnv.EXIT_EASY, (5, 3))
 
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0
+        }
+    }
 
     _, rew, done = simple_jungle.step(actions)
 
-    assert done is False
+    assert done[agent_1] is True
+    assert done[agent_2] is False
     assert agent_1.done is True
     assert not agent_2.done
 
     # agent 2 rotates then goes towards exit.
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 1}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 1
+        }
+    }
 
     simple_jungle.step(actions)
     simple_jungle.step(actions)
@@ -529,14 +636,21 @@ def test_gameplay_exit():
     assert agent_1.done
     assert not agent_2.done
 
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0},
-               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: 0
+        }
+    }
 
-    # @MG needed to add exit as per agent2's starting position and your suggested^ actions
     simple_jungle.add_object(ElementsEnv.EXIT_EASY, (5, 4))
 
     simple_jungle.step(actions)
-    _, rew, done = simple_jungle.step(actions)
+    _, _, done = simple_jungle.step(actions)
 
     assert agent_1.done
     assert agent_2.done
@@ -551,13 +665,21 @@ def test_cut_tree():
     agent_2 = Agent(range_observation=6)
 
     simple_jungle = EmptyJungle(size=11)
-    simple_jungle.add_agents(agent_1, agent_2)
+    simple_jungle.add_agents(agent_1, agent_2, random_position=False)
 
     simple_jungle.add_object(ElementsEnv.TREE, (5, 7))
     simple_jungle.add_object(ElementsEnv.TREE, (3, 5))
 
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0},
-               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 0}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: 0
+        }
+    }
 
     _, rew, done = simple_jungle.step(actions)
 
@@ -566,8 +688,16 @@ def test_cut_tree():
 
     # assert increase in logs for agent 2 and tree converts to empty + agent has logs
 
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: -1},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: -1
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0
+        }
+    }
 
     _, rew, done = simple_jungle.step(actions)
     _, rew, done = simple_jungle.step(actions)
@@ -582,12 +712,22 @@ def test_approach_river_together():
     agent_2 = Agent(range_observation=6)
 
     simple_jungle = EmptyJungle(size=11)
-    simple_jungle.add_agents(agent_1, agent_2)
+    simple_jungle.add_agents(agent_1, agent_2, random_position=False)
 
     simple_jungle.add_object(ElementsEnv.RIVER, (4, 5))
+    agent_1.position, agent_1.angle = simple_jungle._starting_coordinates_1
+    agent_2.position, agent_2.angle = simple_jungle._starting_coordinates_2
 
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0},
-               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 1}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: 1
+        }
+    }
 
     _, rew, done = simple_jungle.step(actions)
     _, rew, done = simple_jungle.step(actions)
@@ -607,7 +747,7 @@ def test_build_bridge():
     agent_2 = Agent()
 
     simple_jungle = EmptyJungle(size=11)
-    simple_jungle.add_agents(agent_1, agent_2)
+    simple_jungle.add_agents(agent_1, agent_2, random_position=True)
 
     # Place a river between them, and trees in front of them
     simple_jungle.add_object(ElementsEnv.RIVER, (5, 5))
@@ -617,8 +757,7 @@ def test_build_bridge():
     simple_jungle.add_object(ElementsEnv.TREE, (5, 8))
 
     # Go fetch some wood
-    actions = {agent_1: {Actions.FORWARD: 1},
-               agent_2: {Actions.FORWARD: 1}}
+    actions = {agent_1: {Actions.FORWARD: 1}, agent_2: {Actions.FORWARD: 1}}
 
     simple_jungle.step(actions)
     simple_jungle.step(actions)
@@ -627,15 +766,22 @@ def test_build_bridge():
     assert (agent_1.wood_logs + agent_2.wood_logs) == 4
 
     # go back to middle
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 1},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 1}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 1
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 1
+        }
+    }
 
     simple_jungle.step(actions)
     simple_jungle.step(actions)
     simple_jungle.step(actions)
 
-    actions = {agent_1: {Actions.FORWARD: 1},
-               agent_2: {Actions.FORWARD: 1}}
+    actions = {agent_1: {Actions.FORWARD: 1}, agent_2: {Actions.FORWARD: 1}}
 
     simple_jungle.step(actions)
     simple_jungle.step(actions)
@@ -643,10 +789,6 @@ def test_build_bridge():
 
     # assert river cell becomes empty cell
     assert simple_jungle.cell_type(5, 5) == ElementsEnv.EMPTY.value
-
-    # assert they both get reward for building bridge (both need to be at river)
-    assert rew[agent_1] == Rewards.REWARD_BUILT_BRIDGE.value
-    assert rew[agent_2] == Rewards.REWARD_BUILT_BRIDGE.value
 
     # assert they both are not done
     assert not agent_1.done
@@ -761,8 +903,18 @@ def test_obs():
     simple_jungle = EmptyJungle(size=11)
     simple_jungle.add_agents(agent_1, agent_2)
 
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 1, Actions.CLIMB: 0}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: -1,
+            Actions.CLIMB: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 1,
+            Actions.CLIMB: 0
+        }
+    }
 
     obs, rew, done = simple_jungle.step(actions)
 
@@ -780,8 +932,18 @@ def test_obstacles_in_obs_cross():
     # directly right of agent 2
     simple_jungle.add_object(ElementsEnv.TREE, (5, 8))
 
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        }
+    }
 
     obs, rew, done = simple_jungle.step(actions)
 
@@ -796,8 +958,18 @@ def test_obstacles_in_obs_cross():
     # directly above agent 2
     simple_jungle.add_object(ElementsEnv.TREE, (3, 7))
 
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 1, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 1, Actions.CLIMB: 0}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: 1,
+            Actions.CLIMB: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: 1,
+            Actions.CLIMB: 0
+        }
+    }
 
     obs, rew, done = simple_jungle.step(actions)
 
@@ -829,8 +1001,18 @@ def test_agent_view():
     # should be able to see this river
     simple_jungle.add_object(ElementsEnv.RIVER, (3, 9))
 
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        }
+    }
 
     obs, rew, done = simple_jungle.step(actions)
 
@@ -882,8 +1064,18 @@ def test_diagonal_view_bottom_left():
 
     # empty actions to pass to the step function
 
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        }
+    }
 
     obs, rew, done = simple_jungle.step(actions)
     assert agent_1.bottom_left_obstructed
@@ -910,8 +1102,18 @@ def test__diagonal_view_top_right():
 
     # empty actions to pass to the step function
 
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        }
+    }
 
     obs, rew, done = simple_jungle.step(actions)
 
@@ -939,8 +1141,18 @@ def test__diagonal_view_bottom_right():
 
     # empty actions to pass to the step function
 
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        }
+    }
 
     obs, rew, done = simple_jungle.step(actions)
 
@@ -978,8 +1190,18 @@ def test_obs_cooperation_sequence():
     # empty actions to pass to the step function
 
     # agent 1 turns towards agent 2
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: -1, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: -1,
+            Actions.CLIMB: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        }
+    }
 
     obs, rew, done = simple_jungle.step(actions)
     obs, rew, done = simple_jungle.step(actions)
@@ -990,8 +1212,18 @@ def test_obs_cooperation_sequence():
     assert ElementsEnv.RIVER.value not in obs[agent_2]
 
     # agent 1 moves towards agent 2
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 0, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        }
+    }
 
     obs, rew, done = simple_jungle.step(actions)
     obs, rew, done = simple_jungle.step(actions)
@@ -1001,8 +1233,18 @@ def test_obs_cooperation_sequence():
 
     # agent 2 climbs on the shoulders of agent 1
 
-    actions = {agent_1: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 0},
-               agent_2: {Actions.FORWARD: 0, Actions.ROTATE: 0, Actions.CLIMB: 1}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 0
+        },
+        agent_2: {
+            Actions.FORWARD: 0,
+            Actions.ROTATE: 0,
+            Actions.CLIMB: 1
+        }
+    }
     obs, rew, done = simple_jungle.step(actions)
 
     assert agent_2.on_shoulders
@@ -1036,8 +1278,16 @@ def test_obs_new_jungle():
     # directly above agent 2
     simple_jungle.add_object(ElementsEnv.TREE, (3, 7))
 
-    actions = {agent_1: {Actions.FORWARD: 1, Actions.ROTATE: 1},
-               agent_2: {Actions.FORWARD: 1, Actions.ROTATE: 1}}
+    actions = {
+        agent_1: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: 1
+        },
+        agent_2: {
+            Actions.FORWARD: 1,
+            Actions.ROTATE: 1
+        }
+    }
 
     obs, rew, done = simple_jungle.step(actions)
 
@@ -1049,6 +1299,7 @@ def test_obs_new_jungle():
 # I will place trees in different locations relative to the agents.
 # If a tree is obstructing the agent's view, it should not, for example be able
 # to see a particular type of exit.
+
 
 # This env has one river exit and one free exit.
 # The river exit is not seen by agent 2, and the free exit is not seen by agent 1.
@@ -1083,6 +1334,7 @@ def test_obs_mediumenv():
 # the exit location past the boulders, whilst another agent cannot see rivers
 # past the trees.
 
+
 def test_partial_observability():
     agent_1 = Agent(range_observation=4)
     agent_2 = Agent(range_observation=4)
@@ -1111,18 +1363,24 @@ def test_partial_observability():
     assert ElementsEnv.EXIT_WHITE.value not in obs[agent_1]
     assert ElementsEnv.RIVER.value not in obs[agent_2]
 
+
 def generate_actions():
     fwd = random.choice([-1, 0, 1])
     rot = random.choice([1, 0])
     climb = random.choice([1, 0])
-    agent_actions = {Actions.FORWARD: fwd, Actions.ROTATE: rot, Actions.CLIMB: climb}
+    agent_actions = {
+        Actions.FORWARD: fwd,
+        Actions.ROTATE: rot,
+        Actions.CLIMB: climb
+    }
 
     return agent_actions
+
 
 def test_run_check():
     agent_1 = Agent()
     agent_2 = Agent()
-    agents = [agent_1,agent_2]
+    agents = [agent_1, agent_2]
 
     actions = {}
 

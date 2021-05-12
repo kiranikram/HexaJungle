@@ -1,37 +1,39 @@
-import numpy as np
-import random
-import math
+"""
+jungle.py provides the Jungle base class.
+Jungle deals with environment creation and interactions between agents 
+and elements.
+"""
+
+from typing import Tuple, Union, List
 
 from abc import ABC, abstractmethod
-
 from copy import deepcopy
+import random
 
 from collections import namedtuple
 
-from jungle.utils import ElementsEnv, Actions, Rewards, display_dict, MIN_SIZE_ENVIR, MAX_WOOD_LOGS, BLACK, WHITE
-from jungle.observations import restrict_observations
-from jungle.helpers.helper_functions import normalize
+import numpy as np
+
+from jungle.agent import Agent
+from jungle.utils import (ElementsEnv, Actions, Rewards, display_dict,
+                          MIN_SIZE_ENVIR, MAX_WOOD_LOGS, BLACK, WHITE)
 
 Exit = namedtuple('Exit', ['coordinates', 'surrounding_1', 'surrounding_2'])
 
-# test git2 
-
 
 class Jungle(ABC):
+    def __init__(self, size: int):
 
-    def __init__(self, size):
-
-        # self.size = config['size']
         self.size = size
-
         if self.size % 2 == 0 or size < MIN_SIZE_ENVIR:
             raise ValueError('size should be an odd number')
 
         # Initialize with empty values
-        self.grid_env = np.ones((self.size, self.size), dtype=int) * ElementsEnv.EMPTY.value
+        self.grid_env = np.ones((self.size, self.size), dtype=int)
+        self.grid_env *= ElementsEnv.EMPTY.value
 
         # Placeholders for agents
-        self.agents = []
+        self.agents: List[Agent] = []
 
         # Set starting_positions
         pos_1 = int((self.size - 1) / 2), int((self.size - 1) / 2 - 1)
@@ -43,7 +45,7 @@ class Jungle(ABC):
         self._starting_coordinates_2 = pos_2, angle_2
 
         # Set borders of environment
-        self.set_boundaries()
+        self._set_boundaries()
 
         # Set elements
         self._set_elements()
@@ -52,10 +54,10 @@ class Jungle(ABC):
         self._calculate_exit_coordinates()
         self._set_exits()
 
-        # Save the initial grid if you want to reset at exactly the same position
+        # Save the initial grid to reset to original state
         self._initial_grid = deepcopy(self.grid_env)
 
-    def set_boundaries(self):
+    def _set_boundaries(self):
 
         # place outside walls
         self.grid_env[:, 0] = ElementsEnv.OBSTACLE.value
@@ -82,19 +84,17 @@ class Jungle(ABC):
         self._exit_top_left = Exit((1, 1), (1, 2), (2, 2))
         self._exits.append(self._exit_top_left)
 
-        self._exit_bottom_left = Exit((self.size - 2, 1),
-                                     (self.size - 2, 2),
-                                     (self.size - 3, 2))
+        self._exit_bottom_left = Exit((self.size - 2, 1), (self.size - 2, 2),
+                                      (self.size - 3, 2))
         self._exits.append(self._exit_bottom_left)
 
-        self._exit_top_right = Exit((1, self.size - 2),
-                                   (1, self.size - 3),
-                                   (2, self.size - 2))
+        self._exit_top_right = Exit((1, self.size - 2), (1, self.size - 3),
+                                    (2, self.size - 2))
         self._exits.append(self._exit_top_right)
 
         self._exit_bottom_right = Exit((self.size - 2, self.size - 2),
-                                      (self.size - 2, self.size - 3),
-                                      (self.size - 3, self.size - 2))
+                                       (self.size - 2, self.size - 3),
+                                       (self.size - 3, self.size - 2))
         self._exits.append(self._exit_bottom_right)
 
     def get_random_empty_location(self):
@@ -107,21 +107,20 @@ class Jungle(ABC):
                 grid[agent.position] = ElementsEnv.OBSTACLE.value
 
         # Avoid starting positions
-        grid[ self._starting_coordinates_1[0] ] = ElementsEnv.OBSTACLE.value
-        grid[ self._starting_coordinates_2[0] ] = ElementsEnv.OBSTACLE.value
+        grid[self._starting_coordinates_1[0]] = ElementsEnv.OBSTACLE.value
+        grid[self._starting_coordinates_2[0]] = ElementsEnv.OBSTACLE.value
 
         # Take all empty cells
-        rr, cc = np.where(grid == ElementsEnv.EMPTY.value)
+        rows, cols = np.where(grid == ElementsEnv.EMPTY.value)
 
         # return one of them
-        index = random.randint(0, len(rr) - 1)
+        index = random.randint(0, len(rows) - 1)
 
-        assert grid[rr[index], cc[index]] == ElementsEnv.EMPTY.value
+        assert grid[rows[index], cols[index]] == ElementsEnv.EMPTY.value
 
-        return rr[index], cc[index]
+        return rows[index], cols[index]
 
     def select_random_exit(self):
-
         """ Picks a random exit. """
 
         random.shuffle(self._exits)
@@ -135,49 +134,60 @@ class Jungle(ABC):
 
         full_repr = ""
 
-        for r in range(self.size):
-            if r % 2 == 0:
+        for row in range(self.size):
+            if row % 2 == 0:
                 line = ""
             else:
                 line = "{0:2}".format("")
 
-            for c in range(self.size):
+            for col in range(self.size):
 
-                if self.agents[0].position == (r, c):
-                    repr = str(self.agents[0])
+                if self.agents[0].position == (row, col):
+                    line_repr = str(self.agents[0])
 
-                elif self.agents[1].position == (r, c):
-                    repr = str(self.agents[1])
+                elif self.agents[1].position == (row, col):
+                    line_repr = str(self.agents[1])
 
                 else:
-                    element = self.grid_env[r,c]
-                    repr = display_dict[element]
+                    element = self.grid_env[row, col]
+                    line_repr = display_dict[element]
 
-                line += "{0:3}".format(repr)
+                line += "{0:3}".format(line_repr)
 
             full_repr += line + "\n"
 
         return full_repr
 
-    def add_agents(self, agent_1, agent_2):
+    def add_agents(self, agent_1, agent_2, random_position=True):
 
         self.agents = [agent_1, agent_2]
 
-        self._place_agents()
+        self._place_agents(random_position)
         self._assign_colors()
 
         agent_1.reset()
         agent_2.reset()
 
-    def _place_agents(self):
+    def _place_agents(self, random_position):
+
+        if not random_position:
+            self.agents[0].position, self.agents[
+                0].angle = self._starting_coordinates_1
+            self.agents[1].position, self.agents[
+                1].angle = self._starting_coordinates_2
+            return
 
         if random.random() > 0.5:
-            self.agents[0].position, self.agents[0].angle = self._starting_coordinates_1
-            self.agents[1].position, self.agents[1].angle = self._starting_coordinates_2
+            self.agents[0].position, self.agents[
+                0].angle = self._starting_coordinates_1
+            self.agents[1].position, self.agents[
+                1].angle = self._starting_coordinates_2
 
         else:
-            self.agents[0].position, self.agents[0].angle = self._starting_coordinates_2
-            self.agents[1].position, self.agents[1].angle = self._starting_coordinates_1
+            self.agents[0].position, self.agents[
+                0].angle = self._starting_coordinates_2
+            self.agents[1].position, self.agents[
+                1].angle = self._starting_coordinates_1
 
     def _assign_colors(self):
 
@@ -200,8 +210,10 @@ class Jungle(ABC):
         self.agents[0].reset()
         self.agents[1].reset()
 
-        obs = {self.agents[0]: self.generate_agent_obs(self.agents[0]),
-               self.agents[1]: self.generate_agent_obs(self.agents[1])}
+        obs = {
+            self.agents[0]: self.generate_agent_obs(self.agents[0]),
+            self.agents[1]: self.generate_agent_obs(self.agents[1])
+        }
 
         return obs
 
@@ -211,28 +223,31 @@ class Jungle(ABC):
 
         if not self.agents[0].done:
             rew_0 = self.move(self.agents[0], actions)
-            agent_0_climbs = actions.get(self.agents[0], {}).get(Actions.CLIMB, 0)
+            agent_0_climbs = actions.get(self.agents[0],
+                                         {}).get(Actions.CLIMB, 0)
         else:
             rew_0 = 0
             agent_0_climbs = False
 
         if not self.agents[1].done:
             rew_1 = self.move(self.agents[1], actions)
-            agent_1_climbs = actions.get(self.agents[1], {}).get(Actions.CLIMB, 0)
+            agent_1_climbs = actions.get(self.agents[1],
+                                         {}).get(Actions.CLIMB, 0)
         else:
             rew_1 = 0
             agent_1_climbs = False
 
         # If None are done, check interactions btween agents
-        if self.agents[0].position == self.agents[1].position and self.agents[0].position:
+        if self.agents[0].position == self.agents[1].position and self.agents[
+                0].position:
 
-            r, c = self.agents[0].position
+            row, col = self.agents[0].position
 
             # TREE
-            if self.grid_env[r, c] == ElementsEnv.TREE.value:
+            if self.grid_env[row, col] == ElementsEnv.TREE.value:
 
                 # If they are on a tree they cut it
-                self.grid_env[r, c] = ElementsEnv.EMPTY.value
+                self.grid_env[row, col] = ElementsEnv.EMPTY.value
 
                 # one of them only gets the log
                 if random.random() > 0.5:
@@ -245,13 +260,14 @@ class Jungle(ABC):
                 rew_1 += Rewards.REWARD_CUT_TREE.value
 
             # RIVER
-            if self.grid_env[r, c] == ElementsEnv.RIVER.value:
+            if self.grid_env[row, col] == ElementsEnv.RIVER.value:
 
                 # If they have enough logs they build a bridge
-                if self.agents[0].wood_logs + self.agents[1].wood_logs == MAX_WOOD_LOGS:
+                if self.agents[0].wood_logs + self.agents[
+                        1].wood_logs == 2 * MAX_WOOD_LOGS:
                     self.agents[0].wood_logs = 0
                     self.agents[1].wood_logs = 0
-                    self.grid_env[r, c] = ElementsEnv.EMPTY.value
+                    self.grid_env[row, col] = ElementsEnv.EMPTY.value
 
             # CLIMB Behavior if they are on the same cell
             if agent_0_climbs and not agent_1_climbs:
@@ -292,7 +308,6 @@ class Jungle(ABC):
         # All rewards and terminations are now calculated
         rewards = {self.agents[1]: rew_1, self.agents[0]: rew_0}
 
-
         # Now we calculate the observations
         obs = {}
 
@@ -306,13 +321,10 @@ class Jungle(ABC):
         else:
             obs[self.agents[1]] = None
 
-        dones = {self.agents[0]: done_0,
-                self.agents[1]: done_1
-                }
+        dones = {self.agents[0]: done_0, self.agents[1]: done_1}
 
         self.agents[0].done = done_0
         self.agents[1].done = done_1
-
 
         return obs, rewards, dones
 
@@ -337,37 +349,37 @@ class Jungle(ABC):
             rew += Rewards.REWARD_COLLISION.value
 
         # If on an exit, receive reward and is done
-        r, agent_exits = self.exits(agent)
-        rew += r
+        rew_exit, agent_exits = self.exits(agent)
+        rew += rew_exit
 
         agent_done = agent_exits or agent_drowns
 
         return rew, agent_done
 
     def cutting_tree(self, agent):
-        r, c = agent.position
+        row, col = agent.position
 
-        if self.cell_type(r, c) == ElementsEnv.TREE.value:
+        if self.cell_type(row, col) == ElementsEnv.TREE.value:
             # If they are on a tree they cut it
-            self.grid_env[r, c] = ElementsEnv.EMPTY.value
+            self.grid_env[row, col] = ElementsEnv.EMPTY.value
             return True
         return False
 
     def on_a_river(self, agent):
-        r, c = agent.position
-        if self.cell_type(r, c) == ElementsEnv.RIVER.value:
+        row, col = agent.position
+        if self.cell_type(row, col) == ElementsEnv.RIVER.value:
             return True
         return False
 
     def hits_boulder(self, agent):
-        r, c = agent.position
-        if self.cell_type(r, c) == ElementsEnv.BOULDER.value:
+        row, col = agent.position
+        if self.cell_type(row, col) == ElementsEnv.BOULDER.value:
             return True
         return False
 
     def exits(self, agent):
-        r, c = agent.position
-        current_cell = self.cell_type(r, c)
+        row, col = agent.position
+        current_cell = self.cell_type(row, col)
 
         done = True
 
@@ -418,7 +430,7 @@ class Jungle(ABC):
 
         next_cell = self.cell_type(row_new, col_new)
 
-        # If we were on a boulder, we can move to boulders or empty cells or trees or exits.
+        # If we were on a boulder, we can move to non-obstacles
         # We collide only if we go toward an obstacle.
         if current_cell == ElementsEnv.BOULDER.value:
 
@@ -426,7 +438,7 @@ class Jungle(ABC):
                 reward = Rewards.REWARD_COLLISION.value
                 row_new, col_new = row, col
 
-        # If we were on the ground, we move unless we face a boulder or obstacle
+        # If we were on the ground, we move unless we face boulder or obstacle
         else:
 
             # Check if next cell is an obstacle, we don't move
@@ -442,7 +454,8 @@ class Jungle(ABC):
                     reward = Rewards.REWARD_COLLISION.value
                     row_new, col_new = row, col
 
-                # Else we move to boulders, and starting then we can go from boulder to boulder
+                # Else we move to boulders
+                # and starting then we can go from boulder to boulder
 
         # Whatever happens, if we move forward, we are not on shoulders anymore
         agent.on_shoulders = False
@@ -480,8 +493,9 @@ class Jungle(ABC):
 
         visual_obs = self._generate_full_observation(agent)
 
-        if not (agent.on_shoulders or self.grid_env[agent.position] == ElementsEnv.BOULDER.value):
-             visual_obs = self._filter_observations(visual_obs)
+        if not (agent.on_shoulders
+                or self.grid_env[agent.position] == ElementsEnv.BOULDER.value):
+            visual_obs = self._filter_observations(visual_obs)
 
         # Add other agent relative angle if it is seen
         if agent is self.agents[0]:
@@ -492,17 +506,17 @@ class Jungle(ABC):
         relative_angle = (other_agent.angle - agent.angle) % 6
 
         flat_visual_obs = []
-        for v in visual_obs: flat_visual_obs += v
+        for line_obs in visual_obs:
+            flat_visual_obs += line_obs
 
         if ElementsEnv.AGENT.value not in flat_visual_obs:
             relative_angle = -1
 
-
-
-        obs_dict = {'visual': flat_visual_obs,
-                    'other_agent_angle': relative_angle,
-                    'color': agent.color}
-
+        obs_dict = {
+            'visual': flat_visual_obs,
+            'other_agent_angle': relative_angle,
+            'color': agent.color
+        }
 
         return obs_dict
 
@@ -510,15 +524,15 @@ class Jungle(ABC):
 
         grid_copy = deepcopy(self.grid_env)
 
-        if agent == self.agents[0] and not self.agents[1].done:
-            r, c = self.agents[1].position
-            grid_copy[r, c] = ElementsEnv.AGENT.value
+        if agent == self.agents[0] and self.agents[1].position:
+            row, col = self.agents[1].position
+            grid_copy[row, col] = ElementsEnv.AGENT.value
 
-        elif agent == self.agents[1] and not self.agents[0].done:
-            r, c = self.agents[0].position
-            grid_copy[r, c] = ElementsEnv.AGENT.value
+        elif agent == self.agents[1] and self.agents[0].position:
+            row, col = self.agents[0].position
+            grid_copy[row, col] = ElementsEnv.AGENT.value
 
-        obs = [ [grid_copy[agent.position]] ]
+        obs = [[grid_copy[agent.position]]]
 
         # iterate over range
         for obs_range in range(1, agent.range_observation):
@@ -529,7 +543,7 @@ class Jungle(ABC):
             angle = agent.angle
 
             # go to start
-            for i in range(obs_range):
+            for _ in range(obs_range):
                 row, col, _ = self.get_next_cell(row, col, (angle - 1) % 6)
 
             if 0 <= row < self.size and 0 <= col < self.size:
@@ -538,7 +552,7 @@ class Jungle(ABC):
                 line_obs.append(ElementsEnv.EMPTY.value)
 
             # move first segment
-            for i in range(obs_range):
+            for _ in range(obs_range):
                 row, col, _ = self.get_next_cell(row, col, (angle + 1) % 6)
 
                 if 0 <= row < self.size and 0 <= col < self.size:
@@ -547,7 +561,7 @@ class Jungle(ABC):
                     line_obs.append(ElementsEnv.EMPTY.value)
 
             # move second segment
-            for i in range(obs_range):
+            for _ in range(obs_range):
                 row, col, _ = self.get_next_cell(row, col, (angle + 2) % 6)
 
                 if 0 <= row < self.size and 0 <= col < self.size:
@@ -562,7 +576,7 @@ class Jungle(ABC):
     def _filter_observations(obs):
         " Replace all occlusions with -1 "
 
-        for index_line in range(1, len(obs)-1):
+        for index_line in range(1, len(obs) - 1):
 
             line_obs = obs[index_line]
 
@@ -571,11 +585,11 @@ class Jungle(ABC):
                 # if there is an occlusion
                 if line_obs[i] == -1 or line_obs[i] != ElementsEnv.EMPTY.value:
 
-                    middle = int((len(line_obs) - 1)/2)
+                    middle = int((len(line_obs) - 1) / 2)
 
                     # if it is on extremas
                     if i == middle:
-                        obs[index_line + 1][i+1] = -1
+                        obs[index_line + 1][i + 1] = -1
 
                     # if in angle, occludes 2 cells
                     elif i < middle:
@@ -599,7 +613,8 @@ class Jungle(ABC):
         c = coords[1]
         self.grid_env[r, c] = item.value
 
-    def get_next_cell(self, row, col, angle):
+    def get_next_cell(self, row: int, col: int,
+                      angle: int) -> Tuple[int, int, int]:
 
         row_new, col_new = row, col
 

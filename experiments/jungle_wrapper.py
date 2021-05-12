@@ -9,7 +9,7 @@ from collections import namedtuple
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 from ray.rllib.utils.annotations import override
 from ray.rllib.utils.typing import MultiAgentDict, PolicyID, AgentID
-from jungle.jungles.rl import RiverExit, BoulderExit, EasyExit
+from jungle.jungles.rl import RiverExit, BoulderExit, EasyExit, RiverExitWRivers
 from jungle.utils import ElementsEnv, Actions, Rewards
 from jungle.observations import restrict_observations
 from jungle.agent import Agent
@@ -53,8 +53,8 @@ class RLlibWrapper(MultiAgentEnv):
         # sa_observation_space = spaces.Box(low=0, high=10,
         # shape=(1,))
         # self._set_obs_space()
-        self.observation_space = spaces.Box(low=-1, high=12,
-                                            shape=(18,), dtype=np.int64)
+        self.observation_space = spaces.Box(low=-1, high=1,
+                                            shape=(258,), dtype=np.int64)
         # self.observation_space = spaces.Tuple(tuple(2 * [sa_observation_space]))
         # self.observation_space = spaces.Tuple(tuple(spaces.Box(low=0, high=self.jungle.size, shape=(1,))))
 
@@ -122,12 +122,11 @@ class RLlibWrapper(MultiAgentEnv):
 
         obs, rewards, done = self.convert_to_wrapper_agents(obs, rewards, done)
 
+
+
         return obs, rewards, done, info
 
     def reset(self):
-        
-
-        # print('reset is  being called')
 
         obs = self.jungle.reset()
         obs = self._convert_to_wrapper_agents(obs)
@@ -156,31 +155,42 @@ class RLlibWrapper(MultiAgentEnv):
         # new_obs = {self.white: obs['white'], self.black: obs['black']}
         if not obs[self.jungle.agents[0]] is None:
             white = obs[self.jungle.agents[0]]
-            white_obs = white['visual'] + [white['other_agent_angle']] + [white['color']]
-            white_obs = self.normalize_obs(white_obs)
+            white_vis = self.one_hot_obs(white['visual'])
+            white_oae = [white['other_agent_angle'] / self.jungle.size]
+            white_color = [white['color'] / self.jungle.size]
+            white_obs = white_vis + white_oae + white_color
+
+            # white_obs = white['visual'] + [white['other_agent_angle']] + [white['color']]
+
         else:
-            white_obs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            white_obs = np.zeros(258)  # should be length of obs
 
         if not obs[self.jungle.agents[1]] is None:
             black = obs[self.jungle.agents[1]]
-            black_obs = black['visual'] + [black['other_agent_angle']] + [black['color']]
-            black_obs = self.normalize_obs(black_obs)
+            black_vis = self.one_hot_obs(black['visual'])
+            black_oae = [black['other_agent_angle'] / self.jungle.size]
+            black_color = [black['color'] / self.jungle.size]
+            black_obs = black_vis + black_oae + black_color
+            # black_obs = black['visual'] + [black['other_agent_angle']] + [black['color']]
+
         else:
-            black_obs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            black_obs = np.zeros(258)  # should be length of obs
         new_obs = {self.white: white_obs, self.black: black_obs}
 
         white_done = done[self.jungle.agents[0]]
         black_done = done[self.jungle.agents[1]]
 
         if white_done and black_done:
-
+            # print('WHITE', rew[self.jungle.agents[0]])
+            # print('BLACK', rew[self.jungle.agents[1]])
+            # print('both done')
             new_done = dict({"__all__": True})
         elif white_done and not black_done:
-
-            new_done = dict({ "__all__": False})
+            # print('only  white done')
+            new_done = dict({"__all__": False})
         elif black_done and not white_done:
-
-            new_done = dict({ "__all__": False})
+            # print('only black done')
+            new_done = dict({"__all__": False})
         else:
             new_done = dict({"__all__": False})
 
@@ -194,7 +204,7 @@ class RLlibWrapper(MultiAgentEnv):
 
     def one_hot_obs(self, obs):
         env_elements = len(ElementsEnv) + 1
-        one_hot_obs = np.eye(env_elements)[obs]
+        one_hot_obs = np.eye(16)[obs]
         one_hot_obs = list(one_hot_obs.flat)
         return one_hot_obs
 
@@ -207,9 +217,22 @@ class RLlibWrapper(MultiAgentEnv):
         # ipdb.set_trace()
         #  new_obs = {self.white: obs['white'], self.black: obs['black']}
         white = obs[self.jungle.agents[0]]
-        white_obs = white['visual'] + [white['other_agent_angle']] + [white['color']]
+        white_vis = self.one_hot_obs(white['visual'])
+        white_oae = [white['other_agent_angle'] / self.jungle.size]
+        white_color = [white['color'] / self.jungle.size]
+        white_obs = white_vis + white_oae + white_color
+
+        #white_obs = white['visual'] + [white['other_agent_angle']] + [white['color']]
+
+
+
         black = obs[self.jungle.agents[1]]
-        black_obs = black['visual'] + [black['other_agent_angle']] + [black['color']]
+        black_vis = self.one_hot_obs(black['visual'])
+        black_oae = [black['other_agent_angle'] / self.jungle.size]
+        black_color = [black['color'] / self.jungle.size]
+        black_obs = black_vis + black_oae + black_color
+
+        #black_obs = black['visual'] + [black['other_agent_angle']] + [black['color']]
         new_obs = {self.white: white_obs, self.black: black_obs}
 
         return new_obs

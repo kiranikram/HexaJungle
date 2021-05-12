@@ -10,7 +10,7 @@ from ray.rllib.examples.models.shared_weights_model import \
 from ray.rllib.models import ModelCatalog
 from ray.rllib.utils.framework import try_import_tf
 from ray.rllib.utils.test_utils import check_learning_achieved
-from RL_Lib.jungle_wrapper import RLlibWrapper
+from experiments.jungle_wrapper import RLlibWrapper
 
 """In simplified version, setting number of policies to 1 instead of 2, which is the number of agents at the moment
 , and using easy exit """
@@ -20,14 +20,15 @@ tf1, tf, tfv = try_import_tf()
 parser = argparse.ArgumentParser()
 
 parser.add_argument("--num-agents", type=int, default=2)
-parser.add_argument("--num-policies", type=int, default=1)
-parser.add_argument("--stop-iters", type=int, default=200)
-parser.add_argument("--stop-reward", type=float, default=15)
-parser.add_argument("--stop-timesteps", type=int, default=10000)
+parser.add_argument("--num-policies", type=int, default=2)
+parser.add_argument("--stop-iters", type=int, default=9999)
+parser.add_argument("--stop-reward", type=float, default=9999)
+parser.add_argument("--stop-timesteps", type=int, default=1000000)
 parser.add_argument("--num-cpus", type=int, default=0)
 parser.add_argument("--as-test", action="store_true")
 parser.add_argument(
     "--framework", choices=["tf2", "tf", "tfe", "torch"], default="tf")
+parser.add_argument("--logdir", type=str, default="logs")
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -47,7 +48,7 @@ if __name__ == "__main__":
 
     # Get obs- and action Spaces.
     # config = {'jungle': 'RiverExit', 'size': 11}
-    config = {'jungle': 'EasyExit', 'size': 11}
+    config = {'jungle': 'RiverExitWRivers', 'size': 11}
     single_env = RLlibWrapper(config)
 
     obs_space = single_env.observation_space
@@ -78,14 +79,10 @@ if __name__ == "__main__":
 
     # not using this mapping func
     def policy_mapping_fn(agent_id):
-        print('AGENT ID in policy mapping function')
-        print(agent_id)
 
         pol_id = random.choice(policy_ids)
-        print(f"mapping {agent_id} to {pol_id}")
+        # print(f"mapping {agent_id} to {pol_id}")
 
-        print('RETURNS pol_id')
-        print(pol_id)
         return pol_id
 
 
@@ -98,9 +95,11 @@ if __name__ == "__main__":
 
     config = {
         "env": RLlibWrapper,
-        "env_config": {'jungle': 'EasyExit', "size": 11},
-        "no_done_at_end": True,
-        "lr": tune.grid_search([1e-4, 1e-6]),
+        "env_config": {'jungle': 'RiverExitWRivers', "size": 11},
+        "no_done_at_end": False,
+        #"lr": tune.grid_search([1e-4, 1e-6]),
+        "horizon": 2000,
+        "output": "logdir",
 
         # "lr":0.0001,
         # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
@@ -110,12 +109,6 @@ if __name__ == "__main__":
             "policies": policies,
             "policy_mapping_fn": policy_mapping_fn,
         },
-        #"model":{
-            #'fcnet_hiddens':[256,256],
-             #'vf_share_layers': True,
-             #'use_lstm': True,
-             #"lstm_cell_size": 256
-        #},
         "framework": args.framework,
     }
     stop = {
@@ -124,7 +117,8 @@ if __name__ == "__main__":
         "training_iteration": args.stop_iters,
     }
 
-    results = tune.run("PPO", stop=stop, config=config, verbose=1)
+    results = tune.run("PPO", stop=stop, config=config, local_dir=args.logdir,verbose=1)
+
 
     if args.as_test:
         check_learning_achieved(results, args.stop_reward)

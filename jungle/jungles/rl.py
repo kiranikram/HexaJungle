@@ -35,6 +35,81 @@ class EasyExit(Jungle):
         self.add_object(ElementsEnv.RIVER, self.exit_2.surrounding_1)
         self.add_object(ElementsEnv.RIVER, self.exit_2.surrounding_2)
 
+class RiverExit(Jungle):
+
+    def _set_exits(self):
+        self.exit_1 = self.select_random_exit()
+
+        self.add_objects()
+
+    def _set_elements(self):
+        quantity_trees = int((self.size - 2) ** 2 / 2)
+
+        for i in range(quantity_trees):
+            r, c = self.get_random_empty_location()
+            self.grid_env[r, c] = ElementsEnv.TREE.value
+
+    def reset(self):
+        self.grid_env[:] = deepcopy(self._initial_grid)
+
+        self._place_agents()
+        self._assign_colors()
+        self.add_objects()
+
+        self.agents[0].reset()
+        self.agents[1].reset()
+
+        obs = {self.agents[0]: self.generate_agent_obs(self.agents[0]),
+               self.agents[1]: self.generate_agent_obs(self.agents[1])}
+
+        return obs
+
+    def add_objects(self):
+        self.add_object(ElementsEnv.EXIT_DIFFICULT, self.exit_1.coordinates)
+        self.add_object(ElementsEnv.RIVER, self.exit_1.surrounding_1)
+        self.add_object(ElementsEnv.RIVER, self.exit_1.surrounding_2)
+
+class RiverExitWRivers(Jungle):
+
+    def _set_exits(self):
+        self.exit_1 = self.select_random_exit()
+
+        self.add_objects()
+
+    def _set_elements(self):
+        quantity_trees = int((self.size - 2) ** 2 / 2)
+
+        for i in range(quantity_trees):
+            r, c = self.get_random_empty_location()
+            self.grid_env[r, c] = ElementsEnv.TREE.value
+
+        # setting some rivers not far  from exits to give agents  opportunity  to collect logs
+        self.grid_env[self.size - 3,3] = ElementsEnv.RIVER.value
+        self.grid_env[self.size - 3, self.size-3] = ElementsEnv.RIVER.value
+        self.grid_env[3, 3] = ElementsEnv.RIVER.value
+
+    def reset(self):
+        print('RESET!')
+        self.grid_env[:] = deepcopy(self._initial_grid)
+
+        self._place_agents()
+        self._assign_colors()
+        self.add_objects()
+
+        self.agents[0].reset()
+        self.agents[1].reset()
+
+        obs = {self.agents[0]: self.generate_agent_obs(self.agents[0]),
+               self.agents[1]: self.generate_agent_obs(self.agents[1])}
+
+        return obs
+
+    def add_objects(self):
+        self.add_object(ElementsEnv.EXIT_DIFFICULT, self.exit_1.coordinates)
+        self.add_object(ElementsEnv.RIVER, self.exit_1.surrounding_1)
+        self.add_object(ElementsEnv.RIVER, self.exit_1.surrounding_2)
+
+
 
 class NotEasyExit(Jungle):
 
@@ -76,7 +151,7 @@ class NotEasyExit(Jungle):
         self.add_object(ElementsEnv.RIVER, self.exit_2.surrounding_2)
 
 
-class RiverExit(Jungle):
+class NotRiverExit(Jungle):
 
     def __init__(self, size):
         super().__init__(size)
@@ -112,35 +187,40 @@ class RiverExit(Jungle):
 
 class BoulderExit(Jungle):
 
-    def __init__(self, size):
-        super().__init__(size)
+    def _set_exits(self):
 
-        self.exit_1 = self.select_random_exit()
-
-        self.add_trees()
+        self.easy_exit = self.select_random_exit()
+        self.boulder_exit = self.select_random_exit()
         self.add_objects()
+
+    def _set_elements(self):
+        quantity_trees = int((self.size - 2) ** 2 / 2)
+
+        for i in range(quantity_trees):
+            r, c = self.get_random_empty_location()
+            self.grid_env[r, c] = ElementsEnv.TREE.value
 
     def reset(self):
-        self.reinitialize_grid()
+        self.grid_env[:] = deepcopy(self._initial_grid)
 
-        self.swap_agent_positions()
-        self.calculate_exit_coordinates()
-
-        # exit_1 = self.select_random_exit()
-        self.agent_white.done = False
-        self.agent_black.done = False
+        self._place_agents()
+        self._assign_colors()
         self.add_objects()
 
-        obs = {'white': self.generate_agent_obs(self.agent_white),
-               'black': self.generate_agent_obs(self.agent_black)}
+        self.agents[0].reset()
+        self.agents[1].reset()
+
+        obs = {self.agents[0]: self.generate_agent_obs(self.agents[0]),
+               self.agents[1]: self.generate_agent_obs(self.agents[1])}
 
         return obs
 
     def add_objects(self):
-        self.add_object(ElementsEnv.EXIT_DIFFICULT, self.exit_1.coordinates)
-        self.add_object(ElementsEnv.BOULDER, self.exit_1.surrounding_1)
-        self.add_object(ElementsEnv.BOULDER, self.exit_1.surrounding_2)
-        self.add_trees()
+        self.add_object(ElementsEnv.EXIT_EASY, self.easy_exit.coordinates)
+        self.add_object(ElementsEnv.EXIT_DIFFICULT, self.boulder_exit.coordinates)
+        self.add_object(ElementsEnv.BOULDER, self.boulder_exit.surrounding_1)
+        self.add_object(ElementsEnv.BOULDER, self.boulder_exit.surrounding_2)
+
 
 
 class DoubleExitsBoulder(Jungle):

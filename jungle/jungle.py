@@ -252,6 +252,8 @@ class Jungle(ABC):
                     self.agents[0].wood_logs = 0
                     self.agents[1].wood_logs = 0
                     self.grid_env[r, c] = ElementsEnv.EMPTY.value
+                    rew_1 +=Rewards.REWARD_BUILD_BRIDGE.value
+                    rew_0 += Rewards.REWARD_BUILD_BRIDGE.value
 
             # CLIMB Behavior if they are on the same cell
             if agent_0_climbs and not agent_1_climbs:

@@ -168,7 +168,7 @@ class Jungle(ABC):
         agent_1.reset()
         agent_2.reset()
 
-    def _place_agents(self, random_position):
+    def _place_agents(self, random_position=True):
 
         if not random_position:
             self.agents[0].position, self.agents[

@@ -1,4 +1,4 @@
-from jungle.jungles.basic import FullJungle
+from jungle.jungles.basic import FullJungle, RiverOnlyJungle , WhiteJungle, DifficultJungle
 from jungle.jungles.rl import EasyExit
 from jungle.agent import Agent
 from jungle.utils import Actions
@@ -9,7 +9,7 @@ import time
 agent_1 = Agent(range_observation=5)
 agent_2 = Agent(range_observation=5)
 
-env = FullJungle(size=15)
+env = DifficultJungle(size=15)
 env.add_agents(agent_1, agent_2)
 
 t0 = time.time()

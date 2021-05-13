@@ -11,13 +11,13 @@ from ray.rllib.utils.annotations import override
 from ray.rllib.utils.typing import MultiAgentDict, PolicyID, AgentID
 from jungle.jungles.rl import RiverExit, BoulderExit, EasyExit, RiverExitWRivers
 from jungle.utils import ElementsEnv, Actions, Rewards
-from jungle.observations import restrict_observations
+
 from jungle.agent import Agent
 from jungle import jungle
 from jungle.jungles import basic, rl
 import numpy as np
 import ipdb
-from jungle.helpers.helper_functions import normalize
+
 
 
 class RLlibWrapper(MultiAgentEnv):
@@ -122,7 +122,7 @@ class RLlibWrapper(MultiAgentEnv):
 
         obs, rewards, done = self.convert_to_wrapper_agents(obs, rewards, done)
 
-
+        
 
         return obs, rewards, done, info
 

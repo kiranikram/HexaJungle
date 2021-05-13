@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     # Get obs- and action Spaces.
     # config = {'jungle': 'RiverExit', 'size': 11}
-    config = {'jungle': 'BoulderExit', 'size': 9}
+    config = {'jungle': 'EasyExit', 'size': 9}
     single_env = RLlibWrapper(config)
 
     obs_space = single_env.observation_space
@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
     config = {
         "env": RLlibWrapper,
-        "env_config": {'jungle': 'BoulderExit', "size": 9},
+        "env_config": {'jungle': 'EasyExit', "size": 9},
         "no_done_at_end": False,
         # "lr": tune.grid_search([1e-4, 1e-6]),
         "horizon": 2500,
@@ -95,7 +95,7 @@ if __name__ == "__main__":
             # "use_attention": True,
 
         },
-        "explore":True,
+        #"explore":True,
         #"exploration_config":{
             #"type": "Curiosity",
             #"eta": 1.0,  # Weight for intrinsic rewards before being added to extrinsic ones.
@@ -114,9 +114,9 @@ if __name__ == "__main__":
             #"sub_exploration":{
                # "type": "StochasticSampling",
             #}
-        "exploration_config":{
-            "type": "StochasticSampling"
-        },
+        #"exploration_config":{
+            #"type": "StochasticSampling"
+        #},
         "framework": args.framework,
     }
     stop = {

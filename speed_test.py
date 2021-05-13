@@ -58,6 +58,8 @@ actions = {
 #
 # for o in obs:
 # print(o, o.position, o.angle, obs[o])
+print(obs)
 plt.imshow(env.display() / 255.)
 plt.show()
+
 # print(env.agent_black.position)

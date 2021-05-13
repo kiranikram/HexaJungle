@@ -682,7 +682,9 @@ class Jungle(ABC):
             for i in range(len(line_obs)):
 
                 # if there is an occlusion
-                if line_obs[i] == -1 or line_obs[i] != ElementsEnv.EMPTY.value:
+                if line_obs[i] == -1 or (
+                        line_obs[i] != ElementsEnv.EMPTY.value
+                        and line_obs[i] != ElementsEnv.RIVER.value):
 
                     middle = int((len(line_obs) - 1) / 2)
 

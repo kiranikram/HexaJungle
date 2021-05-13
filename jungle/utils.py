@@ -20,32 +20,44 @@ class ElementsEnv(Enum):
     BRIDGE = auto()
     AGENT = auto()
 
-display_dict = {
-    ElementsEnv.EMPTY.value:  '.',
+
+str_dict = {
+    ElementsEnv.EMPTY.value: '.',
     ElementsEnv.EXIT_EASY.value: 'e',
     ElementsEnv.EXIT_DIFFICULT.value: 'E',
-    ElementsEnv.EXIT_WHITE.value: 'EW',
-    ElementsEnv.EXIT_BLACK.value: 'EB',
-    ElementsEnv.RIVER.value : 'R',
-    ElementsEnv.BOULDER.value : 'B',
-    ElementsEnv.TREE.value : 'T',
-    ElementsEnv.OBSTACLE.value : 'X'
+    ElementsEnv.EXIT_WHITE.value: 'E',
+    ElementsEnv.EXIT_BLACK.value: 'E',
+    ElementsEnv.RIVER.value: 'R',
+    ElementsEnv.BOULDER.value: 'B',
+    ElementsEnv.TREE.value: 'T',
+    ElementsEnv.OBSTACLE.value: 'X'
 }
+
+display_dict = {
+    ElementsEnv.EMPTY.value: [150, 250, 150],
+    ElementsEnv.EXIT_EASY.value: [100, 30, 30],
+    ElementsEnv.EXIT_DIFFICULT.value: [250, 30, 30],
+    ElementsEnv.EXIT_WHITE.value: [255, 255, 255],
+    ElementsEnv.EXIT_BLACK.value: [0, 0, 0],
+    ElementsEnv.RIVER.value: [175, 238, 238],
+    ElementsEnv.BOULDER.value: [205, 133, 63],
+    ElementsEnv.TREE.value: [34, 139, 34],
+    ElementsEnv.OBSTACLE.value: [140, 70, 20]
+}
+
 
 class Rewards(Enum):
     # bring all in range of (-10,10)
     REWARD_COLLISION = -1
     REWARD_CUT_TREE = -2
     REWARD_EXIT_LOW = 25
-    # changed from 50
-    REWARD_EXIT_AVERAGE = 100
-    REWARD_EXIT_HIGH = 200
-    REWARD_EXIT_VERY_HIGH = 200
-    # changed from -100
-    REWARD_DROWN = -50
+    REWARD_EXIT_AVERAGE = 50
+    REWARD_EXIT_HIGH = 75
+    REWARD_EXIT_VERY_HIGH = 100
+    REWARD_DROWN = -100
     REWARD_FELL = -2
     REWARD_CARRYING = -3
-    REWARD_BUILD_BRIDGE = 50
+
 
 # Just an Actions definition with enum is sufficient.
 # Their effect will be decided in the code

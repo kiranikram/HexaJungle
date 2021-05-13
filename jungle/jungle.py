@@ -4,19 +4,25 @@ Jungle deals with environment creation and interactions between agents
 and elements.
 """
 
+from inspect import Signature
 from typing import Tuple, Union, List
 
 from abc import ABC, abstractmethod
 from copy import deepcopy
 import random
+import math
 
 from collections import namedtuple
 
 import numpy as np
+from skimage.draw import polygon, polygon_perimeter
 
 from jungle.agent import Agent
-from jungle.utils import (ElementsEnv, Actions, Rewards, display_dict,
-                          MIN_SIZE_ENVIR, MAX_WOOD_LOGS, BLACK, WHITE)
+from jungle.utils import (ElementsEnv, Actions, Rewards, str_dict,
+                          display_dict, MIN_SIZE_ENVIR, MAX_WOOD_LOGS, BLACK,
+                          WHITE)
+
+SIZE_HEX = 40
 
 Exit = namedtuple('Exit', ['coordinates', 'surrounding_1', 'surrounding_2'])
 
@@ -76,6 +82,99 @@ class Jungle(ABC):
     @abstractmethod
     def _set_elements(self):
         pass
+
+    def display(self):
+
+        width_img = int(SIZE_HEX * math.sqrt(3) * (self.size))
+        height_img = int(SIZE_HEX * (3 / 2. * self.size + 1 / 2.))
+
+        img = np.zeros((height_img, width_img, 3))
+        img[:, :, :] = [150, 250, 150]
+
+        for row in range(self.size):
+
+            center_x = (1 + 1.5 * row) * SIZE_HEX
+
+            for col in range(self.size):
+                elem = self.grid_env[row, col]
+
+                center_y = math.sqrt(3) * (col)
+
+                if row % 2 == 1:
+                    center_y += math.sqrt(3) / 2.
+
+                center_y *= SIZE_HEX
+
+                if not (row % 2 == 0 and col == 0):
+                    self._draw_hexa_element(img, (center_x, center_y), elem)
+
+        agent_1, agent_2 = self.agents
+
+        self._draw_agent(img, agent_1)
+        self._draw_agent(img, agent_2)
+
+        return img
+
+    def _draw_hexa_element(self, img, center, element):
+
+        edge_angles = [math.pi / 3 * (edge_index) for edge_index in range(6)]
+        edges = [(SIZE_HEX * math.cos(angle), SIZE_HEX * math.sin(angle))
+                 for angle in edge_angles]
+        edges_r = [x + center[0] for x, _ in edges]
+        edges_c = [y + center[1] for _, y in edges]
+
+        rows, cols = polygon(edges_r, edges_c, img.shape)
+
+        if element in [
+                ElementsEnv.EXIT_BLACK.value, ElementsEnv.EXIT_WHITE.value,
+                ElementsEnv.EXIT_EASY.value, ElementsEnv.EXIT_DIFFICULT.value
+        ]:
+
+            # Draw background for exit
+            color = [255, 0, 0]
+            img[rows, cols, :] = color
+
+            # Draw inside for type of exit
+            edges = [(SIZE_HEX / 2 * math.cos(angle),
+                      SIZE_HEX / 2 * math.sin(angle)) for angle in edge_angles]
+            edges_r_in = [x + center[0] for x, _ in edges]
+            edges_c_in = [y + center[1] for _, y in edges]
+
+            rows_in, cols_in = polygon(edges_r_in, edges_c_in, img.shape)
+
+            img[rows_in, cols_in, :] = display_dict[element]
+
+        else:
+            img[rows, cols, :] = display_dict[element]
+
+        rows_per, cols_per = polygon_perimeter(edges_r, edges_c, img.shape)
+        img[rows_per, cols_per, :] = [0, 0, 0]
+
+    def _draw_agent(self, img, agent):
+
+        r, c = agent.position
+        color = agent.color
+
+        center_x = (1 + 1.5 * r) * SIZE_HEX
+
+        center_y = math.sqrt(3) * c
+        if r % 2 == 1:
+            center_y += math.sqrt(3) / 2.
+            center_y *= SIZE_HEX
+
+        edge_angles = [
+            math.pi / 2 - agent.angle * math.pi / 3 + 2 * math.pi / 3 *
+            (edge_index) for edge_index in range(3)
+        ]
+        edges = [(SIZE_HEX / 2 * math.cos(angle),
+                  SIZE_HEX / 2 * math.sin(angle)) for angle in edge_angles]
+
+        edges_r = [x + center_x for x, _ in edges]
+        edges_c = [y + center_y for _, y in edges]
+
+        rows, cols = polygon(edges_r, edges_c, img.shape)
+
+        img[rows, cols, :] = 255 * color
 
     def _calculate_exit_coordinates(self):
 
@@ -150,7 +249,7 @@ class Jungle(ABC):
 
                 else:
                     element = self.grid_env[row, col]
-                    line_repr = display_dict[element]
+                    line_repr = str_dict[element]
 
                 line += "{0:3}".format(line_repr)
 

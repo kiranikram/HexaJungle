@@ -32,11 +32,11 @@ class EasyExit(Jungle):
         self.add_object(ElementsEnv.EXIT_EASY, self.exit_1.coordinates)
 
 
-
 class RiverExit(Jungle):
 
     def _set_exits(self):
         self.exit_1 = self.select_random_exit()
+        self.free_exit = self.select_random_exit()
 
         self.add_objects()
 
@@ -66,6 +66,7 @@ class RiverExit(Jungle):
         self.add_object(ElementsEnv.EXIT_DIFFICULT, self.exit_1.coordinates)
         self.add_object(ElementsEnv.RIVER, self.exit_1.surrounding_1)
         self.add_object(ElementsEnv.RIVER, self.exit_1.surrounding_2)
+        self.add_object(ElementsEnv.EXIT_EASY, self.free_exit.coordinates)
 
 
 class RiverExitWRivers(Jungle):
@@ -369,8 +370,6 @@ class WhiteFavouredSimple(Jungle):
 
         return obs
 
-
-
     def add_objects(self):
         self.add_object(ElementsEnv.EXIT_WHITE, self.white_exit.coordinates)
         self.add_object(ElementsEnv.EXIT_EASY, self.free_exit.coordinates)
@@ -378,6 +377,46 @@ class WhiteFavouredSimple(Jungle):
         self.add_object(ElementsEnv.BOULDER, self.white_exit.surrounding_1)
         self.add_object(ElementsEnv.BOULDER, self.white_exit.surrounding_2)
 
+
+class BlackRiver(Jungle):
+
+    def _set_exits(self):
+        self.black_exit = self.select_random_exit()
+
+        # low reward for both
+        self.river_exit = self.select_random_exit()
+
+        self.add_objects()
+
+    def _set_elements(self):
+        quantity_trees = int((self.size - 2) ** 2 / 2)
+
+        for i in range(quantity_trees):
+            r, c = self.get_random_empty_location()
+            self.grid_env[r, c] = ElementsEnv.TREE.value
+
+    def reset(self):
+        self.grid_env[:] = deepcopy(self._initial_grid)
+
+        self._place_agents()
+        self._assign_colors()
+        self.add_objects()
+
+        self.agents[0].reset()
+        self.agents[1].reset()
+
+        obs = {self.agents[0]: self.generate_agent_obs(self.agents[0]),
+               self.agents[1]: self.generate_agent_obs(self.agents[1])}
+
+        return obs
+
+    def add_objects(self):
+        self.add_object(ElementsEnv.EXIT_BLACK, self.black_exit.coordinates)
+        self.add_object(ElementsEnv.EXIT_DIFFICULT, self.river_exit.coordinates)
+        self.add_object(ElementsEnv.RIVER, self.river_exit.surrounding_1)
+        self.add_object(ElementsEnv.RIVER, self.river_exit.surrounding_2)
+        self.add_object(ElementsEnv.BOULDER, self.black_exit.surrounding_1)
+        self.add_object(ElementsEnv.BOULDER, self.black_exit.surrounding_2)
 
 
 """Three exits. BOULDER is good for both.

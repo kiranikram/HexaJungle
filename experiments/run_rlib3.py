@@ -68,11 +68,12 @@ if __name__ == "__main__":
             return policy_ids[1]
 
 
+    #higher reward
     config = {
         "env": RLlibWrapper,
         "env_config": {'jungle': 'BlackRiver', "size": 9},
         "no_done_at_end": False,
-        # "lr": tune.grid_search([1e-4, 1e-6]),
+
         "horizon": 2500,
         "output": "logdir",
         "num_workers": 0,
@@ -124,6 +125,10 @@ if __name__ == "__main__":
         "timesteps_total": args.stop_timesteps,
         "training_iteration": args.stop_iters,
     }
+
+
+    results = tune.run("PPO", stop=stop, config=config,  verbose=1)
+
 
     results = tune.run("PPO", stop=stop, config=config, local_dir=args.logdir, verbose=1)
 

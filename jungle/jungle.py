@@ -15,7 +15,7 @@ import math
 from collections import namedtuple
 
 import numpy as np
-from skimage.draw import polygon, polygon_perimeter
+#from skimage.draw import polygon, polygon_perimeter
 
 from jungle.agent import Agent
 from jungle.utils import (ElementsEnv, Actions, Rewards, str_dict,

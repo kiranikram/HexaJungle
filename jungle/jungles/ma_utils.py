@@ -22,3 +22,8 @@ def create_starting_positions(size, num_players):
     all_positions = even_positions + odd_positions
 
     return all_positions
+
+# def create_starting_angles(num_players):
+#
+#     available_angles = [0,2,4,1,3,5,0,2,4,1,3,5]
+
